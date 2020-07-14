@@ -50,7 +50,8 @@
 %    This code has been adapted from David Carlisle's \pkg{remreset}. We
 %    load that here only to prevent it from being loaded again.
 %    \begin{macrocode}
-\RequirePackage{remreset}
+% FMi 2019-07-31 \@removereset is in the kernel these days
+\@ifundefined{@removefromreset}{\RequirePackage{remreset}}{}
 \renewcommand*\@removefromreset[2]{\bgroup
   \edef\aliasctr@@truelist{\aliasctr@follow{#2}}%
   \expandafter\let\csname c@#1\endcsname\@removefromreset

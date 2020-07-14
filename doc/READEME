@@ -12,5 +12,10 @@ a \listoftheorem command
 hyperref/autoref compatibility
 a way of restating entire theorems with a single macro call
 
-License: LPPL 1.3a; maintained by ulmi@absatzen.de
+License: LPPL 1.3c
+
+Currently the package has no maintainer.
+Previous Maintainer was Ulrich M. Schwarz, ulmi@absatzen.de
+
+
 $Id: README,v 1.1 2008/02/17 21:13:58 ulmi Exp ulmi $

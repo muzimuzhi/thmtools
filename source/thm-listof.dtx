@@ -35,6 +35,8 @@
 %  \item[ignoreall]
 %  \item[showall] Like applying ignore or show with a list of all theorems
 %    you have defined.
+%  \item[title]
+%    Provide a title for this list overwriting the default in |\listtheoremname|.
 % \end{description}
 %
 % \DescribeMacro{\listtheoremname}
@@ -116,6 +118,9 @@
 \define@key{thmt-listof}{show}[\thmt@allenvs]{\showtheorems{#1}}
 \define@key{thmt-listof}{ignoreall}[true]{\ignoretheorems{\thmt@allenvs}}
 \define@key{thmt-listof}{showall}[true]{\showtheorems{\thmt@allenvs}}
+% FMi 2019-09-31 allow local title
+\define@key{thmt-listof}{title}{\def\listtheoremname{#1}}
+% -- FMi
 
 \providecommand\thmt@listnumwidth{2.3em}
 

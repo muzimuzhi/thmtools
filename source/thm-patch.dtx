@@ -80,7 +80,10 @@
       \csname thmt@#1@postheadhook\endcsname
       \thmt@generic@postheadhook
       \thmt@local@postheadhook
-      \let\@parsecmd\@empty
+%FMi 2019-07-31
+%      \let\@parsecmd\@empty
+      \let\@parsecmd\ignorespaces
+%FMi ---      
     }%
   }%
 }%
