@@ -86,7 +86,7 @@
 %
 %\StopEventually{}
 %    \begin{macrocode}
-
+\RequirePackage{thmtools}
 \let\@xa\expandafter
 \let\@nx\noexpand
 \@ifundefined{c@thmt@dummyctr}{%
@@ -142,16 +142,16 @@
 \def\thmt@counterformatters{%
   @alph,@Alph,@arabic,@roman,@Roman,@fnsymbol}
 
-\@for\displ:=\thmt@counterformatters\do{%
-  \@xa\let\csname thmt@\displ\@xa\endcsname\csname \displ\endcsname
+\@for\thmt@displ:=\thmt@counterformatters\do{%
+  \@xa\let\csname thmt@\thmt@displ\@xa\endcsname\csname \thmt@displ\endcsname
 }%
 \def\thmt@sanitizethe#1{%
-  \@for\displ:=\thmt@counterformatters\do{%
-    \@xa\protected@edef\csname\displ\endcsname##1{%
+  \@for\thmt@displ:=\thmt@counterformatters\do{%
+    \@xa\protected@edef\csname\thmt@displ\endcsname##1{%
       \@nx\ifx\@xa\@nx\csname c@#1\endcsname ##1%
-        \@xa\protect\csname \displ\endcsname{##1}%
+        \@xa\protect\csname \thmt@displ\endcsname{##1}%
       \@nx\else
-        \@nx\csname thmt@\displ\endcsname{##1}%
+        \@nx\csname thmt@\thmt@displ\endcsname{##1}%
       \@nx\fi
     }%
   }%
@@ -165,18 +165,20 @@
   \bgroup
         % ugly hack: save chapter,..subsection numbers
         % for equation numbers.
-  \refstepcounter{thmt@dummyctr}% why is this here?
+  %\refstepcounter{thmt@dummyctr}% why is this here?
+  %% temporarily disabled, broke autorefname.
   \def\@currentlabel{}%
-  \@for\ctr:=\thmt@innercounters\do{%
-    \thmt@sanitizethe{\ctr}%
+  \@for\thmt@ctr:=\thmt@innercounters\do{%
+    \thmt@sanitizethe{\thmt@ctr}%
     \protected@edef\@currentlabel{%
       \@currentlabel
-      \protect\def\@xa\protect\csname the\ctr\endcsname{\csname the\ctr\endcsname}%
-      \ifcsname theH\ctr\endcsname
-        \protect\def\@xa\protect\csname theH\ctr\endcsname{%
-          (restate \protect\theHthmt@dummyctr)\csname theH\ctr\endcsname}%
+      \protect\def\@xa\protect\csname the\thmt@ctr\endcsname{%
+        \csname the\thmt@ctr\endcsname}%
+      \ifcsname theH\thmt@ctr\endcsname
+        \protect\def\@xa\protect\csname theH\thmt@ctr\endcsname{%
+          (restate \protect\theHthmt@dummyctr)\csname theH\thmt@ctr\endcsname}%
       \fi
-      \protect\setcounter{\ctr}{\number\csname c@\ctr\endcsname}%
+      \protect\setcounter{\thmt@ctr}{\number\csname c@\thmt@ctr\endcsname}%
     }%
   }%
   \label{thmt@@#1@data}%
@@ -228,10 +230,10 @@
         % of the environment, so we get
         % (4.2) [(3.1 from restate)] (4.3)
         \def\thmt@restorecounters{}%
-        \@for\ctr:=\thmt@innercounters\do{%
+        \@for\thmt@ctr:=\thmt@innercounters\do{%
           \protected@edef\thmt@restorecounters{%
             \thmt@restorecounters
-            \protect\setcounter{\ctr}{\arabic{\ctr}}%
+            \protect\setcounter{\thmt@ctr}{\arabic{\thmt@ctr}}%
           }%
         }%
         % pull the new semi-static definition of \theequation et al.
@@ -239,7 +241,12 @@
         \thmt@trivialref{thmt@@#3@data}{}%
       \fi
       % call the proper begin-env code, possibly with optional argument      
-      \csname #2\@xa\endcsname\ifx\@nx#1\@nx\else[{#1}]\fi
+      % (omit if stored via key-val)
+      \ifthmt@restatethis
+        \thmt@restatethisfalse
+      \else
+        \csname #2\@xa\endcsname\ifx\@nx#1\@nx\else[{#1}]\fi
+      \fi
       \ifthmt@thisistheone
         % store a label so we can pick up the number later.
         \label{thmt@@#3}%
@@ -271,6 +278,44 @@
 }{%
   \endthmt@restatable
 }
+
+%%% support for keyval-style: restate=foobar
+\protected@edef\thmt@thmuse@families{%
+ \thmt@thmuse@families%
+ ,restate phase 1%
+ ,restate phase 2%
+}
+
+\newif\ifthmt@restatethis
+\define@key{restate phase 1}{restate}{%
+  \thmt@debug{we will restate as #1}%
+  \@namedef{thmt@unusedkey@restate}{}%
+  % spurious "unused key" fixes itself once we are after tracknames...
+  \thmt@restatethistrue
+  \def\thmt@storedoptargs{}%
+  \def\thmt@storename{#1}%
+  \protected@edef\tmp@a{%
+    \@nx\thmt@thisistheonetrue
+    \@nx\@xa\@nx\thmt@restatable\@nx\@xa[\@nx\thmt@storedoptargs]%
+      {\thmt@envname}{\thmt@storename}%
+  }%
+  \@xa\g@addto@macro\@xa\thmt@local@postheadhook\@xa{%
+    \tmp@a
+  }%
+}
+\thmt@mkignoringkeyhandler{restate phase 1}
+
+\define@key{restate phase 2}{restate}{%
+  % do not store restate as a key for repetition:
+  % infinite loop.
+}
+\kv@set@family@handler{restate phase 2}{%
+  \ifthmt@restatethis
+  \@xa\@xa\@xa\g@addto@macro\@xa\@xa\@xa\thmt@storedoptargs\@xa\@xa\@xa{%
+    \@xa\kv@key\@xa=\kv@value,}%
+  \fi
+}
+
 %    \end{macrocode}
 %\iffalse
 %</restate>

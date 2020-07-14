@@ -20,7 +20,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-kv}[2010/07/05 v41]
+\ProvidesPackage {thm-kv}[2010/07/11 v43]
 
 \let\@xa\expandafter
 \let\@nx\noexpand
@@ -127,20 +127,20 @@
   \fi
 }
 
-\@for\keyname:=parent,numberwithin,within\do{%
-\define@key{thmdef}{\keyname}{\thmt@trytwice{\thmt@setparent{#1}}{}}%
+\@for\tmp@keyname:=parent,numberwithin,within\do{%
+\define@key{thmdef}{\tmp@keyname}{\thmt@trytwice{\thmt@setparent{#1}}{}}%
 }
 
-\@for\keyname:=sibling,numberlike,sharenumber\do{%
-\define@key{thmdef}{\keyname}{\thmt@trytwice{\thmt@setsibling{#1}}{}}%
+\@for\tmp@keyname:=sibling,numberlike,sharenumber\do{%
+\define@key{thmdef}{\tmp@keyname}{\thmt@trytwice{\thmt@setsibling{#1}}{}}%
 }
 
-\@for\keyname:=title,name,heading\do{%
-\define@key{thmdef}{\keyname}{\thmt@trytwice{\thmt@setthmname{#1}}{}}%
+\@for\tmp@keyname:=title,name,heading\do{%
+\define@key{thmdef}{\tmp@keyname}{\thmt@trytwice{\thmt@setthmname{#1}}{}}%
 }
 
-\@for\keyname:=unnumbered,starred\do{%
-\define@key{thmdef}{\keyname}[]{\thmt@trytwice{\thmt@isnumberedfalse}{}}%
+\@for\tmp@keyname:=unnumbered,starred\do{%
+\define@key{thmdef}{\tmp@keyname}[]{\thmt@trytwice{\thmt@isnumberedfalse}{}}%
 }
 
 \def\thmt@YES{yes}

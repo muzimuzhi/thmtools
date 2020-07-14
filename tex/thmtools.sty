@@ -20,7 +20,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thmtools}[2010/07/05 v41]
+\ProvidesPackage {thmtools}[2010/07/11 v43]
 \DeclareOption{debug}{%
   \def\thmt@debug{\typeout}%
 }
@@ -30,8 +30,8 @@
 \def\thmt@quark{\thmt@quark}
 \newtoks\thmt@toks
 
-\@for\opt:=lowercase,uppercase,anycase\do{%
-  \@xa\DeclareOption\@xa{\opt}{%
+\@for\thmt@opt:=lowercase,uppercase,anycase\do{%
+  \@xa\DeclareOption\@xa{\thmt@opt}{%
     \@xa\PassOptionsToPackage\@xa{\CurrentOption}{thm-kv}%
   }%
 }

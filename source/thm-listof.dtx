@@ -156,22 +156,22 @@
 }
 
 \newcommand\showtheorems[1]{%
-  \@for\thm:=#1\do{%
-    \typeout{showing \thm}%
-    \@xa\let\csname thmt@contentsline@\thm\endcsname
+  \@for\thmt@thm:=#1\do{%
+    \typeout{showing \thmt@thm}%
+    \@xa\let\csname thmt@contentsline@\thmt@thm\endcsname
       =\thmt@contentslineShow
   }%
 }
 
 \newcommand\ignoretheorems[1]{%
-  \@for\thm:=#1\do{%
-    \@xa\let\csname thmt@contentsline@\thm\endcsname
+  \@for\thmt@thm:=#1\do{%
+    \@xa\let\csname thmt@contentsline@\thmt@thm\endcsname
       =\thmt@contentslineIgnore
   }%
 }
 \newcommand\onlynamedtheorems[1]{%
-  \@for\thm:=#1\do{%
-    \global\@xa\let\csname thmt@contentsline@\thm\endcsname
+  \@for\thmt@thm:=#1\do{%
+    \global\@xa\let\csname thmt@contentsline@\thmt@thm\endcsname
       =\thmt@contentslineIfNamed
   }%
 }

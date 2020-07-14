@@ -38,8 +38,8 @@
 \def\thmt@quark{\thmt@quark}
 \newtoks\thmt@toks
 
-\@for\opt:=lowercase,uppercase,anycase\do{%
-  \@xa\DeclareOption\@xa{\opt}{%
+\@for\thmt@opt:=lowercase,uppercase,anycase\do{%
+  \@xa\DeclareOption\@xa{\thmt@opt}{%
     \@xa\PassOptionsToPackage\@xa{\CurrentOption}{thm-kv}%
   }%
 }
