@@ -62,7 +62,7 @@
 \ifcsname c@chapter\endcsname
   \ifx\c@chapter\relax\else
     \def\thmtlo@chaptervspacehack{%
-      \ifnum \value{chapter}>\thmtlo@oldchapter\relax
+      \ifnum \value{chapter}=\thmtlo@oldchapter\relax\else
         % new chapter, add vspace to loe.
         \addtocontents{loe}{\protect\addvspace{10\p@}}%
         \xdef\thmtlo@oldchapter{\arabic{chapter}}%

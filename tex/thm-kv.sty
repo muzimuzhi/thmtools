@@ -20,7 +20,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-kv}[2011/11/27 v62]
+\ProvidesPackage {thm-kv}[2012/05/04 v63]
 
 \let\@xa\expandafter
 \let\@nx\noexpand
@@ -71,7 +71,47 @@
  \fi
 }
 
-\@ifpackagelater{kvsetkeys}{2011/04/06}{%
+\@ifpackagelater{kvsetkeys}{2012/04/23}{%
+  \PackageInfo{thm-kv}{kvsetkeys patch (v1.16 or later)}%
+  \long\def\tmp@KVS@PD#1#2#3{%
+    \def \kv@fam {#1}%
+    \unless \ifcsname KV@#1@#2\endcsname
+      \unless \ifcsname KVS@#1@handler\endcsname
+        \kv@error@unknownkey {#1}{#2}%
+      \else
+        \kv@handled@true
+        \csname KVS@#1@handler\endcsname {#2}{#3}\relax
+        \ifkv@handled@ \else
+          \kv@error@unknownkey {#1}{#2}%
+        \fi
+      \fi
+    \else
+      \ifx \kv@value \relax
+        \unless \ifcsname KV@#1@#2@default\endcsname
+          \kv@error@novalue {#1}{#2}%
+        \else
+          \csname KV@#1@#2@default\endcsname \relax
+        \fi
+      \else
+        \csname KV@#1@#2\endcsname {#3}%
+      \fi
+    \fi
+  }%
+  \ifx\tmp@KVS@PD\KVS@ProcessorDefault
+    \let\KVS@ProcessorDefault\thmt@kv@processor@default
+    \def\kv@processor@default#1#2{%
+      \begingroup
+        \csname @safe@activestrue\endcsname
+        \@xa\let\csname ifincsname\@xa\endcsname\csname iftrue\endcsname
+        \edef\KVS@temp{\endgroup
+          \noexpand\KVS@ProcessorDefault{#1}{\etex@unexpanded{#2}}%
+        }%
+        \KVS@temp
+    }%
+  \else
+    \PackageError{thm-kv}{kvsetkeys patch failed}{Try kvsetkeys v1.16 or earlier}
+  \fi
+}{\@ifpackagelater{kvsetkeys}{2011/04/06}{%
   % Patch has disappeared somewhere... thanksalot.
   \PackageInfo{thm-kv}{kvsetkeys patch (v1.13 or later)}
   \long\def\tmp@KVS@PD#1#2#3{% no non-etex-support here...
@@ -113,7 +153,7 @@
   \RequirePackage{etex}
   \PackageInfo{thm-kv}{kvsetkeys patch applied (pre-1.13)}%
   \let\kv@processor@default\thmt@kv@processor@default
-}
+}}
 
 \newcommand\thmt@mkignoringkeyhandler[1]{%
   \kv@set@family@handler{#1}{%
