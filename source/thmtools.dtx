@@ -15,7 +15,7 @@
 
 \let\pkg\textsf
 \def\thmtools{\pkg{thmtools}}
-\def\thmversion{2008/06/22 v0.1beta6}
+\def\thmversion{2010/04/05 v0.1beta13}
 
 \usepackage[T1]{fontenc}
 \usepackage[widespace]{fourier}
@@ -26,6 +26,12 @@
 \usepackage{thm-patch, thm-kv, thm-autoref, thm-listof, thm-restate}
 \declaretheorem{remark}
 \declaretheorem{lemma}
+\declaretheorem[sibling=lemma, shaded, name={Rule of Thumb}]{ruleofthumb}
+\usepackage{color}
+\declaretheorem[shaded={bgcolor={rgb}{1,0,0},rulecolor={rgb}{0,1,0},rulewidth=2em,
+   margin=1em, textwidth=5cm}]{eyesore}
+
+
 \EnableCrossrefs
 \CodelineIndex
 \RecordChanges
@@ -75,7 +81,7 @@
 %<*thmtools>
 %\fi
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thmtools}[2008/06/22 v0.1beta6 Tools for theorem typesetting (ulmi)]
+\ProvidesPackage{thmtools}[2008/07/05 v0.1beta7 Tools for theorem typesetting (ulmi)]
 \RequirePackage{thm-kv, thm-autoref, thm-listof}
 %\iffalse
 %</thmtools>

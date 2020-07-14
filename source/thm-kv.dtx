@@ -19,8 +19,14 @@
 \usepackage[scaled]{luximono}
 
 \usepackage{amsmath, amsthm}
-\usepackage{thm-kv}
+\usepackage{thm-kv, thm-patch}
 \newtheorem{lemma}{Lemma}
+\declaretheorem[sibling=lemma, shaded, name={Rule of Thumb}]{ruleofthumb}
+\usepackage{color}
+\declaretheorem[shaded={bgcolor={rgb}{1,0,0},rulecolor={rgb}{0,1,0},rulewidth=2em,
+   margin=1em, textwidth=5cm}]{eyesore}
+
+
 \GetFileInfo{thm-kv.sty}
 \providecommand\pkg{\textsf}
 \EnableCrossrefs
@@ -107,15 +113,63 @@
 %    Note that currently, no care is taken to prevent this from becoming the
 %    default style for subsequent theorems.
 %\end{description}
+% 
+% \subsection{Examples}
+% In many cases, you'll just get by with
+% \begin{verbatim}
+%  \declaretheorem{lemma}   
+% \end{verbatim}
+% which creates the environment `lemma', which will be labeled `Lemma' and
+% numbered consecutively throughout:
+%\begin{lemma}
+%  This is what it looks like.
+%\end{lemma}
+% If you have more environments, you
+% might want
+% \begin{verbatim}
+%  \declaretheorem[sibling=lemma]{theorem} 
+% \end{verbatim}
+% which will make the theorems share the numbering with the lemmas. If you
+% had wanted per-chapter numbering for everything, you would have said
+%\begin{verbatim}
+%  \declaretheorem[parent=chapter]{lemma}
+%\end{verbatim}
+% without need to change subsequent declarations. A very fancy declaration
+% using the shadethm and thm-patch package would look like this:
+%\begin{verbatim}
+%  \declaretheorem[sibling=theorem, shaded, name={Rule of Thumb}]{ruleofthumb}
+%\end{verbatim}
+%
+%\begin{ruleofthumb}
+% If all else fails, read the manual. Usually all else fails because you
+% didn't.   
+% \end{ruleofthumb}
+%
+% You can customize the colors and border like this:
+%\begin{verbatim}
+%\declaretheorem[shaded={bgcolor={rgb}{1,0,0},rulecolor={rgb}{0,1,0},rulewidth=2em,
+%   margin=1em, textwidth=5cm}]{eyesore}
+%\end{verbatim}
+%\begin{eyesore}
+%  But doing that is strongly discouraged.
+%\end{eyesore}
+%
+% There is also an interface to the thmbox package: you can use |thmbox=X|, 
+% where X is one of the styles L, M, S as defined by that package.
+% (Actually, the parameter you give here is just passed on as optional
+% argument to |\newboxtheorem|, so the other parameters like headstyle are valid as well.)
+% The
+% redefinition of proof and example is suppressed unless you load the thmbox
+% package manually before you load thmtools.
 %
 %\StopEventually{}
 %\section{Implementation}
 %    \begin{macrocode}
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thm-kv}[2008/06/22 v0.1beta6 thm-kv interface (ulmi)]
+\ProvidesPackage{thm-kv}[2009/07/30 v0.1beta11 thm-kv interface (ulmi)]
 \let\@xa\expandafter
 \let\@nx\noexpand
-\usepackage{keyval}
+\RequirePackage{keyval}
 
 \define@key{thmt}{parent}{\thmt@setparent{#1}}
 \define@key{thmt}{numberwithin}{\thmt@setparent{#1}}
@@ -189,6 +243,7 @@
 %    \begin{macrocode}
   \define@key{thmt}{shaded}[{}]{%
     \RequirePackage{shadethm}%
+    \RequirePackage{thm-patch}%
     \addtotheorempreheadhook[\thmt@envname]{%
       \setlength\shadedtextwidth{\linewidth}%
       \setkeys{thmt@shade}{#1}\begin{shadebox}}%

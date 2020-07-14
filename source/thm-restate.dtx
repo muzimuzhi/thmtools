@@ -31,7 +31,7 @@
  \newcommand\thmrestate{\textsf{thm-restate}}
  \title{The \thmrestate\ package\thanks{%
    This file documents version~\fileversion\ of~\filedate,
-   RCS ${}$Id: thm-restate.dtx,v 1.12 2008/03/09 20:06:09 ulmi Exp ${}$.
+   RCS ${}$Id: thm-restate.dtx,v 1.16 2010/04/05 18:02:27 ulmi Exp ulmi ${}$.
  }}
  \author{Ulrich M. Schwarz\thanks{ulmi@absatzen.de}}
 
@@ -126,7 +126,20 @@
 %
 % \subsection{Restrictions}
 % The only counter that is saved is the one for the theorem number. So,
-% putting floats inside a restatable is not advised. You cannot nest
+% putting floats inside a restatable is not advised: they will appear in the
+% LoF several times with new numbers. 
+% Equations should work, but the code handling them might turn out to be
+% brittle, in particular when you add/remove hyperref.
+% %In the same vein, numbered equations
+% %within the statement appear again and are numbered again, with new
+% %numbers. (This is vaguely non-trivial to do correctly if equations are not
+% %numbered consecutively, but per-chapter, or there are multiple numbered
+% %equations.) 
+% Note that you cannot successfully reference the equations
+% since all labels are disabled in the starred appearance. (The reference
+% will point at the unstarred occurence.)
+%
+% You cannot nest
 % restatables either. You \emph{can} use the |\restatable|\dots|\endrestatable|
 % version, but everything up to the next matching |\end{...}| is scooped up.
 % I've also probably missed many border cases.
@@ -136,7 +149,7 @@
 %\section{Implementation}
 %    \begin{macrocode}
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thm-restate}[2008/03/09 v0.1beta2 thm-restate (ulmi)]
+\ProvidesPackage{thm-restate}[2010/04/05 v0.1beta13 thm-restate (ulmi)]
 
 \let\@xa\expandafter
 \let\@nx\noexpand
@@ -161,6 +174,35 @@
   }%
 }
 
+\def\thmt@trivialref#1{%
+  \@xa\@xa\@xa\thmt@trivi@lr@f\csname r@#1\endcsname\@nil
+}
+\def\thmt@trivi@lr@f#1#2\@nil{#1}
+
+\def\thmt@innercounters{%
+  equation}
+\def\thmt@counterformatters{%
+  @alph,@Alph,@arabic,@roman,@Roman,@fnsymbol}
+
+\@for\displ:=\thmt@counterformatters\do{%
+  \@xa\let\csname thmt@\displ\@xa\endcsname\csname \displ\endcsname
+}%
+\def\thmt@sanitizethe#1{%
+  \@for\displ:=\thmt@counterformatters\do{%
+    \@xa\protected@edef\csname\displ\endcsname##1{%
+      \@nx\ifx\@xa\@nx\csname c@#1\endcsname ##1%
+        \@xa\protect\csname \displ\endcsname{##1}%
+      \@nx\else
+        \@nx\csname thmt@\displ\endcsname{##1}%
+      \@nx\fi
+    }%
+  }%
+  \expandafter\protected@edef\csname the#1\endcsname{\csname the#1\endcsname}%
+  \ifcsname theH#1\endcsname
+    \expandafter\protected@edef\csname theH#1\endcsname{\csname theH#1\endcsname}%
+  \fi
+}
+
 \newif\ifthmt@thisistheone
 \newenvironment{thmt@restatable}[3][]{%
   \long\def\thmrst@store##1{%
@@ -173,12 +215,40 @@
     }%
     \@xa\long\@xa\gdef\csname thmt@stored@#3\@xa\endcsname\@xa{%
       \begingroup
-      \ifthmt@thisistheone\else
+      \ifthmt@thisistheone
+        \bgroup
+        % ugly hack: save chapter,..subsection numbers
+        % for equation numbers.
+        \refstepcounter{thmt@dummyctr}%
+        \def\@currentlabel{}%
+        \@for\ctr:=\thmt@innercounters\do{%
+          \thmt@sanitizethe{\ctr}%
+          \protected@edef\@currentlabel{%
+            \@currentlabel
+            \protect\def\@xa\protect\csname the\ctr\endcsname{\csname the\ctr\endcsname}%
+            \ifcsname theH\ctr\endcsname
+              \protect\def\@xa\protect\csname theH\ctr\endcsname{\csname theH\ctr\endcsname}%
+            \fi
+            \protect\setcounter{\ctr}{\number\csname c@\ctr\endcsname}%
+          }%
+        }%
+        \label{thmt@@#3@data}%
+        \egroup
+      \else
         \@xa\protected@edef\csname the#2\endcsname{%
-          \ifx\@refstar\@undefined\@xa\ref\else\@xa\@refstar\fi{thmt@@#3}}%
+          \thmt@trivialref{thmt@@#3}}%
         \@xa\let\csname c@#2\endcsname=\c@thmt@dummyctr
         \@xa\let\csname theH#2\endcsname=\theHthmt@dummyctr
         \let\label=\@gobble
+        \let\ltx@label=\@gobble% amsmath needs this
+        \def\thmt@restorecounters{}%
+        \@for\ctr:=\thmt@innercounters\do{%
+          \protected@edef\thmt@restorecounters{%
+            \thmt@restorecounters
+            \protect\setcounter{equation}{\arabic{equation}}%
+          }%
+        }
+        \thmt@trivialref{thmt@@#3@data}%
       \fi
       %\def\@currenvir{#2}%
       \csname #2\@xa\endcsname\ifx\@nx#1\@nx\else[#1]\fi
@@ -187,6 +257,7 @@
       \fi
       ##1
       \csname end#2\endcsname
+      \ifthmt@thisistheone\else\thmt@restorecounters\fi
       \endgroup
     }%
     \csname #3\@xa\endcsname\ifthmt@thisistheone\else*\fi
@@ -196,6 +267,7 @@
 }{%
   %% now empty, just used as a marker.
 }
+
 \newenvironment{restatable}{%
   \thmt@thisistheonetrue\thmt@restatable
 }{%

@@ -19,10 +19,10 @@
 %% http://www.latex-project.org/lppl/lppl-1-3a.txt
 %% 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thm-kv}[2008/06/22 v0.1beta6 thm-kv interface (ulmi)]
+\ProvidesPackage{thm-kv}[2009/07/30 v0.1beta11 thm-kv interface (ulmi)]
 \let\@xa\expandafter
 \let\@nx\noexpand
-\usepackage{keyval}
+\RequirePackage{keyval}
 
 \define@key{thmt}{parent}{\thmt@setparent{#1}}
 \define@key{thmt}{numberwithin}{\thmt@setparent{#1}}
@@ -88,6 +88,7 @@
 }
   \define@key{thmt}{shaded}[{}]{%
     \RequirePackage{shadethm}%
+    \RequirePackage{thm-patch}%
     \addtotheorempreheadhook[\thmt@envname]{%
       \setlength\shadedtextwidth{\linewidth}%
       \setkeys{thmt@shade}{#1}\begin{shadebox}}%

@@ -48,7 +48,7 @@
 \newcommand\parseOpt[4]{%
   %\parseOpt{openchar}{closechar}{yes}{no}
   \def\@parsecmd{%
-    \@ifnextchar#1{\@@reallyparse}{#4\@parse}
+    \@ifnextchar#1{\@@reallyparse}{#4\@parse}%
   }%
   \def\@@reallyparse#1##1#2{%
     #3\@parse

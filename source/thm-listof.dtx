@@ -31,7 +31,7 @@
  \newcommand\thmlistof{\textsf{thm-listof}}
  \title{The \thmlistof\ package\thanks{%
    This file documents version~\fileversion\ of~\filedate,
-   RCS ${}$Id: thm-listof.dtx,v 1.8 2008/05/10 15:34:06 ulmi Exp ${}$.
+   RCS ${}$Id: thm-listof.dtx,v 1.11 2009/03/22 18:05:57 ulmi Exp ulmi ${}$.
  }}
  \author{Ulrich M. Schwarz\thanks{ulmi@absatzen.de}}
 
@@ -77,6 +77,25 @@
 % |\listoftheorems| will generate, well, a list of all theorems, lemmas,
 % etc. in your document. This list is hyperlinked if you use \pkg{hyperref},
 % and it will list the optional argument to the theorem.
+%
+% Currently, some options can be given as an optional argument keyval list:
+% \begin{description}
+%  \item[numwidth] The width allocated for the numbers, default 2.3em. Since
+%  you are more likely to have by-section numbering than with figures, this
+%  needs to be accessible.
+%  \item[ignore=foo,bar] A last-second call to |\ignoretheorems|, see below.
+%  \item[onlynamed=foo,bar] Only list those foo and bar environments that
+%    had an optional title. This weeds out unimportant definitions, for
+%    example. If no argument is given, this applies to all environments
+%    defined by |\newtheorem| and |\declaretheorem|.
+%  \item[show=foo,bar] Undo a previous |\ignoretheorems| and restore default
+%    formatting for these environments. Useful in combination with
+%    ignoreall.
+%  \item[ignoreall]
+%  \item[showall] Like applying ignore or show with a list of all theorems
+%    you have defined.
+% \end{description}
+%
 % \DescribeMacro{\listtheoremname}
 % The heading name is stored in the macro |\listtheoremname| and is
 % ``List of Theorems'' by default. All other formatting aspects are taken
@@ -95,7 +114,7 @@
 %\section{Implementation}
 %    \begin{macrocode}
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thm-listof}[2008/05/10 v0.1beta3 thm-listof (ulmi)]
+\ProvidesPackage{thm-listof}[2010/04/05 v0.1beta13 thm-listof (ulmi)]
 \let\@xa=\expandafter
 \let\@nx=\noexpand
 \RequirePackage{thm-patch}
@@ -113,37 +132,99 @@
 }
 
 \providecommand\listtheoremname{List of Theorems}
-\newcommand\listoftheorems{%
+\newcommand\listoftheorems[1][]{%
   %% much hacking here to pick up the definition from the class
   %% without oodles of conditionals.
   \bgroup
+  \setlisttheoremstyle{#1}%
   \let\listfigurename\listtheoremname
   \let\thref@starttoc\@starttoc
   \def\@starttoc##1{\thref@starttoc{loe}}%
+  % new hack: to allow multiple calls, we defer the opening of the
+  % loe file to AtEndDocument time. This is before the aux file is
+  % read back again, that is early enough.
+  % TODO: is it? crosscheck include/includeonly!
+  \@fileswfalse
+  \AtEndDocument{%
+    \if@filesw
+      \@ifundefined{tf@loe}{%
+        \expandafter\newwrite\csname tf@loe\endcsname
+        \immediate\openout \csname tf@loe\endcsname \jobname.loe\relax
+      }{}%
+    \fi
+  }%
   \expandafter\listoffigures
   \egroup
 }
 
+\newcommand\setlisttheoremstyle[1]{%
+  \setkeys{thmt-listof}{#1}%
+}
+\define@key{thmt-listof}{numwidth}{\def\thmt@listnumwidth{#1}}
+\define@key{thmt-listof}{ignore}[\thmt@allenvs]{\ignoretheorems{#1}}
+\define@key{thmt-listof}{onlynamed}[\thmt@allenvs]{\onlynamedtheorems{#1}}
+\define@key{thmt-listof}{show}[\thmt@allenvs]{\showtheorems{#1}}
+\define@key{thmt-listof}{ignoreall}[true]{\ignoretheorems{\thmt@allenvs}}
+\define@key{thmt-listof}{showall}[true]{\showtheorems{\thmt@allenvs}}
+
+\providecommand\thmt@listnumwidth{2.3em}
+
+\providecommand\thmtformatoptarg[1]{ (#1)}
+
 \newcommand\thmt@mklistcmd{%
-  \@xa\protected@edef\csname l@\thmt@envname\endcsname{%
-    \@nx\@dottedtocline{1}{1.5em}{2.3em}%
+  \@xa\protected@edef\csname l@\thmt@envname\endcsname{% CHECK: why p@edef?
+    \@nx\@dottedtocline{1}{1.5em}{\@nx\thmt@listnumwidth}%
   }%
+  \@xa\def\csname ll@\thmt@envname\endcsname{%
+    \protect\numberline{\csname the\thmt@envname\endcsname}%
+    \thmt@thmname
+    \ifx\@empty\thmt@optarg\else\protect\thmtformatoptarg{\thmt@optarg}\fi
+  }%
+}
+\def\thmt@allenvs{\@gobble}
+\newcommand\thmt@recordenvname{%
+  \edef\thmt@allenvs{\thmt@allenvs,\thmt@envname}%
 }
 \g@addto@macro\thmt@newtheorem@predefinition{%
   \thmt@mklistcmd
+  \thmt@recordenvname
 }
 
 \addtotheorempostheadhook{%
   \thmtlo@chaptervspacehack
   \addcontentsline{loe}{\thmt@envname}{%
-    \numberline{\csname the\thmt@envname\endcsname}%
-    \thmt@thmname
-    \ifx\@empty\thmt@optarg\else\protect\space(\thmt@optarg)\fi
+    \csname ll@\thmt@envname\endcsname
   }%
 }
 \newcommand\ignoretheorems[1]{%
   \@for\thm:=#1\do{%
     \@xa\let\csname l@\thm\endcsname=\@gobbletwo
+  }%
+}
+\newcommand\onlynamedtheorems[1]{%
+  \@for\thm:=#1\do{%
+    \@xa\let\csname l@\thm\endcsname=\thmt@showifnamedtheorem
+  }%
+}
+\def\thmt@showifnamedtheorem#1#2{%
+  % check for \thmtformatoptarg on top level of first argument.
+  \thmt@sh@wifnamedtheorem#1\thmtformatoptarg\@nil{%
+    \@dottedtocline{1}{1.5em}{\thmt@listnumwidth}{#1}{#2}%
+  }{}%
+}
+\def\thmt@sh@wifnamedtheorem#1\thmtformatoptarg#2\@nil{%
+  \ifx\@nil#2\@nil
+    \@xa\@secondoftwo
+  \else
+    \@xa\@firstoftwo
+  \fi
+}
+
+\newcommand\showtheorems[1]{%
+  \@for\thm:=#1\do{%
+    \@xa\protected@edef\csname l@\thm\endcsname{% CHECK: why p@edef?
+      \@nx\@dottedtocline{1}{1.5em}{\@nx\thmt@listnumwidth}%
+    }%
   }%
 }
 %    \end{macrocode}

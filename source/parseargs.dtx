@@ -30,7 +30,7 @@
   \newcommand\ParseArgs{\textsf{ParseArgs}}
   \title{The \ParseArgs\ package\thanks{%
     This file documents version~\fileversion\ of~\filedate,
-    RCS ${}$Id: parseargs.dtx,v 1.2 2008/06/22 12:09:33 ulmi Exp ulmi ${}$.
+    RCS ${}$Id: parseargs.dtx,v 1.3 2008/08/03 13:10:16 ulmi Exp ulmi ${}$.
   }}
   \author{Ulrich M. Schwarz\thanks{ulmi@absatzen.de}}
 
@@ -125,7 +125,7 @@
   %\parseOpt{openchar}{closechar}{yes}{no}
 %  \typeout{attemping #1#2...}%
   \def\@parsecmd{%
-    \@ifnextchar#1{\@@reallyparse}{#4\@parse}
+    \@ifnextchar#1{\@@reallyparse}{#4\@parse}%
   }%
   \def\@@reallyparse#1##1#2{%
     #3\@parse

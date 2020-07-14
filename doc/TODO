@@ -1,6 +1,7 @@
 - maybe store more counters in thm-restate? currently, you cannot re-use
   equation numbers, for example. Those all need to be carried around via
   \label or equivalent.
+  FIXED in beta13
 
 - when using framed, restated version has different vertical spacing. 
   Oh dear oh dear, might be some addvspace artifact?

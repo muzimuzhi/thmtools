@@ -31,7 +31,7 @@
  \newcommand\thmpatch{\textsf{thm-patch}}
  \title{The \thmpatch\ package\thanks{%
    This file documents version~\fileversion\ of~\filedate,
-   RCS ${}$Id: thm-patch.dtx,v 1.12 2008/06/22 12:11:29 ulmi Exp ulmi ${}$.
+   RCS ${}$Id: thm-patch.dtx,v 1.15 2008/09/02 19:33:09 ulmi Exp ulmi ${}$.
  }}
  \author{Ulrich M. Schwarz\thanks{ulmi@absatzen.de}}
 
@@ -107,7 +107,7 @@
 %\section{Implementation}
 %    \begin{macrocode}
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thm-patch}[2008/06/22 v0.1beta6 thm-patch (ulmi)]
+\ProvidesPackage{thm-patch}[2008/09/02 v0.1beta6b thm-patch (ulmi)]
 \let\@xa=\expandafter
 \let\@nx=\noexpand
 \RequirePackage{parseargs}
@@ -165,6 +165,8 @@
 }
 
 \let\thmt@original@newtheorem\newtheorem
+\let\thmt@theoremdefiner\thmt@original@newtheorem
+
 \def\newtheorem{%
   \thmt@isstarredfalse
   \thmt@hassiblingfalse
@@ -203,7 +205,7 @@
   \protected@edef\thmt@tmp{%
     \def\@nx\thmt@envname{\thmt@envname}%
     \def\@nx\thmt@thmname{\thmt@thmname}%
-  }
+  }%
   \@xa\addtotheorempreheadhook\@xa[\@xa\thmt@envname\@xa]\@xa{%
     \thmt@tmp
   }%
@@ -212,7 +214,7 @@
   % this adds two command calls to the newly-defined theorem.
   \@xa\let\csname thmt@original@#1\@xa\endcsname
           \csname#1\endcsname
-  \@xa\renewcommand\csname #1\endcsname{
+  \@xa\renewcommand\csname #1\endcsname{%
     \thmt@parsetheoremargs{#1}%
   }%
   \@xa\let\csname thmt@original@end#1\@xa\endcsname\csname end#1\endcsname
@@ -223,7 +225,7 @@
     \csname thmt@original@end#1\endcsname
     \csname thmt@generic@postfoothook\endcsname
     \csname thmt@#1@postfoothook\endcsname
-  }
+  }%
   \@namedef{thmt@#1@preheadhook}{}%
   \@namedef{thmt@#1@postheadhook}{}%
   \@namedef{thmt@#1@prefoothook}{}%
@@ -254,6 +256,51 @@
   \expandafter\g@prependto@macro\csname thmt@#1@postfoothook\endcsname%
 }
 
+%    \end{macrocode}
+% Since rev1.16, we add hooks to the proof environment as well, if it exists.
+% If it doesn't exist at this point, we're probably using ntheorem as
+% backend, where it goes through the regular theorem mechanism anyway.
+%    \begin{macrocode}
+\ifx\proof\endproof\else% yup, that's a quaint way of doing it :)
+  % FIXME: this assumes proof has the syntax of theorems, which 
+  % usually happens to be true (optarg overrides "Proof" string).
+  % FIXME: refactor into thmt@addtheoremhook, but we really don't want to
+  % call the generic-hook...
+  \let\thmt@original@proof=\proof
+  \renewcommand\proof{%
+    \thmt@parseproofargs%
+  }%
+  \def\thmt@parseproofargs{%
+    \parse{%
+      {\parseOpt[]{\def\thmt@optarg{##1}}{\let\thmt@optarg\@empty}}%
+      {%
+        \thmt@proof@preheadhook
+        %\thmt@generic@preheadhook
+        \protected@edef\tmp@args{%
+          \ifx\@empty\thmt@optarg\else [\thmt@optarg]\fi
+        }%
+        \csname thmt@original@proof\@xa\endcsname\tmp@args
+        \thmt@proof@postheadhook
+        %\thmt@generic@postheadhook
+        \let\@parsecmd\@empty
+      }%
+    }%
+  }%
+  
+  \let\thmt@original@endproof=\endproof
+  \def\endproof{%
+    % these need to be in opposite order of headhooks.
+    %\csname thmtgeneric@prefoothook\endcsname
+    \thmt@proof@prefoothook
+    \thmt@original@endproof
+    %\csname thmt@generic@postfoothook\endcsname
+    \thmt@proof@postfoothook
+  }%
+  \@namedef{thmt@proof@preheadhook}{}%
+  \@namedef{thmt@proof@postheadhook}{}%
+  \@namedef{thmt@proof@prefoothook}{}%
+  \@namedef{thmt@proof@postfoothook}{}%
+\fi
 %    \end{macrocode}
 %\iffalse
 %</patch>
