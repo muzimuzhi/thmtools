@@ -125,6 +125,7 @@
 \define@key{thmdef}{qed}[\qedsymbol]{%
   \thmt@trytwice{}{%
     \addtotheorempostheadhook[\thmt@envname]{%
+      \protected@edef\qedsymbol{#1}%
       \pushQED{\qed}%
     }%
     \addtotheoremprefoothook[\thmt@envname]{%

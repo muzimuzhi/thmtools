@@ -59,7 +59,7 @@
 
 \def\thmtlo@oldchapter{0}%
 \newcommand\thmtlo@chaptervspacehack{}
-\ifcsname chapter\endcsname
+\ifcsname c@chapter\endcsname
   \def\thmtlo@chaptervspacehack{%
     \ifnum \value{chapter}>\thmtlo@oldchapter\relax
       % new chapter, add vspace to loe.

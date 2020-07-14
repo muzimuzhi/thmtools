@@ -20,14 +20,14 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-listof}[2010/07/11 v43]
+\ProvidesPackage {thm-listof}[2010/08/09 v50]
 \let\@xa=\expandafter
 \let\@nx=\noexpand
 \RequirePackage{thm-patch,keyval,kvsetkeys}
 
 \def\thmtlo@oldchapter{0}%
 \newcommand\thmtlo@chaptervspacehack{}
-\ifcsname chapter\endcsname
+\ifcsname c@chapter\endcsname
   \def\thmtlo@chaptervspacehack{%
     \ifnum \value{chapter}>\thmtlo@oldchapter\relax
       % new chapter, add vspace to loe.

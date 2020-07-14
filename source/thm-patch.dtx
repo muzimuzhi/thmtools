@@ -118,7 +118,9 @@
 }
 
 \newcommand\thmt@newtheorem@predefinition{}
-\newcommand\thmt@newtheorem@postdefinition{}
+\newcommand\thmt@newtheorem@postdefinition{%
+  \let\thmt@theoremdefiner\thmt@original@newtheorem
+}
 
 \g@addto@macro\thmt@newtheorem@predefinition{%
   \@xa\thmt@providetheoremhooks\@xa{\thmt@envname}%

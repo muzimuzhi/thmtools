@@ -20,7 +20,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-amsthm}[2010/07/11 v43]
+\ProvidesPackage {thm-amsthm}[2010/08/09 v50]
 \define@key{thmstyle}{spaceabove}{%
   \def\thmt@style@spaceabove{#1}%
 }
@@ -127,6 +127,7 @@
 \define@key{thmdef}{qed}[\qedsymbol]{%
   \thmt@trytwice{}{%
     \addtotheorempostheadhook[\thmt@envname]{%
+      \protected@edef\qedsymbol{#1}%
       \pushQED{\qed}%
     }%
     \addtotheoremprefoothook[\thmt@envname]{%
