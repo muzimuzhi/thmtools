@@ -1,0 +1,28 @@
+% \iffalse meta-comment
+%
+% Copyright (C) 2010 by Ulrich M. Schwarz
+% See file COPYING for more details.
+%\fi
+%
+%\iffalse (hide this from DocInput)
+%<*mdframed>
+%\fi
+%
+% Mostly, this key wraps the theorem in a mdframed environment.
+% The parameters are set by treating the value we are given as
+% a new key-val list, see below.
+%
+%    \begin{macrocode}
+\define@key{thmdef}{mdframed}[{}]{%
+  \thmt@trytwice{}{%
+    \RequirePackage{mdframed}%
+    \RequirePackage{thm-patch}%
+    \addtotheorempreheadhook[\thmt@envname]{%
+      \begin{mdframed}[#1]}%
+    \addtotheorempostfoothook[\thmt@envname]{\end{mdframed}}%
+    }%
+}
+%    \end{macrocode}
+%\iffalse (hide this from DocInput)
+%</mdframed>
+%\fi

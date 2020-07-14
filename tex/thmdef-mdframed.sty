@@ -1,10 +1,10 @@
 %%
-%% This is file `thmdef-thmbox.sty',
+%% This is file `thmdef-mdframed.sty',
 %% generated with the docstrip utility.
 %%
 %% The original source files were:
 %%
-%% thmdef-thmbox.dtx  (with options: `thmbox')
+%% thmdef-mdframed.dtx  (with options: `mdframed')
 %% This is a generated file.
 %% 
 %% This file is part of the `thmtools' package.
@@ -20,21 +20,16 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thmdef-thmbox}[2011/11/27 v62]
-\define@key{thmdef}{thmbox}[L]{%
-  \thmt@trytwice{%
-  \let\oldproof=\proof
-  \let\oldendproof=\endproof
-  \let\oldexample=\example
-  \let\oldendexample=\endexample
-  \RequirePackage[nothm]{thmbox}
-  \let\proof=\oldproof
-  \let\endproof=\oldendproof
-  \let\example=\oldexample
-  \let\endexample=\oldendexample
-  \def\thmt@theoremdefiner{\newboxtheorem[#1]}%
-  }{}%
-}%
+\ProvidesPackage {thmdef-mdframed}[2011/11/27 v62]
+\define@key{thmdef}{mdframed}[{}]{%
+  \thmt@trytwice{}{%
+    \RequirePackage{mdframed}%
+    \RequirePackage{thm-patch}%
+    \addtotheorempreheadhook[\thmt@envname]{%
+      \begin{mdframed}[#1]}%
+    \addtotheorempostfoothook[\thmt@envname]{\end{mdframed}}%
+    }%
+}
 \endinput
 %%
-%% End of file `thmdef-thmbox.sty'.
+%% End of file `thmdef-mdframed.sty'.
