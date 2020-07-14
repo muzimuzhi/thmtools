@@ -1,0 +1,6 @@
+2019-12-22  Frank Mittelbach  <Frank.Mittelbach@latex-project.org>
+
+	* thm-kv.dtx:
+	removed dependency on etexcmds package
+	
+

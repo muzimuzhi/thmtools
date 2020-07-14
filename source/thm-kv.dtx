@@ -73,7 +73,7 @@
       \unless \ifcsname KVS@#1@handler\endcsname 
         \kv@error@unknownkey {#1}{#2}%
       \else 
-        \kv@handled@true 
+       \kv@handled@true 
         \csname KVS@#1@handler\endcsname {#2}{#3}\relax 
         \ifkv@handled@ \else 
           \kv@error@unknownkey {#1}{#2}%
@@ -98,7 +98,8 @@
         \csname @safe@activestrue\endcsname
         \@xa\let\csname ifincsname\@xa\endcsname\csname iftrue\endcsname
         \edef\KVS@temp{\endgroup
-          \noexpand\KVS@ProcessorDefault{#1}{\etex@unexpanded{#2}}%
+% 2019/12/22 removed dependency on etexcmds package
+          \noexpand\KVS@ProcessorDefault{#1}{\unexpanded{#2}}%
         }%
         \KVS@temp
     }%

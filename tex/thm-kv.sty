@@ -19,7 +19,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-kv}[2019/07/31 v67]
+\ProvidesPackage {thm-kv}[2019/12/22 v68]
 
 \let\@xa\expandafter
 \let\@nx\noexpand
@@ -78,7 +78,7 @@
       \unless \ifcsname KVS@#1@handler\endcsname
         \kv@error@unknownkey {#1}{#2}%
       \else
-        \kv@handled@true
+       \kv@handled@true
         \csname KVS@#1@handler\endcsname {#2}{#3}\relax
         \ifkv@handled@ \else
           \kv@error@unknownkey {#1}{#2}%
@@ -103,7 +103,7 @@
         \csname @safe@activestrue\endcsname
         \@xa\let\csname ifincsname\@xa\endcsname\csname iftrue\endcsname
         \edef\KVS@temp{\endgroup
-          \noexpand\KVS@ProcessorDefault{#1}{\etex@unexpanded{#2}}%
+          \noexpand\KVS@ProcessorDefault{#1}{\unexpanded{#2}}%
         }%
         \KVS@temp
     }%
