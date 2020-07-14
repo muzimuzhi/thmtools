@@ -1,0 +1,8 @@
+**/*.*
+
+!.gitignore
+
+!*.tex
+!*.sty
+!*.dtx
+!**/TODO
