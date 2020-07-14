@@ -1,0 +1,145 @@
+% \iffalse meta-comment
+%
+% Copyright (C) 2005-7 by Ulrich M. Schwarz
+%
+% This file may be distributed and/or modified under the conditions of
+% the LaTeX Project Public License, version 1.3a. The full license text 
+% is available from http://www.latex-project.org/
+%
+% \fi
+%
+%\iffalse
+%<*driver>
+\documentclass{ltxdoc}
+\usepackage{aliasctr}
+
+\usepackage[T1]{fontenc}
+\usepackage{fourier}
+\usepackage[scaled=0.87]{luximono, helvet}
+\newcommand\pkg{\textsf}
+\EnableCrossrefs
+\CodelineIndex
+\RecordChanges
+\GetFileInfo{aliasctr.sty}
+\author{Ulrich M. Schwarz\thanks{ulmi at absatzen dot de}}
+\title{The \pkg{aliasctr} package\thanks{%
+  This documents \pkg{aliasctr}~\fileversion, dated~\filedate.
+  Newer versions might be found at http://absatzen.de
+}}
+\begin{document}
+  \maketitle
+  \DocInput{aliasctr.dtx}
+\end{document}
+%</driver>
+%<*code>
+%\fi
+%    \iffalse $Id: aliasctr.dtx,v 1.2 2007/07/29 09:29:23 ulmi Exp $\fi
+%    \section{Usage}
+%    |\@counteralias{#1}{#2}| makes |#1| a counter that uses |#2|'s count register.
+%    This is useful for things like \pkg{hyperref}'s |\autoref|, which otherwise
+%    can't distinguish theorems and definitions if they share a counter.
+%
+%    For detailed information, see Die TeXnische Kom\"odie 3/2006.
+%
+%    \section{Implementation}
+%    \begin{macrocode}
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{aliasctr}[2006/01/22 v0.1 counter aliasing (ulmi)]
+%    \end{macrocode}
+%    \begin{macro}{\@addtoreset}
+%    add |\@elt{#1}| to |\cl@#2|.
+%    This differs from the kernel implementation insofar as we trail the
+%    cl lists until we find one that is empty or starts with |\@elt|.
+%    \begin{macrocode}
+\def\aliasctr@f@llow#1#2\@nil#3{%
+  \ifx#1\@elt
+  \noexpand #3%
+  \else
+  \expandafter\aliasctr@f@llow#1\@elt\@nil{#1}%
+  \fi
+}
+%    \end{macrocode}
+%    
+%    \begin{macrocode}
+\newcommand\aliasctr@follow[1]{%
+  \expandafter\aliasctr@f@llow
+%    \end{macrocode}
+%    Don't be confused: the third parameter is ignored here, we always
+%    have recursion here since the \emph{token} |\cl@#1| is (hopefully) not |\@elt|.
+%    \begin{macrocode}
+  \csname cl@#1\endcsname\@elt\@nil{\csname cl@#1\endcsname}%
+}
+%    \end{macrocode}
+%    
+%    \begin{macrocode}
+\renewcommand*\@addtoreset[2]{\bgroup
+   \edef\aliasctr@@truelist{\aliasctr@follow{#2}}%
+  \let\@elt\relax
+  \expandafter\@cons\aliasctr@@truelist{{#1}}%
+\egroup}
+%    \end{macrocode}
+%    
+%    This code has been adapted from David Carlisle's \pkg{remreset}. We
+%    load that here only to prevent it from being loaded again.
+%    \begin{macrocode}
+\RequirePackage{remreset}
+\renewcommand*\@removefromreset[2]{\bgroup
+  \edef\aliasctr@@truelist{\aliasctr@follow{#2}}%
+  \expandafter\let\csname c@#1\endcsname\@removefromreset
+  \def\@elt##1{%
+    \expandafter\ifx\csname c@##1\endcsname\@removefromreset
+    \else
+      \noexpand\@elt{##1}%
+    \fi}%
+  \expandafter\xdef\aliasctr@@truelist{%
+    \aliasctr@@truelist}
+\egroup}
+%    \end{macrocode}
+%    \end{macro}
+%    
+%    \begin{macro}{\@counteralias}
+%    make |#1| a counter that uses counter |#2|'s count register.
+%    \begin{macrocode}
+\newcommand\@counteralias[2]{{%
+    \def\@@gletover##1##2{%
+      \expandafter\global
+      \expandafter\let\csname ##1\expandafter\endcsname
+      \csname ##2\endcsname
+    }%
+    \@ifundefined{c@#2}{\@nocounterr{#2}}{%
+      \@ifdefinable{c@#1}{%
+%    \end{macrocode}
+%    Four values make a counter foo:
+%    \begin{itemize}
+%    \item the count register accessed through |\c@foo|,
+%    \item the output macro |\thefoo|,
+%    \item the prefix macro |\p@foo|,
+%    \item the reset list |\cl@foo|.
+%    \end{itemize}
+%    \pkg{hyperref} adds |\theHfoo| in particular.
+%    \begin{macrocode}
+        \@@gletover{c@#1}{c@#2}%
+        \@@gletover{the#1}{the#2}%
+%    \end{macrocode}
+%    I don't see \@counteralias being called hundreds of times,
+%    let's just unconditionally create  |\theHctr|-macros for hyperref.
+%    \begin{macrocode}
+        \@@gletover{theH#1}{theH#2}%
+        \@@gletover{p@#1}{p@#2}%
+        \expandafter\global
+        \expandafter\def\csname cl@#1\expandafter\endcsname
+        \expandafter{\csname cl@#2\endcsname}%
+%    \end{macrocode}
+%    It is not necessary to save the value again: since we share a
+%    count register, we will pick up the restored value of the
+%    original counter.
+%    \begin{macrocode}
+        %\@addtoreset{#1}{@ckpt}%
+      }%
+    }%
+}}
+%    \end{macrocode}
+%    \end{macro}
+%\iffalse
+%</code>
+%\fi

@@ -1,0 +1,72 @@
+%%
+%% This is file `thm-restate.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% thm-restate.dtx  (with options: `restate')
+%% This is a generated file.
+%% 
+%% This file is part of the `thmtools' package.
+%% The `thmtools' package has the LPPL maintenance status: maintained.
+%% Current Maintainer is Ulrich M. Schwarz, ulmi@absatzen.de
+%% 
+%% Copyright (C) 2008 by Ulrich M. Schwarz.
+%% 
+%% This file may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, version 1.3a.
+%% This version is obtainable at
+%% http://www.latex-project.org/lppl/lppl-1-3a.txt
+%% 
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{thm-restate}[2008/02/17 BETA thm-restate (ulmi)]
+
+\let\@xa\expandafter
+\let\@nx\noexpand
+\@ifundefined{c@thmt@dummyctr}{%
+  \newcounter{thmt@dummyctr}%
+  }{}
+\gdef\theHthmt@dummyctr{dummy.\arabic{thmt@dummyctr}}%
+
+\newtoks\thmt@toks
+\long\def\thmt@collect@body#1#2\end#3{%
+  \@xa\thmt@toks\@xa{\the\thmt@toks #2}%
+  \def\thmttmpa{#3}\def\thmttmpb{restatable}%
+  \ifx\thmttmpa\thmttmpb
+    \@xa\@firstoftwo% this is the end of the environment.
+  \else
+    \@xa\@secondoftwo% go on collecting
+  \fi{%
+    \@xa#1\@xa{\the\thmt@toks}%
+  }{%
+    \@xa\thmt@toks\@xa{\the\thmt@toks\end{#3}}%
+    \thmt@collect@body{#1}%
+  }%
+}
+
+\newenvironment{restatable}[3][]{%
+  \def\thmrst@type{#2}%
+  \long\def\thmrst@store##1{%
+    \protected@edef\thmrst@nmbr{\csname the#2\endcsname}%
+    \@xa\long\@xa\gdef\csname #3\@xa\endcsname\@xa{%
+    \@xa\begingroup
+    \@xa\def\csname the#2\@xa\endcsname\@xa{\thmrst@nmbr}%
+    \@xa\let\csname c@#2\endcsname\c@thmt@dummyctr
+    \@xa\let\csname theH#2\endcsname\theHthmt@dummyctr
+    \let\label=\@gobble
+    %\def\@currenvir{#2}%
+    \csname #2\@xa\endcsname\ifx\@nx#1\@nx\else[#1]\fi
+    ##1
+    \csname end#2\endcsname
+    \endgroup
+  }##1\end{restatable}}%
+  %\def\@currenvir{#2}%
+  \csname #2\@xa\endcsname\ifx\@nx#1\@nx\else[#1]\fi
+  \thmt@collect@body\thmrst@store
+}{%
+  \csname end\thmrst@type\endcsname
+  %\def\@currenvir{restatable}%
+}
+\endinput
+%%
+%% End of file `thm-restate.sty'.

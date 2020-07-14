@@ -1,0 +1,128 @@
+% \iffalse meta-comment
+%
+% Copyright (C) 2008 by Ulrich M. Schwarz
+%
+% This file may be distributed and/or modified under the conditions of
+% the LaTeX Project Public License, version 1.3a.
+% The license can be obtained from
+% http://www.latex-project.org/lppl/lppl-1-3a.txt
+%
+% \fi
+%
+%\iffalse (hide this from DocInput)
+%<*driver>
+\documentclass{ltxdoc}
+
+\usepackage[T1]{fontenc}
+\usepackage{fourier}
+\usepackage[scaled=0.8]{helvet}
+\usepackage{luximono}
+
+\usepackage{amsmath, amsthm}
+\usepackage{thm-patch}
+\newtheorem{lemma}{Lemma}
+\GetFileInfo{thm-patch.sty}
+\EnableCrossrefs
+\CodelineIndex
+\RecordChanges
+\begin{document}
+  \DocInput{thm-patch.dtx}
+\end{document}
+%</driver>
+%<*kv>
+%\fi
+%
+% \CharacterTable
+% {Upper-case \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+% Lower-case \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+% Digits \0\1\2\3\4\5\6\7\8\9
+% Exclamation \! Double quote \" Hash (number) \#
+% Dollar \$ Percent \% Ampersand \&
+% Acute accent \' Left paren \( Right paren \)
+% Asterisk \* Plus \+ Comma \,
+% Minus \- Point \. Solidus \/
+% Colon \: Semicolon \; Less than \<
+% Equals \= Greater than \> Question mark \?
+% Commercial at \@ Left bracket \[ Backslash \\
+% Right bracket \] Circumflex \^ Underscore \_
+% Grave accent \` Left brace \{ Vertical bar \|
+% Right brace \} Tilde \~}
+% \CheckSum{160}
+%
+% \DoNotIndex{\@for,\addtocounter,\arabic,\csname,\endcsname,\cup,\CurrentOption}
+% \DoNotIndex{\{,\},\do,\define@key,\def,\DeclareOption,\else,\ensuremath,\expandafter}
+% \DoNotIndex{\hspace,\fi,\rule,\ifcase,\ifx,\in,\InputIfFileExists,\leq,\let,\mathpalette}
+% \DoNotIndex{\NeedsTeXFormat,\ldots,\ldotp,\newcommand,\newcounter,\or}
+% \DoNotIndex{\PackageInfo,\PackageWarning,\parm,\ProcessOptions,\protected@edef}
+% \DoNotIndex{\providecommand,\ProvidesPackage,\relax,\renewcommand,\RequirePackage}
+% \DoNotIndex{\setcounter,\setkeys,\rlap,\setminus,\widthof,\mathrm}
+%
+% \newcommand\thmrestate{\textsf{thm-kv}}
+% \title{The \thmrestate\ package\thanks{%
+%   This file documents version~\fileversion\ of~\filedate,
+%   RCS ${}$Id: thm-kv.dtx,v 1.4 2008/02/17 21:08:04 ulmi Exp ulmi ${}$.
+% }}
+% \author{Ulrich M. Schwarz\thanks{ulmi@absatzen.de}}
+%
+% \maketitle
+%
+%\begin{abstract}
+%\end{abstract}
+%\section{Usage}
+%
+%
+%\section{Implementation}
+%    \begin{macrocode}
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{thm-kv}[2008/02/17 BETA thm-kv interface (ulmi)]
+\let\@xa\expandafter
+\let\@nx\noexpand
+\usepackage{keyval}
+
+\define@key{thmt}{parent}{\thmt@setparent{#1}}
+\define@key{thmt}{numberwithin}{\thmt@setparent{#1}}
+\define@key{thmt}{within}{\thmt@setparent{#1}}
+
+\define@key{thmt}{sibling}{\thmt@setsibling{#1}}
+\define@key{thmt}{numberlike}{\thmt@setsibling{#1}}
+\define@key{thmt}{sharenumber}{\thmt@setsibling{#1}}
+
+\define@key{thmt}{title}{\thmt@setthmname{#1}}
+\define@key{thmt}{name}{\thmt@setthmname{#1}}
+\define@key{thmt}{heading}{\thmt@setthmname{#1}}
+
+\define@key{thmt}{unnumbered}[]{\thmt@isnumberedfalse}
+\define@key{thmt}{starred}[]{\thmt@isnumberedfalse}
+
+\newif\ifthmt@isnumbered
+\newcommand\thmt@setparent[1]{%
+  \def\thmt@parent{#1}%
+}
+\newcommand\thmt@setsibling{%
+  \def\thmt@sibling
+}
+\newcommand\thmt@setthmname{%
+  \def\thmt@thmname
+}
+
+
+\newcommand\declaretheorem[2][]{%
+  \thmt@setthmname{\MakeUppercase #2}%
+  \thmt@setparent{}%
+  \thmt@setsibling{}%
+  \thmt@isnumberedtrue%
+  \setkeys{thmt}{#1}%
+  \protected@edef\thmt@tmp{%
+    \@nx\newtheorem
+    \ifthmt@isnumbered\else *\fi
+    {#2}%
+    \ifx\thmt@sibling\@empty\else [\thmt@sibling]\fi
+    {\thmt@thmname}%
+    \ifx\thmt@parent\@empty\else [\thmt@parent]\fi
+  }%\show\thmt@tmp
+  \thmt@tmp
+}
+%    \end{macrocode}
+%\iffalse
+%</kv>
+%\fi

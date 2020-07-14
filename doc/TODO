@@ -1,0 +1,11 @@
+- ref close-by/far-away
+- complex refs
+  (these two are very similar)
+  
+  
+- starred theorems and number in list-of-theorems
+  FIXED by empty \thefoo macro for starred theorems.
+- getting envname via currenvir is unsafe for theorems (think restatable)
+  FIXED by manually changing \@currenvir in restatable.
+  FIXED by new hooks that def\thmt@thmname et al. in the theorem itself.
+

@@ -1,0 +1,99 @@
+%$Id: thmtools.tex,v 1.3 2008/02/17 21:08:04 ulmi Exp ulmi $
+\documentclass[a4paper, abstracton]{scrartcl}
+
+\usepackage[T1]{fontenc}
+\usepackage{fourier}
+\usepackage[scaled]{helvet}
+
+\addtokomafont{sectioning}{\fontseries{bc}\selectfont}
+
+\newcommand\thmtools{\textsf{thmtools}}
+
+\title{The \thmtools\ bundle\thanks{%
+  This is a beta version. If you want to slightly ahead of your time,
+  new development versions are availably from http://www.absatzen.de/thmtools.html
+}}
+\author{Ulrich M. Schwarz\thanks{ulmi@absatzen.de}}
+
+\begin{document}
+  \maketitle
+  
+  \begin{abstract}
+    The \thmtools\ bundle provides several packages for commonly-needed 
+    features for theorems. As designed, the bundle should work with kernel
+    theorems, the theorem package and the amsthm package.
+    
+    \textbf{Warning:} Currently, things might still be a bit rough. You
+    might want to consider not relying on \thmtools\ for your Ph.D. thesis
+    masterpiece.
+  \end{abstract}
+  
+  
+  \section{thm-autoref}
+  
+  Fixes cooperation with hyperref's \verb|\autoref|. No further intervention
+  on part of the user needed. (Loads aliasctr, thm-patch.)
+  
+  \section{thm-listof}
+  
+  Provides a \verb|\listoftheorems| command that works like
+  \verb|\listoffigures|. Also provided: a \verb|\ignoretheorems| command that
+  lets you exempt certain kinds:
+  \begin{verbatim}
+    \ignoretheorems{example,exercise,remark}
+  \end{verbatim}
+  There's currently no user interface to customize the appearance of the
+  LoTheorems. (Loads thm-patch.)
+  
+  \section{thm-kv}
+  
+  Provides a key-value alternative to \verb|\newtheorem|, because I keep
+  forgetting which optional argument goes where. Example:
+  \begin{verbatim}
+    \declaretheorem[unnumbered, title={Zorn's Lemma}]{zl}
+    %\newtheorem*{zl}{Zorn's Lemma}
+    \declaretheorem[numberwithin=section]{theorem}
+    %\newtheorem{theorem}{Theorem}[section]
+    \declaretheorem[sibling=theorem]{lemma}
+    %\newtheorem{lemma}[theorem]{Lemma}
+    \declaretheorem[numberlike=lemma]{axiom}
+    %\newtheorem{axiom}[lemma]{Axiom}
+  \end{verbatim}
+  Supported keywords (several for the same functionality, because if you
+  need to remember the keyword, you can just as well remember the order): 
+  parent, numberwithin, within; sibling, numberlike, sharenumber;
+  unnumbered, starred\footnote{works only with amsthm}; title, name,
+  heading.
+  
+  Note: it's actually optional to give a title, in that case, the default is
+  the name of the environment, with first letter uppercased.
+  
+  \section{thm-restate}
+  
+  Provides an environment \verb|restatable| that essentially puts the entire
+  theorem into a single macro command for later re-statement:
+  \begin{verbatim}
+    \begin{restatable}[Well-ordering]{theorem}{wohlordnung}\label{thm:order}
+      Every set is well-ordered.
+   \end{restatable}
+   And again: \wohlordnung
+  \end{verbatim}
+  Note that the label will be handled correctly (i.e. not re-defined).
+  Limitation: verbatim-like things will not work. There's no handling for
+  other counters, so it's not advisable to put floats inside a restatable.
+
+  \section{aliasctr}
+  
+  Helper package, see separate doc.
+  
+  \section{unique}
+  
+  Helper package, see separate doc. Not used yet.
+  
+  \section{thm-patch}
+  Helper package: redefines \verb|\newtheorem| so the defined theorems have
+  hooks we can use. Note that the redefinition will always allow
+  \verb|\newtheorem*| and giving contradicting optional arguments, but the
+  backend original \verb|\newtheorem| will complain.
+
+\end{document}

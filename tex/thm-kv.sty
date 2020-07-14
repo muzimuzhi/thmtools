@@ -1,0 +1,71 @@
+%%
+%% This is file `thm-kv.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% thm-kv.dtx  (with options: `kv')
+%% This is a generated file.
+%% 
+%% This file is part of the `thmtools' package.
+%% The `thmtools' package has the LPPL maintenance status: maintained.
+%% Current Maintainer is Ulrich M. Schwarz, ulmi@absatzen.de
+%% 
+%% Copyright (C) 2008 by Ulrich M. Schwarz.
+%% 
+%% This file may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, version 1.3a.
+%% This version is obtainable at
+%% http://www.latex-project.org/lppl/lppl-1-3a.txt
+%% 
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{thm-kv}[2008/02/17 BETA thm-kv interface (ulmi)]
+\let\@xa\expandafter
+\let\@nx\noexpand
+\usepackage{keyval}
+
+\define@key{thmt}{parent}{\thmt@setparent{#1}}
+\define@key{thmt}{numberwithin}{\thmt@setparent{#1}}
+\define@key{thmt}{within}{\thmt@setparent{#1}}
+
+\define@key{thmt}{sibling}{\thmt@setsibling{#1}}
+\define@key{thmt}{numberlike}{\thmt@setsibling{#1}}
+\define@key{thmt}{sharenumber}{\thmt@setsibling{#1}}
+
+\define@key{thmt}{title}{\thmt@setthmname{#1}}
+\define@key{thmt}{name}{\thmt@setthmname{#1}}
+\define@key{thmt}{heading}{\thmt@setthmname{#1}}
+
+\define@key{thmt}{unnumbered}[]{\thmt@isnumberedfalse}
+\define@key{thmt}{starred}[]{\thmt@isnumberedfalse}
+
+\newif\ifthmt@isnumbered
+\newcommand\thmt@setparent[1]{%
+  \def\thmt@parent{#1}%
+}
+\newcommand\thmt@setsibling{%
+  \def\thmt@sibling
+}
+\newcommand\thmt@setthmname{%
+  \def\thmt@thmname
+}
+
+\newcommand\declaretheorem[2][]{%
+  \thmt@setthmname{\MakeUppercase #2}%
+  \thmt@setparent{}%
+  \thmt@setsibling{}%
+  \thmt@isnumberedtrue%
+  \setkeys{thmt}{#1}%
+  \protected@edef\thmt@tmp{%
+    \@nx\newtheorem
+    \ifthmt@isnumbered\else *\fi
+    {#2}%
+    \ifx\thmt@sibling\@empty\else [\thmt@sibling]\fi
+    {\thmt@thmname}%
+    \ifx\thmt@parent\@empty\else [\thmt@parent]\fi
+  }%\show\thmt@tmp
+  \thmt@tmp
+}
+\endinput
+%%
+%% End of file `thm-kv.sty'.

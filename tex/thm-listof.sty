@@ -1,0 +1,62 @@
+%%
+%% This is file `thm-listof.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% thm-listof.dtx  (with options: `listof')
+%% This is a generated file.
+%% 
+%% This file is part of the `thmtools' package.
+%% The `thmtools' package has the LPPL maintenance status: maintained.
+%% Current Maintainer is Ulrich M. Schwarz, ulmi@absatzen.de
+%% 
+%% Copyright (C) 2008 by Ulrich M. Schwarz.
+%% 
+%% This file may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, version 1.3a.
+%% This version is obtainable at
+%% http://www.latex-project.org/lppl/lppl-1-3a.txt
+%% 
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{thm-listof}[2008/02/17 BETA thm-listof (ulmi)]
+\let\@xa=\expandafter
+\let\@nx=\noexpand
+\RequirePackage{thm-patch}
+
+\providecommand\listtheoremname{List of Theorems}
+\newcommand\listoftheorems{%
+  %% much hacking here to pick up the definition from the class
+  %% without oodles of conditionals.
+  \bgroup
+  \let\listfigurename\listtheoremname
+  \let\thref@starttoc\@starttoc
+  \def\@starttoc##1{\thref@starttoc{loe}}%
+  \expandafter\listoffigures
+  \egroup
+}
+
+\newcommand\thmt@mklistcmd{%
+  \@xa\protected@edef\csname l@\thmt@envname\endcsname{%
+    \@nx\@dottedtocline{1}{1.5em}{2.3em}%
+  }%
+}
+\g@addto@macro\thmt@newtheorem@predefinition{%
+  \thmt@mklistcmd
+}
+
+\addtotheoremposthook{%
+  \addcontentsline{loe}{\thmt@envname}{%
+    \numberline{\csname the\thmt@envname\endcsname}%
+    \thmt@thmname
+    \ifx\@empty\thmt@optarg\else\protect\space(\thmt@optarg)\fi
+  }%
+}
+\newcommand\ignoretheorems[1]{%
+  \@for\thm:=#1\do{%
+    \@xa\let\csname l@\thm\endcsname=\@gobbletwo
+  }%
+}
+\endinput
+%%
+%% End of file `thm-listof.sty'.

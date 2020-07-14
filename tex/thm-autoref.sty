@@ -1,0 +1,45 @@
+%%
+%% This is file `thm-autoref.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% thm-autoref.dtx  (with options: `autoref')
+%% This is a generated file.
+%% 
+%% This file is part of the `thmtools' package.
+%% The `thmtools' package has the LPPL maintenance status: maintained.
+%% Current Maintainer is Ulrich M. Schwarz, ulmi@absatzen.de
+%% 
+%% Copyright (C) 2008 by Ulrich M. Schwarz.
+%% 
+%% This file may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, version 1.3a.
+%% This version is obtainable at
+%% http://www.latex-project.org/lppl/lppl-1-3a.txt
+%% 
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{thm-autoref}[2008/02/17 BETA thm-autoref (ulmi)]
+
+\RequirePackage{thm-patch, aliasctr}
+
+\let\@xa=\expandafter
+\let\@nx=\noexpand
+
+\newcommand\thmt@autorefsetup{%
+  \@xa\def\csname\thmt@envname autorefname\@xa\endcsname\@xa{\thmt@thmname}%
+  \ifthmt@hassibling
+    \@counteralias{\thmt@envname}{\thmt@sibling}%
+    \@xa\def\@xa\thmt@autoreffix\@xa{%
+      \@xa\let\csname the\thmt@envname\@xa\endcsname
+        \csname the\thmt@sibling\endcsname
+      \def\thmt@autoreffix{}%
+    }%
+    \protected@edef\thmt@sibling{\thmt@envname}%
+  \fi
+}
+\g@addto@macro\thmt@newtheorem@predefinition{\thmt@autorefsetup}%
+\g@addto@macro\thmt@newtheorem@postdefinition{\csname thmt@autoreffix\endcsname}%
+\endinput
+%%
+%% End of file `thm-autoref.sty'.

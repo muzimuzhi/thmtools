@@ -1,0 +1,190 @@
+% \iffalse meta-comment
+%
+% Copyright (C) 2005-7 by Ulrich M. Schwarz
+%
+%Redistribution and use in source and binary forms, with or without
+%modification, are permitted provided that the following conditions
+%are met:
+%1. Redistributions of source code must retain the above copyright
+%   notice, this list of conditions and the following disclaimer.
+%2. Redistributions in binary form must reproduce the above copyright
+%   notice, this list of conditions and the following disclaimer in the
+%   documentation and/or other materials provided with the distribution.
+%3. All advertising materials mentioning features or use of this software
+%   must display the following acknowledgement:
+%     This product includes software developed by Ulrich M. Schwarz
+%4. Neither the name of the author nor the names of his contributors
+%   may be used to endorse or promote products derived from this software
+%   without specific prior written permission.
+%
+%THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+%INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+%FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE
+%AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+%OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+%SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+%INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+%CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+%ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+%POSSIBILITY OF SUCH DAMAGE.
+%
+%
+% \fi
+%
+%\iffalse
+%<*driver>
+\documentclass{ltxdoc}
+\usepackage{unique}
+
+\usepackage[T1]{fontenc}
+\usepackage{fourier}
+\usepackage[scaled=0.87]{luximono, helvet}
+\newcommand\pkg{\textsf}
+\EnableCrossrefs
+\CodelineIndex
+\RecordChanges
+\GetFileInfo{unique.sty}
+\author{Ulrich M. Schwarz\thanks{ulmi at absatzen dot de}}
+\title{The \pkg{unique} package\thanks{%
+  This documents \pkg{unique}~\fileversion, dated~\filedate.
+  Newer versions might be found at http://absatzen.de
+}}
+\begin{document}
+  \maketitle
+  \DocInput{unique.dtx}
+\end{document}
+%</driver>
+%<*code>
+%\fi
+%    \begin{macrocode}
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{unique}[2007/07/29 v0.1 test for uniqueness (ulmi)]
+%    \end{macrocode}
+%
+%    \section{Implementation and Usage}
+%
+%    \iffalse $Id: unique.dtx,v 1.2 2008/02/10 10:23:32 ulmi Exp $\fi
+%    \begin{macro}{\setuniqmark}
+%    Call this with a name to set the corresponding uniqmark. The name must
+%    be suitable for |\csname|-constructs, i.e. fully expansible to a
+%    string of characters. If you use some counter values to generate this,
+%    it might be a good idea to try and use hyperref's |\theH...| macros,
+%    which have similar restrictions. You can check whether a particular
+%    |\setuniqmark| was called more than once during \emph{the last run}
+%    with |\ifuniq|.
+%    \begin{macrocode}
+\newcommand\setuniqmark[1]{%
+  \expandafter\ifx\csname uniq@now@#1\endcsname\relax
+  \global\@namedef{uniq@now@#1}{\uniq@ONE}%
+  \else
+  \expandafter\ifx\csname uniq@now@#1\endcsname\uniq@MANY\else
+  \immediate\write\@auxout{%
+    \string\uniq@setmany{#1}%
+  }%
+  \ifuniq{#1}{%
+    \uniq@warnnotunique{#1}%
+  }{}%
+  \fi
+  \global\@namedef{uniq@now@#1}{\uniq@MANY}%
+  \fi
+}
+%    \end{macrocode}
+%    \end{macro}
+%    
+%    \begin{macro}{\ifuniq}
+%    Companion to |\setuniqmark|: if the uniqmark given in the first
+%    argument was called more than once, execute the second argument,
+%    otherwise execute the first argument. Note than no call to
+%    |\setuniqmark| for a particular uniqmark at all means that this
+%    uniqmark is unique.
+%    
+%    This is a lazy version: we could always say false if we already had two calls
+%    to setuniqmark this run, but we have to rerun for any ifuniq prior
+%    to the first setuniqmark anyway, so why bother?
+%    \begin{macrocode}
+\newcommand\ifuniq[1]{%
+  \expandafter\ifx\csname uniq@last@#1\endcsname\uniq@MANY
+  \expandafter \@secondoftwo
+  \else
+  \expandafter\@firstoftwo
+  \fi
+}
+%    \end{macrocode}
+%    \end{macro}
+%    
+%    Two quarks to signal if we have seen an uniqmark more than once.
+%    \begin{macrocode}
+\def\uniq@ONE{\uniq@ONE}
+\def\uniq@MANY{\uniq@MANY}
+%    \end{macrocode}
+%    Flag: suggest a rerun?
+%    \begin{macrocode}
+\newif\if@uniq@rerun
+%    \end{macrocode}
+%    
+%    Helper macro: a call to this is written to the .aux file when we see
+%    an uniqmark for the second time. This sets the right information for
+%    the next run. It also checks on subsequent runs if the number of
+%    uniqmarks drops to less than two, so that we'll need a rerun.
+%    \begin{macrocode}
+\def\uniq@setmany#1{%
+  \global\@namedef{uniq@last@#1}{\uniq@MANY}%
+  \AtEndDocument{%
+    \uniq@warnifunique{#1}%
+  }%
+}
+%    \end{macrocode}
+%    
+%    Warning if something is unique now. This always warns if the
+%    setting for this run is not ``many'', because it was generated
+%    by a setmany from the last run.
+%    \begin{macrocode}
+\def\uniq@warnifunique#1{%
+  \expandafter\ifx\csname uniq@now@#1\endcsname\uniq@MANY\else
+  \PackageWarningNoLine{uniq}{%
+    `#1' is unique now.\MessageBreak
+    Rerun LaTeX to pick up the change%
+  }%
+  \@uniq@reruntrue
+  \fi
+}
+%    \end{macrocode}
+%    
+%    Warning if we have a second uniqmark this run around. Since this is
+%    checked immediately, we could give the line of the second
+%    occurence, but we do not do so for symmetry.
+%    \begin{macrocode}
+\def\uniq@warnnotunique#1{%
+  \PackageWarningNoLine{uniq}{%
+    `#1' is not unique anymore.\MessageBreak
+    Rerun LaTeX to pick up the change%
+  }%
+  \@uniq@reruntrue
+}
+%    \end{macrocode}
+%    
+%    Maybe advise a rerun (duh!). This is executed at the end of the
+%    second reading of the aux-file. If you manage to set uniqmarks
+%    after that (though I cannot imagine why), you might need reruns
+%    without being warned, so don't to that.
+%    \begin{macrocode}
+\def\uniq@maybesuggestrerun{%
+  \if@uniq@rerun
+  \PackageWarningNoLine{uniq}{%
+    Uniquenesses have changed. \MessageBreak
+    Rerun LaTeX to pick up the change%
+  }%
+  \fi
+}
+%    \end{macrocode}
+%    
+%    Make sure the check for rerun is pretty late in processing, so it
+%    can catch all of the uniqmarks (hopefully).
+%    \begin{macrocode}
+\AtEndDocument{%
+  \immediate\write\@auxout{\string\uniq@maybesuggestrerun}%
+}
+%    \end{macrocode}
+%\iffalse
+%</code>
+%\fi

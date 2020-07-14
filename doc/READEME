@@ -1,0 +1,16 @@
+    The \thmtools\ bundle provides several packages for commonly-needed 
+    features for theorems. As designed, the bundle should work with kernel
+    theorems, the theorem package and the amsthm package.
+    
+    WARNING: Currently, things might still be a bit rough. You
+    might want to consider not relying on \thmtools\ for your Ph.D. thesis
+    masterpiece.
+    
+Provided features:
+a keyval interface to \newtheorem
+a \listoftheorem command
+hyperref/autoref compatibility
+a way of restating entire theorems with a single macro call
+
+License: LPPL 1.3a; maintained by ulmi@absatzen.de
+$Id: README,v 1.1 2008/02/17 21:13:58 ulmi Exp ulmi $

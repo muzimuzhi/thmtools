@@ -1,0 +1,178 @@
+% \iffalse meta-comment
+%
+% Copyright (C) 2008 by Ulrich M. Schwarz
+%
+% This file may be distributed and/or modified under the conditions of
+% the LaTeX Project Public License, version 1.3a.
+% The license can be obtained from
+% http://www.latex-project.org/lppl/lppl-1-3a.txt
+%
+% \fi
+%
+%\iffalse (hide this from DocInput)
+%<*driver>
+\documentclass{ltxdoc}
+
+\usepackage[T1]{fontenc}
+\usepackage{fourier}
+\usepackage[scaled=0.8]{helvet}
+\usepackage{luximono}
+
+\usepackage{amsmath, amsthm}
+\usepackage{thm-restate}
+\newtheorem{lemma}{Lemma}
+\GetFileInfo{thm-restate.sty}
+\EnableCrossrefs
+\CodelineIndex
+\RecordChanges
+\begin{document}
+  \DocInput{thm-restate.dtx}
+\end{document}
+%</driver>
+%<*restate>
+%\fi
+%
+% \CharacterTable
+% {Upper-case \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+% Lower-case \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+% Digits \0\1\2\3\4\5\6\7\8\9
+% Exclamation \! Double quote \" Hash (number) \#
+% Dollar \$ Percent \% Ampersand \&
+% Acute accent \' Left paren \( Right paren \)
+% Asterisk \* Plus \+ Comma \,
+% Minus \- Point \. Solidus \/
+% Colon \: Semicolon \; Less than \<
+% Equals \= Greater than \> Question mark \?
+% Commercial at \@ Left bracket \[ Backslash \\
+% Right bracket \] Circumflex \^ Underscore \_
+% Grave accent \` Left brace \{ Vertical bar \|
+% Right brace \} Tilde \~}
+% \CheckSum{160}
+%
+% \DoNotIndex{\@for,\addtocounter,\arabic,\csname,\endcsname,\cup,\CurrentOption}
+% \DoNotIndex{\{,\},\do,\define@key,\def,\DeclareOption,\else,\ensuremath,\expandafter}
+% \DoNotIndex{\hspace,\fi,\rule,\ifcase,\ifx,\in,\InputIfFileExists,\leq,\let,\mathpalette}
+% \DoNotIndex{\NeedsTeXFormat,\ldots,\ldotp,\newcommand,\newcounter,\or}
+% \DoNotIndex{\PackageInfo,\PackageWarning,\parm,\ProcessOptions,\protected@edef}
+% \DoNotIndex{\providecommand,\ProvidesPackage,\relax,\renewcommand,\RequirePackage}
+% \DoNotIndex{\setcounter,\setkeys,\rlap,\setminus,\widthof,\mathrm}
+%
+% \newcommand\thmrestate{\textsf{thm-restate}}
+% \title{The \thmrestate\ package\thanks{%
+%   This file documents version~\fileversion\ of~\filedate,
+%   RCS ${}$Id: thm-restate.dtx,v 1.8 2008/02/17 21:08:04 ulmi Exp ulmi ${}$.
+% }}
+% \author{Ulrich M. Schwarz\thanks{ulmi@absatzen.de}}
+%
+% \maketitle
+%
+%\begin{abstract}
+%  This package provides one single environment, restatable, which lets you
+%  repeat whole theorems without retyping them.
+%\end{abstract}
+%\section{Usage}
+%\DescribeEnv{restatable}
+%Only one environment is provided: \verb|restatable|, which takes one
+%optional and two mandatory arguments. The first mandatory argument is the
+%type of the theorem, i.e. if you want \verb|\begin{lemma}| to be called on
+%the inside, give \verb|lemma|. The second argument is the name of the macro
+%that the text should be stored in, for example \verb|mylemma|. Be careful
+%not to specify existing command names! The optional argument will become the
+%optional argument to your theorem command. Consider the following example:
+%\begin{verbatim}
+%  \documentclass{article}
+%  \usepackage{amsmath, amsthm, thm-restate}
+%  \newtheorem{lemma}{Lemma}
+%  \begin{document}
+%    \begin{restatable}[Zorn]{lemma}{zornlemma}\label{thm:zorn}
+%      If every chain in $X$ is upper-bounded, 
+%      $X$ has a maximal element.
+%
+%      It's true, you know!
+%    \end{restatable}
+%    \begin{lemma}
+%      This is some other lemma of no import.
+%    \end{lemma}
+%    And now, here's Mr. Zorn again: \zornlemma
+%  \end{document}
+%\end{verbatim}
+%which yields
+%    \begin{restatable}[Zorn]{lemma}{zornlemma}\label{thm:zorn}
+%      If every chain in $X$ is upper-bounded, $X$ has a maximal element.
+%
+%      It's true, you know!
+%    \end{restatable}
+%    \begin{lemma}
+%      This is some other lemma of no import.
+%    \end{lemma}
+%    Actually, we have set a label in the environment, so we know that
+%    it's Lemma~\ref{thm:zorn} on page~\ref{thm:zorn}.
+%    And now, here's Mr. Zorn again: \zornlemma
+%    Since we prevent the label from being set again, we find that
+%    it's still Lemma~\ref{thm:zorn} on page~\ref{thm:zorn}, even though
+%    it occurs later also. Maybe at some point, there'll be a way to control
+%    which instance gets its labels executed.
+%
+% \subsection{Restrictions}
+% The only counter that is saved is the one for the theorem number. So,
+% putting floats inside a restatable is not advised. You cannot nest
+% restatables either. The first occurrence is the priviledged one that 
+% determines the number and the label/page info, you cannot change that
+% at the moment. hyperref will get confused, too, so currently, links
+% won't work.
+%
+%\section{Implementation}
+%    \begin{macrocode}
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{thm-restate}[2008/02/17 BETA thm-restate (ulmi)]
+
+\let\@xa\expandafter
+\let\@nx\noexpand
+\@ifundefined{c@thmt@dummyctr}{%
+  \newcounter{thmt@dummyctr}%
+  }{}
+\gdef\theHthmt@dummyctr{dummy.\arabic{thmt@dummyctr}}%
+
+\newtoks\thmt@toks
+\long\def\thmt@collect@body#1#2\end#3{%
+  \@xa\thmt@toks\@xa{\the\thmt@toks #2}%
+  \def\thmttmpa{#3}\def\thmttmpb{restatable}%
+  \ifx\thmttmpa\thmttmpb
+    \@xa\@firstoftwo% this is the end of the environment.
+  \else
+    \@xa\@secondoftwo% go on collecting
+  \fi{%
+    \@xa#1\@xa{\the\thmt@toks}%
+  }{%
+    \@xa\thmt@toks\@xa{\the\thmt@toks\end{#3}}%
+    \thmt@collect@body{#1}%
+  }%
+}
+
+\newenvironment{restatable}[3][]{%
+  \def\thmrst@type{#2}%
+  \long\def\thmrst@store##1{%
+    \protected@edef\thmrst@nmbr{\csname the#2\endcsname}%
+    \@xa\long\@xa\gdef\csname #3\@xa\endcsname\@xa{%
+    \@xa\begingroup
+    \@xa\def\csname the#2\@xa\endcsname\@xa{\thmrst@nmbr}%
+    \@xa\let\csname c@#2\endcsname\c@thmt@dummyctr
+    \@xa\let\csname theH#2\endcsname\theHthmt@dummyctr
+    \let\label=\@gobble
+    %\def\@currenvir{#2}%
+    \csname #2\@xa\endcsname\ifx\@nx#1\@nx\else[#1]\fi
+    ##1
+    \csname end#2\endcsname
+    \endgroup
+  }##1\end{restatable}}%
+  %\def\@currenvir{#2}%
+  \csname #2\@xa\endcsname\ifx\@nx#1\@nx\else[#1]\fi
+  \thmt@collect@body\thmrst@store
+}{%
+  \csname end\thmrst@type\endcsname
+  %\def\@currenvir{restatable}%
+}
+%    \end{macrocode}
+%\iffalse
+%</restate>
+%\fi
