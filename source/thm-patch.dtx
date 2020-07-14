@@ -53,7 +53,9 @@
 
 \def\thmt@parsetheoremargs#1{%
   \parse{%
-    {\parseOpt[]{\def\thmt@optarg{##1}}{\let\thmt@optarg\@empty}}%
+    {\parseOpt[]{\def\thmt@optarg{##1}}{%
+      \let\thmt@shortoptarg\@empty
+      \let\thmt@optarg\@empty}}%
     {%
       \def\thmt@local@preheadhook{}%
       \def\thmt@local@postheadhook{}%
@@ -66,9 +68,11 @@
         \ifx\@empty\thmt@optarg\else [{\thmt@optarg}]\fi
       }%
       \csname thmt@original@#1\@xa\endcsname\tmp@args
-      \thmt@local@postheadhook
+      %%moved down: \thmt@local@postheadhook
+      %% (give postheadhooks a chance to re-set nameref data)
       \csname thmt@#1@postheadhook\endcsname
       \thmt@generic@postheadhook
+      \thmt@local@postheadhook
       \let\@parsecmd\@empty
     }%
   }%

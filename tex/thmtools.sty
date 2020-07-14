@@ -20,40 +20,21 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thmtools}[2010/05/18 v24]
+\ProvidesPackage {thmtools}[2010/06/08 v35]
+\DeclareOption{debug}{%
+  \def\thmt@debug{\typeout}%
+}
 \let\@xa\expandafter
 \let\@nx\noexpand
+\def\thmt@debug{\@gobble}
 \def\thmt@quark{\thmt@quark}
 \newtoks\thmt@toks
+
+\ProcessOptions\relax
 
 \newcounter{thmt@dummyctr}%
 \def\theHthmt@dummyctr{dummy.\arabic{thmt@dummyctr}}%
 \def\thethmt@dummyctr{}%
-
-\newcommand\thmt@mkextendingkeyhandler[3]{%
-  \kv@set@family@handler{#1}{%
-    \IfFileExists{#2-##1.sty}{%
-      \PackageInfo{thmtools}%
-        {Automatically pulling in `#2-##1'}%
-      \RequirePackage{#2-##1}%
-      \ifcsname KV@#1@##1\endcsname
-        \csname KV@#1@##1\endcsname{##2}%
-      \else
-        \PackageError{thmtools}%
-        {#3 `##1' not known}
-        {I don't know what that key does.\MessageBreak
-         I've even loaded the file `#2-##1.sty', but that didn't help.
-        }%
-      \fi
-    }{%
-      \PackageError{thmtools}%
-      {#3 `##1' not known}
-      {I don't know what that key does by myself,\MessageBreak
-       and no file `#2-##1.sty' to tell me seems to exist.
-      }%
-    }%
-  }
-}
 
 \RequirePackage{thm-patch, thm-kv,
   thm-autoref, thm-listof,
@@ -61,10 +42,24 @@
 
 \@ifpackageloaded{amsthm}{%
   \RequirePackage{thm-amsthm}
-}{}
+}{%
+  \AtBeginDocument{%
+  \@ifpackageloaded{amsthm}{%
+    \PackageWarningNoLine{thmtools}{%
+      amsthm loaded after thmtools
+    }{}%
+  }}%
+}
 \@ifpackageloaded{ntheorem}{%
   \RequirePackage{thm-ntheorem}
-}{}
+}{%
+  \AtBeginDocument{%
+  \@ifpackageloaded{ntheorem}{%
+    \PackageWarningNoLine{thmtools}{%
+      ntheorem loaded after thmtools
+    }{}%
+  }}%
+}
 \@ifclassloaded{beamer}{%
   \RequirePackage{thm-beamer}
 }{}

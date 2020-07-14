@@ -12,7 +12,9 @@
 \def\thmt@parsetheoremargs#1{%
   \parse{%
     {\parseOpt<>{\thmt@hasoverlaytrue\def\thmt@overlay{##1}}{}}%
-    {\parseOpt[]{\def\thmt@optarg{##1}}{\let\thmt@optarg\@empty}}%
+    {\parseOpt[]{\def\thmt@optarg{##1}}{%
+      \let\thmt@shortoptarg\@empty
+      \let\thmt@optarg\@empty}}%
     {\ifthmt@hasoverlay\expandafter\@gobble\else\expandafter\@firstofone\fi
         {\parseOpt<>{\thmt@hasoverlaytrue\def\thmt@overlay{##1}}{}}%
     }%

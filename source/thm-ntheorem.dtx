@@ -61,7 +61,13 @@
 }
 % sorry, only style, not def with ntheorem.
 \define@key{thmstyle}{qed}[\qedsymbol]{%
-  \theoremsymbol{#1}%
+  \@ifpackagewith{ntheorem}{thmmarks}{%
+    \theoremsymbol{#1}%
+  }{%
+    \thmt@notsupported
+      {ntheorem without thmmarks option}%
+      {headindent}%
+  }%
 }
 
 \let\@upn=\textup

@@ -7,8 +7,17 @@
 %\iffalse (hide this from DocInput)
 %<*thmbox>
 %\fi
+% The thmbox package does something else: instead of having a separate
+% environment, we have to use a command different from
+% \lstinline|\newtheorem| to get the boxed style. Fortunately,
+% \thmtools stores the command as \lstinline|\thmt@theoremdefiner|, so we
+% can modify it. (One of the perks if extension writer and framework writer
+% are the same person.) So, in contrast to the previous example, this time
+% we need to do something before the actual \lstinline|\newtheorem| is
+% called.
 %    \begin{macrocode}
 \define@key{thmdef}{thmbox}[L]{%
+  \thmt@trytwice{%
   \let\oldproof=\proof
   \let\oldendproof=\endproof
   \let\oldexample=\example
@@ -19,6 +28,7 @@
   \let\example=\oldexample
   \let\endexample=\oldendexample
   \def\thmt@theoremdefiner{\newboxtheorem[#1]}%
+  }{}%
 }%
 %    \end{macrocode}
 %\iffalse (hide this from DocInput)

@@ -7,6 +7,11 @@
 %\iffalse (hide this from DocInput)
 %<*shaded>
 %\fi
+%
+% Mostly, this key wraps the theorem in a shadebox environment.
+% The parameters are set by treating the value we are given as
+% a new key-val list, see below.
+%
 %    \begin{macrocode}
   \define@key{thmdef}{shaded}[{}]{%
   \thmt@trytwice{}{%
@@ -18,23 +23,44 @@
     \addtotheorempostfoothook[\thmt@envname]{\end{shadebox}}%
     }%
   }
+%    \end{macrocode}
+% The docs for shadethm say:
+% \begin{quote}
 %   There are some parameters you could set the default for (try them as is,
 % first).
-%    (i) shadethmcolor  The shading color of the background.  See the
+% \begin{itemize}
+%    \item shadethmcolor  The shading color of the background.  See the
 %      documentation for the color package, but with a `gray' model, I find .97
 %      looks good out of my printer, while a darker shade like .92 is needed
 %      to make it copy well.  (Black is  0, white is 1.)
-%    (i*) shaderulecolor  The shading color of the border of the shaded box.
-%      See (i).  If \shadeboxrule is set to 0pt then this won't print anyway.
-%    (i**) shadeboxrule  The width of the border around the shading.  Set it to
+%    \item shaderulecolor  The shading color of the border of the shaded box.
+%      See (i).  If shadeboxrule is set to 0pt then this won't print anyway.
+%    \item shadeboxrule  The width of the border around the shading.  Set it to
 %      0pt (not just 0) to make it disappear.
-%    (i***) shadeboxsep  The length by which the shade box surrounds the text.
+%    \item shadeboxsep  The length by which the shade box surrounds the text.
+% \end{itemize}
+% \end{quote}
+%
+% So, let's just define keys for all of these.
+%
+%    \begin{macrocode}
 \define@key{thmt@shade}{textwidth}{\setlength\shadedtextwidth{#1}}
 \define@key{thmt@shade}{bgcolor}{\thmt@definecolor{shadethmcolor}{#1}}
 \define@key{thmt@shade}{rulecolor}{\thmt@definecolor{shaderulecolor}{#1}}
 \define@key{thmt@shade}{rulewidth}{\setlength\shadeboxrule{#1}}
 \define@key{thmt@shade}{margin}{\setlength\shadeboxsep{#1}}
-
+%    \end{macrocode}
+%
+% What follows is wizardry you don't have to understand. In essence,
+% we want to support two notions of color: one is ``everything that goes
+% after \lstinline|\definecolor{shadethmcolor}|'', such as 
+% \lstinline|{rgb}{0.8,0.85,1}|. On the other hand, we'd also like
+% to recognize an already defined color name such as \lstinline|blue|.
+%
+% To handle the latter case, we need to copy the definition of one color
+% into another. The xcolor package offers \lstinline|\colorlet| for that, 
+% for the color package, we just cross our fingers.
+%    \begin{macrocode}
 \def\thmt@colorlet#1#2{%
   %\typeout{don't know how to let color `#1' be like color `#2'!}%
   \@xa\let\csname\string\color@#1\@xa\endcsname
@@ -46,7 +72,25 @@
     \let\thmt@colorlet\colorlet
   \fi
 }
-
+%    \end{macrocode}
+% Now comes the interesting part: we assume that a simple color name
+% must not be in braces, and a color definition starts with an opening
+% curly brace. (So, if \lstinline|\definecolor| ever gets an optional arg,
+% we are in a world of pain.)
+%
+% If the second argument to \lstinline|\thmt@definecolor| (the key) starts
+% with a brace,
+% then \lstinline|\thmt@def@color| will have an empty second argument,
+% delimited by the brace of the key. Hopefully, the key will have exactly
+% enough arguments to satisfy \lstinline|\definecolor|. Then, 
+% \lstinline|thmt@drop@relax| will be executed and gobble the fallback
+% values and the \lstinline|\thmt@colorlet|.
+%
+% If the key does not contain an opening brace, \lstinline|\thmt@def@color|
+% will drop everything up to \lstinline|{gray}{0.5}|. So, first the color
+% gets defined to a medium gray, but then, it immediately gets overwritten
+% with the definition corresponding to the color name.
+%    \begin{macrocode}
 \def\thmt@drop@relax#1\relax{}
 \def\thmt@definecolor#1#2{%
   \thmt@def@color{#1}#2\thmt@drop@relax 

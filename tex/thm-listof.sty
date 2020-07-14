@@ -20,7 +20,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-listof}[2010/05/18 v24]
+\ProvidesPackage {thm-listof}[2010/06/08 v35]
 \let\@xa=\expandafter
 \let\@nx=\noexpand
 \RequirePackage{thm-patch,keyval,kvsetkeys}
@@ -47,6 +47,11 @@
   \def\contentsline##1{%
     \csname thmt@contentsline@##1\endcsname{##1}%
   }%
+  \@for\thmt@envname:=\thmt@allenvs\do{%
+  \@xa\protected@edef\csname l@\thmt@envname\endcsname{% CHECK: why p@edef?
+    \@nx\@dottedtocline{1}{1.5em}{\@nx\thmt@listnumwidth}%
+  }%
+  }%
   \let\thref@starttoc\@starttoc
   \def\@starttoc##1{\thref@starttoc{loe}}%
   % new hack: to allow multiple calls, we defer the opening of the
@@ -62,7 +67,8 @@
       }{}%
     \fi
   }%
-  \expandafter\listoffigures
+  %\expandafter
+  \listoffigures
   \egroup
 }
 
@@ -88,13 +94,13 @@
     \@xa\def\csname ll@\thmt@envname\endcsname{%
       \protect\numberline{\protect\let\protect\autodot\protect\@empty}%
       \thmt@thmname
-      \ifx\@empty\thmt@optarg\else\protect\thmtformatoptarg{\thmt@optarg}\fi
+      \ifx\@empty\thmt@shortoptarg\else\protect\thmtformatoptarg{\thmt@shortoptarg}\fi
     }%
   \else
     \@xa\def\csname ll@\thmt@envname\endcsname{%
       \protect\numberline{\csname the\thmt@envname\endcsname}%
       \thmt@thmname
-      \ifx\@empty\thmt@optarg\else\protect\thmtformatoptarg{\thmt@optarg}\fi
+      \ifx\@empty\thmt@shortoptarg\else\protect\thmtformatoptarg{\thmt@shortoptarg}\fi
     }%
   \fi
   \@xa\gdef\csname thmt@contentsline@\thmt@envname\endcsname{%

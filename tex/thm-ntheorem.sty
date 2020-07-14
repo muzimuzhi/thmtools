@@ -20,7 +20,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-ntheorem}[2010/05/18 v24]
+\ProvidesPackage {thm-ntheorem}[2010/06/08 v35]
 
 \def\thmt@declaretheoremstyle@setup{}
 \def\thmt@declaretheoremstyle#1{%
@@ -68,7 +68,13 @@
   \thmt@notsupported{ntheorem}{headindent}%
 }
 \define@key{thmstyle}{qed}[\qedsymbol]{%
-  \theoremsymbol{#1}%
+  \@ifpackagewith{ntheorem}{thmmarks}{%
+    \theoremsymbol{#1}%
+  }{%
+    \thmt@notsupported
+      {ntheorem without thmmarks option}%
+      {headindent}%
+  }%
 }
 
 \let\@upn=\textup

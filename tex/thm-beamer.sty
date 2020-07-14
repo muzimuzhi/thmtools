@@ -20,12 +20,14 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-beamer}[2010/05/18 v24]
+\ProvidesPackage {thm-beamer}[2010/06/08 v35]
 \newif\ifthmt@hasoverlay
 \def\thmt@parsetheoremargs#1{%
   \parse{%
     {\parseOpt<>{\thmt@hasoverlaytrue\def\thmt@overlay{##1}}{}}%
-    {\parseOpt[]{\def\thmt@optarg{##1}}{\let\thmt@optarg\@empty}}%
+    {\parseOpt[]{\def\thmt@optarg{##1}}{%
+      \let\thmt@shortoptarg\@empty
+      \let\thmt@optarg\@empty}}%
     {\ifthmt@hasoverlay\expandafter\@gobble\else\expandafter\@firstofone\fi
         {\parseOpt<>{\thmt@hasoverlaytrue\def\thmt@overlay{##1}}{}}%
     }%

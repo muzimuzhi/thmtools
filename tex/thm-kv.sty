@@ -20,11 +20,51 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-kv}[2010/05/18 v24]
+\ProvidesPackage {thm-kv}[2010/06/08 v35]
 
 \let\@xa\expandafter
 \let\@nx\noexpand
 \RequirePackage{keyval,kvsetkeys,thm-patch}
+
+\newcommand\thmt@mkignoringkeyhandler[1]{%
+  \kv@set@family@handler{#1}{%
+    \thmt@debug{Key `##1' with value `##2' ignored by #1.}%
+  }%
+}
+\newcommand\thmt@mkextendingkeyhandler[3]{%
+  \kv@set@family@handler{#1}{%
+    \thmt@selfextendingkeyhandler{#1}{#2}{#3}%
+      {##1}{##2}%
+  }%
+}
+
+\newcommand\thmt@selfextendingkeyhandler[5]{%
+  % #1: family
+  % #2: prefix for file
+  % #3: key hint for error
+  % #4: actual key
+  % #5: actual value
+  \IfFileExists{#2-#4.sty}{%
+    \PackageInfo{thmtools}%
+      {Automatically pulling in `#2-#4'}%
+    \RequirePackage{#2-#4}%
+    \ifcsname KV@#1@#4\endcsname
+      \csname KV@#1@#4\endcsname{#5}%
+    \else
+      \PackageError{thmtools}%
+      {#3 `#4' not known}
+      {I don't know what that key does.\MessageBreak
+       I've even loaded the file `#2-#4.sty', but that didn't help.
+      }%
+    \fi
+  }{%
+    \PackageError{thmtools}%
+    {#3 `#4' not known}
+    {I don't know what that key does by myself,\MessageBreak
+     and no file `#2-#4.sty' to tell me seems to exist.
+    }%
+  }%
+}
 
 \newif\if@thmt@firstkeyset
 
@@ -94,7 +134,7 @@
       \csname thmt@style #1@defaultkeys\endcsname}%
   \fi
 }
-\kv@set@family@handler{thmdef0}{}% ignore everything else.
+\thmt@mkignoringkeyhandler{thmdef0}
 
 \def\thmt@setstyle#1{%
   \PackageWarning{thm-kv}{%
@@ -157,6 +197,7 @@
   \kvsetkeys{thmdef0}{#1}%
   \kvsetkeys{thmdef}{#1}%
 }
+\@onlypreamble\declaretheorem
 
 \providecommand\thmt@quark{\thmt@quark}
 
@@ -167,17 +208,27 @@
   \ifx\thmt@optarg\@empty\else
     \@xa\thmt@garbleoptarg\@xa{\thmt@optarg}\fi
 }%
+
+\newif\ifthmt@thmuse@iskv
+
 \providecommand\thmt@garbleoptarg[1]{%
-  \thmt@splitopt#1=\thmt@quark
-  \ifcsname KV@thmuse@\thmt@tmpkey\endcsname
-    % looks like a keyval-style argument
-    \PackageInfo{thmtools}{kv-style argument to `\thmt@envname'}
-    %\typeout{dbg: new-style arg `#1'}%
-    \let\thmt@newoptarg\@empty
-    \kvsetkeys{thmuse}{#1}%
-    \let\thmt@optarg\thmt@newoptarg
-  %\else
-  %  \typeout{dbg: old-style arg `#1'}%
+  \thmt@thmuse@iskvfalse
+  \def\thmt@newoptarg{\@gobble}%
+  \def\thmt@newoptargextra{}%
+  \def\thmt@warn@unusedkeys{}%
+  \@for\thmt@fam:=\thmt@thmuse@families\do{%
+    \kvsetkeys{\thmt@fam}{#1}%
+  }%
+  \ifthmt@thmuse@iskv
+    \protected@edef\thmt@optarg{%
+      \@xa\thmt@newoptarg
+      \thmt@newoptargextra\@empty
+    }%
+    \protected@edef\thmt@shortoptarg{\thmt@newoptarg\@empty}%
+    \thmt@warn@unusedkeys
+  \else
+    \def\thmt@optarg{#1}%
+    \def\thmt@shortoptarg{#1}%
   \fi
 }
 \def\thmt@splitopt#1=#2\thmt@quark{%
@@ -188,13 +239,31 @@
   \@onelevel@sanitize\thmt@tmpkey
 }
 
-\define@key{thmuse}{label}{%
-  %\typeout{setting label: #1}%
+\def\thmt@thmuse@families{thm@track@keys}
+
+\kv@set@family@handler{thm@track@keys}{%
+  \@onelevel@sanitize\kv@key
+  \@namedef{thmt@unusedkey@\kv@key}{%
+    \PackageWarning{thmtools}{Unused key `#1'}%
+  }%
+  \@xa\g@addto@macro\@xa\thmt@warn@unusedkeys\@xa{%
+    \csname thmt@unusedkey@\kv@key\endcsname
+  }
+}
+
+\def\thmt@define@thmuse@key#1#2{%
+  \g@addto@macro\thmt@thmuse@families{,#1}%
+  \define@key{#1}{#1}{\thmt@thmuse@iskvtrue
+    \@namedef{thmt@unusedkey@#1}{}%
+    #2}%
+  \thmt@mkignoringkeyhandler{#1}%
+}
+
+\thmt@define@thmuse@key{label}{%
   \addtotheorempostheadhook[local]{\label{#1}}%
 }
-\define@key{thmuse}{name}{%
-  %\typeout{optarg: #1}%
-  \def\thmt@newoptarg{#1}%
+\thmt@define@thmuse@key{name}{%
+  \def\thmt@newoptarg{#1\@iden}%
 }
 
 \def\thmt@declaretheoremstyle@setup{}
@@ -208,6 +277,7 @@
   \kvsetkeys{thmstyle}{#1}%
   \thmt@declaretheoremstyle{#2}%
 }
+\@onlypreamble\declaretheoremstyle
 
 \kv@set@family@handler{thmstyle}{%
   \PackageInfo{thmtools}{%

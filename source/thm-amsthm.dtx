@@ -134,6 +134,19 @@
   }%
 }
 
+\def\thmt@amsthmlistbreakhack{%
+  \leavevmode
+  \vspace{-\baselineskip}%
+  \par
+  \everypar{\setbox\z@\lastbox\everypar{}}%
+}
+
+\define@key{thmuse}{listhack}[\relax]{%
+  \addtotheorempostheadhook[local]{%
+    \thmt@amsthmlistbreakhack
+  }%
+}
+
 %    \end{macrocode}
 %\iffalse (hide this from DocInput)
 %</amsthm>

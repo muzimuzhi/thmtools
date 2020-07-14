@@ -16,11 +16,13 @@
 
 \usepackage{doc,shortvrb,xspace}
 \makeatletter
+% to be fixed at some point...
 \let\PrintDescribeMacro\@gobble
 \let  \PrintDescribeEnv\@gobble
 \let    \PrintMacroName\@gobble
 \let      \PrintEnvName\@gobble
 \makeatother
+\CodelineNumbered
 
 \usepackage{listings}
 
@@ -42,6 +44,11 @@
 
 
 \providecommand\clap{\makebox[0pt][c]}
+
+\newcommand\key[2][\keydefaultcontext]{%
+  % todo: create an index from this...
+  \paragraph*{\texttt{#2}}
+}
 
 \lstloadlanguages{[LaTeX]TeX}
 \lstset{language=[LaTeX]TeX,basicstyle=\small\ttfamily,keywordstyle=\mdseries,aboveskip=0pt}
@@ -65,7 +72,8 @@
 }{%
   \endminipage\strut\par
 }
-\MakeShortVerb{\|}
+%\MakeShortVerb{\|}
+\lstMakeShortInline{|}
 
 
 \declaretheorem{theorem}
@@ -93,6 +101,7 @@
       spaceabove=6pt, spacebelow=6pt,
       headfont=\normalfont\bfseries,
       notefont=\mdseries, notebraces={(}{)},
+      bodyfont=\normalfont,
       postheadspace=1em,
       qed=\qedsymbol
     ]{mystyle}
@@ -179,15 +188,16 @@
   \end{result}
   
   Note that in all cases, you will need a \emph{backend} to provide the
-  command \lstinline|\newtheorem| with the usual behaviour. The \LaTeX\
+  command |\newtheorem| with the usual behaviour. The \LaTeX\
   kernel has a built-in backend which cannot do very much; the most common
-  backends these days are the amsthm and ntheorem packages. Throughout this
-  document, we'll use amsthm.
+  backends these days are the \pkg{amsthm} and \pkg{ntheorem} packages. 
+  Throughout this document, we'll use \pkg{amsthm}, and some of the features
+  won't work with \pkg{ntheorem}.
   
   \section{Elementary definitions}
   
   As you have seen above, the new command to define theorems is
-  \lstinline|\declaretheorem|, which in its most basic form just takes the
+  |\declaretheorem|, which in its most basic form just takes the
   name of the environment. All other options can be set through a key-val
   interface:
   \begin{source}
@@ -266,8 +276,8 @@
   ``sharecounter=''.
 
   Some theorems have a fixed name and are not supposed to get a number.
-  To this end, amsthm provides \lstinline|\newtheorem*|, which is
-  accessible through thmtools:
+  To this end, \pkg{amsthm} provides |\newtheorem*|, which is
+  accessible through \thmtools:
   \begin{source}
   \begin{preamble}[gobble=4]
     \usepackage{amsthm}
@@ -331,19 +341,25 @@
 
   In case you didn't know, you should: \pkg{hyperref}, \pkg{nameref} and
   \pkg{cleveref} offer ways of ``automagically'' knowing that
-  \lstinline|\label{foo}| was inside a theorem, so that a reference adds the
+  |\label{foo}| was inside a theorem, so that a reference adds the
   string ``Theorem''. This is all done for you, but there's one catch: you
-  have to tell \thmtools\ what the name to add is. (In singular and plural
-  form for \pkg{cleveref}.
+  have to tell \thmtools\ what the name to add is. By default, it will use
+  the title of the theorem, in particular, it will be uppercased.
+  (This happens to match the guidelines of all
+  publishers I have encountered.) But there is an alternate spelling
+  available, denoted by a capital letter, and in any case, if you use
+  \pkg{cleveref}, you should give two values separated by a comma, because
+  it will generate plural forms if you reference many theorems in one
+  |\cite|.
   \begin{source}
     \begin{preamble}[gobble=6]
       \usepackage{amsthm, thmtools}
       \usepackage{
         nameref,%\nameref
-        hyperref%\autoref; 
+        hyperref,%\autoref
         % n.b. \Autoref is defined by thmtools
         cleveref,% \cref
-        % nb cleveref after! hyperref
+        % n.b. cleveref after! hyperref
       }
       \declaretheorem[name=Theorem, 
         refname={theorem,theorems},
@@ -376,7 +392,7 @@
 
   \section{Styling theorems}
   
-  The major backends provide a command \lstinline|\theoremstyle| to switch
+  The major backends provide a command |\theoremstyle| to switch
   between looks of theorems. This is handled as follows:
   \begin{source}
   \begin{preamble}[gobble=4]
@@ -439,7 +455,7 @@
   As you can see, the color parameters can take two forms: it's either the
   name of a color that is already defined, without curly braces, or it can
   start with a curly brace, in which case it is assumed that
-  \lstinline|\definecolor{colorname}|$\langle$\textsl{what you said}$\rangle$ will be
+  |\definecolor{colorname}|$\langle$\textsl{what you said}$\rangle$ will be
   valid \LaTeX\ code. In our case, we use the rbg model to manually specify
   white. (Shadethm's default value is some sort of gray.)
   
@@ -488,8 +504,8 @@
   \subsection{Declaring new theoremstyles}
   
   \Thmtools\ also offers a new command to define new theoremstyles. It is
-  partly a frontend to the \lstinline|\newtheoremstyle| command of amsthm or
-  ntheorem, but it offers (more or less successfully) the settings of both to 
+  partly a frontend to the |\newtheoremstyle| command of \pkg{amsthm} or
+  \pkg{ntheorem}, but it offers (more or less successfully) the settings of both to 
   either. So we are talking about the same things, consider the sketch in
   \autoref{fig:params}. To get a result like that, you would use something
   like
@@ -499,6 +515,7 @@
       spaceabove=6pt, spacebelow=6pt,
       headfont=\normalfont\bfseries,
       notefont=\mdseries, notebraces={(}{)},
+      bodyfont=\normalfont,
       postheadspace=1em,
       qed=\qedsymbol
     ]{mystyle}
@@ -519,15 +536,15 @@
   have to give values for everything.
   
   There is one important thing you cannot see in this example: there are
-  more keys you can pass to \lstinline|\declaretheoremstyle|: if \thmtools\ cannot
+  more keys you can pass to |\declaretheoremstyle|: if \thmtools\ cannot
   figure out at all what to do with it, it will pass it on to the
-  \lstinline|\declaretheorem| commands that use that style. For example, you may use
+  |\declaretheorem| commands that use that style. For example, you may use
   the boxed and shaded keys here.
   
   To change the order in which title, number and note appear, there is a key
   headstyle. Currently, the values ``margin'' and ``swapnumber'' are
   supported. The daring may also try to give a macro here that uses the
-  commands \lstinline|\NUMBER|, \lstinline|\NAME| and \lstinline|\NOTE|. 
+  commands |\NUMBER|, |\NAME| and |\NOTE|. 
   You cannot circumvent the fact
   that headpunct comes at the end, though, nor the fonts and braces you
   select with the other keys.
@@ -610,11 +627,11 @@
   
   Note that in spite of being a theorem-environment, it gets number one all
   over again. Also, we get equation number~\eqref{eq:1} again. The star in 
-  \lstinline|\firsteuclid*| tells thmtools that it should redirect the label
+  |\firsteuclid*| tells thmtools that it should redirect the label
   mechanism, so that this reference: \autoref{thm:euclid} points to
   p.\,\pageref{thm:euclid}, where the unstarred environment is used. (You can
   also use a starred environment and an unstarred command, in which case the
-  behaviour is reversed.) Also, if you use hyperref, the links will lead you
+  behaviour is reversed.) Also, if you use \pkg{hyperref}, the links will lead you
   to the unstarred occurence.
   
   Just to demonstrate that we also handle more involved cases, I repeat
@@ -633,7 +650,7 @@
   \section{Lists of theorems}
   
   To get a list of theorems with default formatting, just use
-  \lstinline|\listoftheorems|:
+  |\listoftheorems|:
   \begin{source}
     \begin{body}[gobble=6]
       \listoftheorems
@@ -675,7 +692,37 @@
     \listoftheorems[ignoreall, onlynamed={theorem,Theorem,euclid}]
   \end{result}
 
-  As might be expected, the heading given is defined in \lstinline|\listoftheoremname|.
+  As might be expected, the heading given is defined in |\listoftheoremname|.
+
+  \section{Extended arguments to theorem environments}
+  
+  Usually, the optional argument of a theorem serves just to give a note
+  that is shown in the theorem's head. \Thmtools\ allows you to have a 
+  key-value list here as well. Currently, the only two keys that are
+  known are |name|, setting the note text, and |label|, which will put a
+  |\label| command after the heading, so it's only moderately useful right now.
+
+  But it's good to already know the following: we try to treat the argument
+  as a keyval argument. If \emph{any} key matches, we assume that is the
+  right thing to do. Otherwise, it is treated as an old-style direct note.
+  Note that for implementation reasons, keys that are unknown are silently
+  discarded.
+  \begin{source}
+    \begin{body}[gobble=6]
+      \begin{theorem}[name=Keyed theorem, 
+        label=thm:key]
+        This is a key-val theorem.
+      \end{theorem}
+    \end{body}
+  \end{source}
+  \begin{result}
+    \begin{theorem}[name=Keyed theorem, 
+        label=thm:key]
+        This is a key-val theorem.
+    \end{theorem}
+  \end{result}
+
+  
 
   \chapter{\Thmtools for the extravagant}\label{cha:extravagant}
 
@@ -686,22 +733,344 @@
   
   \section{Understanding \thmtools' extension mechanism}
 
-  TBD.
+  \Thmtools\ draws most of its power really only from one feature:
+  the |\newtheorem| of the backend will, for example, create
+  a theorem environment, i.e. the commands |\theorem| and
+  |\endtheorem|. To add functionality, four places immediately
+  suggest themselves: ``immediately before'' and ``immediately after'' those
+  two.
+  
+  There are two equivalent ways of adding code there: one is to call
+  |\addtotheorempreheadhook| and its brothers and sisters
+  |...postheadhook|, |...prefoothook|
+  and |...postfoothook|.
+  All of these take an \emph{optional} argument, the name of the
+  environment, and the new code as a mandatory argument. The environment is 
+  optional because there  is also a set of ``generic'' hooks added to every
+  theorem that you define.
+  
+  The other way is to use the keys |preheadhook| et al. in your
+  |\declaretheorem|. (There is no way of accessing the generic
+  hook in this way.)
+  
+  The hooks are arranged in the following way: first the specific prehead,
+  then the generic one. Then, the original |\theorem| (or
+  whatever) will be called. Afterwards, first the specific posthead again,
+  then the generic one. (This means that you cannot wrap the head alone in
+  an environment this way.) At the end of the theorem, it is the other way
+  around: first the generic, then the specific, both before and after that
+  |\endtheorem|. This means you can wrap the entire theorem
+  easily by adding to the prehead and the postfoot hooks. Note that
+  \thmtools\ does not look inside |\theorem|, so you cannot get
+  inside the head formatting, spacing, punctuation in this way.
+  
+  In many situations, adding static code will not be enough. Your code can
+  look at |\thmt@envname|, |\thmt@thmname| and 
+  |\thmt@optarg|, which will contain the name of the environment,
+  its title, and, if present, the optional argument (otherwise, it is
+  |\@empty|).
+  \emph{However}, you should not make assumptions about the optional
+  argument in the preheadhook: it might still be key-value, or it might
+  already be what will be placed as a note. (This is because the key-val
+  handling itself is added as part of the headkeys.)
+
+
+  \section{Case in point: the shaded key}
+  
+  Let us look at a reasonably simple example: the shaded key, which we've
+  already seen in the first section. You'll observe that we run into a
+  problem similar to the four-hook mess: your code may either want to modify
+  parameters that need to be set beforehand, or it wants to modify the 
+  environment after it has been created. To hide this from the user, the
+  code you define for the key is actually executed twice, and
+  |\thmt@trytwice{A}{B}| will execute A on the first pass, and B
+  on the second. Here, we want to add to the hooks, and the hooks are only
+  there in the second pass.
+  
+  \DocInput{thmdef-shaded.dtx}
 
   \section{Case in point: the thmbox key}
 
   \DocInput{thmdef-thmbox.dtx}
 
+  
+  \section{How \thmtools\ finds your extensions}
 
-  \section{Case in point: the shaded key}
+  Up to now, we have discussed how to write the code that adds functionality
+  to your theorems, but you don't know how to activate it yet. 
+  Of course, you can put it in your preamble, likely embraced by
+  |\makeatletter| and |\makeatother|, because you are
+  using internal macros with @ in their name (viz.,
+  |\thmt@envname| and friends). You can also put them into a
+  package (then, without the |\makeat...|), 
+  which is simply a file ending in .sty put somewhere that \LaTeX\ can find
+  it, which can then be laoded with |\usepackage|.
+  To find out where exactly that is, and if you'd need to update
+  administrative helper files such as a filename database FNDB, 
+  please consult the documentation of your \TeX\ distribution.
   
-  \DocInput{thmdef-shaded.dtx}
+  Since you most likely want to add keys as well, there is a shortcut that
+  \thmtools\ offers you: whenever you use a key |key| in a
+  |\declaretheorem| command, and \thmtools\ doesn't already know
+  what to do with it, it will try to |\usepackage{thmdef-key}| and
+  evaluate the key again. (If that doesn't work, \thmtools\ will cry
+  bitterly.)
   
+  For example, there is no provision in \thmtools\ itself that make the
+  |shaded| and |thmbox| keys described above special:
+  in fact, if you want to use a different package to create frames, you just
+  put a different |thmdef-shaded.sty| into a preferred texmf tree.
+  Of course, if your new package doesn't offer the old keys, your old
+  documents might break!
+  
+  The behaviour for the keys in the style definition is slightly different:
+  if a key is not known there, it will be used as a ``default key'' to every
+  theorem that is defined using this style. For example, you can give the
+  |shaded| key in a style definition.
+  
+  Lastly, the key-val arguments to the theorem environments themselves need
+  to be loaded manually, not least because inside the document it's too late
+  to call |\usepackage|.
 
   \chapter{\Thmtools for the completionist}\label{cha:reference}
 
   This will eventually contain a reference to all known keys, commands, etc.
 
+
+  \section{Known keys to \texttt{\textbackslash declaretheoremstyle}}
+  \def\keydefaultcontext{declaretheoremstyle}
+
+  N.b. implementation for \pkg{amsthm} and \pkg{ntheorem} is separate for
+  these, so if it doesn't work for \pkg{ntheorem}, try if it works with
+  \pkg{amsthm}, which in general supports more things.
+
+  Also, all keys listed as known to |\declaretheorem| are valid.
+
+  \key{spaceabove} Value: a length. Vertical space above the theorem,
+  possibly discarded if the theorem is at the top of the page.
+
+  \key{spacebelow} Value: a length. Vertical space after the theorem,
+  possibly discarded if the theorem is at the top of the page.
+
+  \key{headfont} Value: \TeX\ code. Executed just before the head of the
+  theorem is typeset, inside a group. Intended use it to put font switches here.
+
+  \key{notefont}
+    Value: \TeX\ code. Executed just before the note in the head is typeset, inside a group. 
+    Intended use it to put font switches here. Formatting also applies to
+    the braces around the note.
+    Not supported by \pkg{ntheorem}.
+
+  \key{bodyfont} 
+    Value: \TeX\ code. Executed before the begin part of the theorem ends,
+    but before all afterheadhooks. Intended use it to put font switches here.
+  
+  \key{headpunct}
+    Value: \TeX\ code, usually a single character. Put at the end of the
+    theorem's head, prior to linebreaks or indents.
+  
+  \key{notebraces}
+    Value: Two characters, the opening and closing symbol to use around a
+    theorem's note.
+    (Not supported by \pkg{ntheorem}.)
+
+  \key{postheadspace}
+    Value: a length. Horizontal space inserted after the entire head of the
+    theorem, before the body. Does probably not apply (or make sense) for
+    styles that have a linebreak after the head.
+
+  \key{headindent}
+    Value: a length. Horizontal space inserted before the head. Some
+    publishers like |\parindent| here for remarks, for example.
+
+  \key{headstyle}
+    Value: \LaTeX\ code using the special placeholders |\NUMBER|, |\NAME|
+    and |\NOTE|, which correspond to the (formatted, including the braces
+    for |\NOTE| etc.) three parts of a theorem's head. This can be used to
+    override the usual style ``1.1 Theorem (Foo)'', for example to let the
+    numbers protude in the margin or put them after the name.
+    
+    Additionally, a number of keywords are allowed here instead of \LaTeX\
+    code:
+    \begin{description}
+      \item[margin] Lets the number protude in the (left) margin.
+      \item[swapnumber] Puts the number before the name. Currently
+      not working so well for unnumbered theorems.
+      \item[] \emph{This list is likely to grow}
+    \end{description}
+
+  \section{Known keys to \texttt{\textbackslash declaretheorem}}
+  \def\keydefaultcontext{declaretheorem}
+
+  \key{parent}
+    Value: a counter name. The theorem will be reset whenever that counter
+    is incremented. Usually, this will be a sectioning level, |chapter| or
+    |section|.
+
+  \key{numberwithin}
+    Value: a counter name. The theorem will be reset whenever that counter
+    is incremented. Usually, this will be a sectioning level, |chapter| or
+    |section|.
+    (Same as parent.)
+
+  \key{within}
+    Value: a counter name. The theorem will be reset whenever that counter
+    is incremented. Usually, this will be a sectioning level, |chapter| or
+    |section|.
+    (Same as parent.)
+
+  
+  \key{sibling}
+    Value: a counter name. The theorem will use this counter for numbering.
+    Usually, this is the name of another theorem environment.
+    
+  \key{numberlike}
+    Value: a counter name. The theorem will use this counter for numbering.
+    Usually, this is the name of another theorem environment.
+    (Same as sibling.)
+  
+  \key{sharenumber}
+    Value: a counter name. The theorem will use this counter for numbering.
+    Usually, this is the name of another theorem environment.
+    (Same as sibling.)
+
+  
+  \key{title}
+    Value: \TeX\ code. The title of the theorem. Default is the name of the
+    environment, with |\MakeUppercase| prepended. You'll have to give
+    this if your title starts with a accented character, for example.
+
+  \key{name}
+    Value: \TeX\ code. The title of the theorem. Default is the name of the
+    environment, with |\MakeUppercase| prepended. You'll have to give
+    this if your title starts with a accented character, for example.
+    (Same as title.)
+
+  \key{heading}
+    Value: \TeX\ code. The title of the theorem. Default is the name of the
+    environment, with |\MakeUppercase| prepended. You'll have to give
+    this if your title starts with a accented character, for example.
+    (Same as title.)
+  
+  \key{numbered}
+    Value: one of the keywords |yes|, |no| or |unless unique|. The theorem
+    will be numbered, not numbered, or only numbered if it occurs more than
+    once in the document. (The latter requires another \LaTeX\ run and will
+    not work well combined with |sibling|.)
+  
+  \key{style}
+    Value: the name of a style defined with |\declaretheoremstyle| or
+    |\newtheoremstyle|. The theorem will use the settings of this style.
+  
+  \key{preheadhook}
+    Value: \LaTeX\ code. This code will be executed at the beginning of the
+    environment, even before vertical spacing is added and the head is
+    typeset. However, it is already within the group defined by the
+    environment.
+  
+  \key{postheadhook}
+    Value: \LaTeX\ code. This code will be executed after the call to the
+    original begin-theorem code. Note that all backends seem to delay
+    typesetting the actual head, so code here should probably enter
+    horizontal mode to be sure it is after the head, but this will change
+    the spacing/wrapping behaviour if your body starts with another list.
+
+  \key{prefoothook}
+    Value: \LaTeX\ code. This code will be executed at the end of the body
+    of the environment.
+    
+  \key{postfoothook}
+    Value: \LaTeX\ code. This code will be executed at the end of the
+    environment, even after eventual vertical spacing, but still within the
+    group defined by the environment.
+  
+  \key{refname}
+    Value: one string, or two string separated by a comma (no spaces). This
+    is the name of the theorem as used by |\autoref|, |\cref| and friends. If it is
+    two strings, the second is the plural form used by |\cref|. Default
+    value is the value of |name|, i.e. usually the environment name, with
+    \MakeUppercase.
+
+  \key{Refname}
+    Value: one string, or two string separated by a comma (no spaces). This
+    is the name of the theorem as used by |\Autoref|, |\Cref| and friends. If it is
+    two strings, the second is the plural form used by |\Cref|. This can be
+    used for alternate spellings, for example if your style requests no
+    abbreviations at the beginning of a sentence. No default.
+
+  
+  \key{shaded}
+    Value: a key-value list, where the following keys are possible:
+    \begin{description}
+      \item[textwidth]
+        The linewidth within the theorem.
+      \item[bgcolor]
+        The color of the background of the theorem. Either a color name or a
+        color spec as accepted by |\definecolor|, such as |{gray}{0.5}|.
+      \item[rulecolor]
+        The color of the box surrounding the theorem. Either a color name or
+        a color spec.
+      \item[rulewidth]
+        The width of the box surrounding the theorem.
+      \item[margin]
+        The length by which the shade box surrounds the text.
+    \end{description}
+  
+  \key{thmbox}
+    Value: one of the characters L, M and S; see examples above.
+  
+
+  \section{Known keys to in-document theorems}
+  \def\keydefaultcontext{theorem}
+
+  \key{label} Value: a legal |\label| name.
+  Issues a |\label| command after the theorem's head.
+
+  \key{name} Value: \TeX\ code that will be typeset.
+  What you would have put in the optional argument in the
+  non-keyval style, i.e. the note to the head. This is \emph{not} the same
+  as the name key to |\declaretheorem|, you cannot override that from within
+  the document.
+  
+  \key{listhack} Value: doesn't matter. (But put something to trigger
+  key-val behaviour, maybe listhack=true.) Linebreak styles in \pkg{amsthm}
+  don't linebreak if they start with another list, like an |enumerate|
+  environment. Giving the |listhack| key fixes that. \emph{Don't} give this
+  key for non-break styles, you'll get too little vertical space! (Just use
+  |\leavevmode| manually there.)
+  An all-around listhack that handles both situations might come in a
+  cleaner rewrite of the style system.
+
+  \section{Restatable -- hints and caveats}
+
+  TBD.
+  \begin{itemize}
+    \item Some counters are saved so that the same values appear when you
+    re-use them. The list of these counters is stored in the macro
+    |\thmt@innercounters| as a comma-separated list without spaces; default: equation.
+
+    \item To preserve the influence of other counters (think: equation
+    numbered per section and recall the theorem in another section), we need
+    to know all macros that are used to turn a counter into printed output.
+    Again, comma-separated list without spaces, without leading backslash, stored as
+    |\thmt@counterformatters|. Default:
+    |@alph,@Alph,@arabic,@roman,@Roman,@fnsymbol|
+    All these only take
+    the \LaTeX\ counter |\c@foo| as arguments. If you bypass this and use
+    |\romannumeral|, your numbers go wrong and you get what you deserve.
+    Important if you have very strange numbering, maybe using greek letters
+    or somesuch.
+
+    \item I think you cannot have one stored counter within another one's
+    typeset representation. I don't think that ever occurs in reasonable
+    circumstances, either. Only one I could think of: multiple subequation
+    blocks that partially overlap the theorem. Dude, that doesn't even nest.
+    You get what you deserve.
+    
+    \item |\label| and \pkg{amsmath}'s |\ltx@label| are disabled inside the
+    starred execution. Possibly, |\phantomsection| should be disabled as
+    well?
+  \end{itemize}
 
   \appendix
   

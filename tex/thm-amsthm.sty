@@ -20,7 +20,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-amsthm}[2010/05/18 v24]
+\ProvidesPackage {thm-amsthm}[2010/06/08 v35]
 \define@key{thmstyle}{spaceabove}{%
   \def\thmt@style@spaceabove{#1}%
 }
@@ -133,6 +133,19 @@
       \protected@edef\qedsymbol{#1}%
       \popQED
     }%
+  }%
+}
+
+\def\thmt@amsthmlistbreakhack{%
+  \leavevmode
+  \vspace{-\baselineskip}%
+  \par
+  \everypar{\setbox\z@\lastbox\everypar{}}%
+}
+
+\define@key{thmuse}{listhack}[\relax]{%
+  \addtotheorempostheadhook[local]{%
+    \thmt@amsthmlistbreakhack
   }%
 }
 

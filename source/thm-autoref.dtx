@@ -97,11 +97,22 @@
 \AtBeginDocument{%
   \@ifpackageloaded{nameref}{%
     \addtotheorempostheadhook{%
-      \expandafter\NR@gettitle\expandafter{\thmt@optarg}%
+      \expandafter\NR@gettitle\expandafter{\thmt@shortoptarg}%
   }}{}
 }
 
-
+\AtBeginDocument{%
+  \@ifpackageloaded{cleveref}{%
+    \@ifpackagelater{cleveref}{2010/04/30}{%
+    % OK, new enough
+    }{%
+      \PackageWarningNoLine{thmtools}{%
+        Your version of cleveref is too old!\MessageBreak
+        Update to version 0.16.1 or later%
+      }
+    }
+  }{}
+}
 %    \end{macrocode}
 %\iffalse
 %</autoref>

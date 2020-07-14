@@ -20,8 +20,9 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thmdef-thmbox}[2010/05/18 v24]
+\ProvidesPackage {thmdef-thmbox}[2010/06/08 v35]
 \define@key{thmdef}{thmbox}[L]{%
+  \thmt@trytwice{%
   \let\oldproof=\proof
   \let\oldendproof=\endproof
   \let\oldexample=\example
@@ -32,6 +33,7 @@
   \let\example=\oldexample
   \let\endexample=\oldendexample
   \def\thmt@theoremdefiner{\newboxtheorem[#1]}%
+  }{}%
 }%
 \endinput
 %%
