@@ -10,31 +10,8 @@
 % \fi
 %
 %\iffalse
-%<*driver>
-\documentclass{ltxdoc}
-\usepackage{unique}
-
-\usepackage[T1]{fontenc}
-\usepackage{fourier}
-\usepackage[scaled=0.87]{luximono, helvet}
-\newcommand\pkg{\textsf}
-\EnableCrossrefs
-\CodelineIndex
-\RecordChanges
-\GetFileInfo{unique.sty}
-\author{Ulrich M. Schwarz\thanks{ulmi at absatzen dot de}}
-\title{The \pkg{unique} package\thanks{%
-  This documents \pkg{unique}~\fileversion, dated~\filedate.
-  Newer versions might be found at http://absatzen.de
-}}
-\begin{document}
-  \maketitle
-  \DocInput{unique.dtx}
-\end{document}
-%</driver>
 %<*code>
 %\fi
-%    \section{Usage}
 %    Two macros are provided: |\setuniqmark| takes a single parameter,
 %    the name, which should be a string of letters. |\ifuniqmark| takes
 %    three parameters: a name, a true-part and a false-part. The true
@@ -49,15 +26,25 @@
 %    fall back to numbering when you add another one.
 %
 %     \StopEventually{}
-%    \section{Implementation}
 %
 %    \begin{macrocode}
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{unique}[2007/07/29 v0.1 test for uniqueness (ulmi)]
+
+\DeclareOption{unq}{%
+  \newwrite\uniq@channel
+  \InputIfFileExists{\jobname.unq}{}{}%
+  \immediate\openout\uniq@channel=\jobname.unq
+  \AtEndDocument{%
+    \immediate\closeout\uniq@channel%
+  }
+}
+\DeclareOption{aux}{%
+  \let\uniq@channel\@auxout
+}
+
 %    \end{macrocode}
 %
 %
-%    \iffalse $Id: unique.dtx,v 1.3 2008/03/09 18:59:17 ulmi Exp $\fi
+%    \iffalse $Id: unique.dtx,v 1.4 2010/04/25 19:37:46 ulmi Exp $\fi
 %    \begin{macro}{\setuniqmark}
 %    Call this with a name to set the corresponding uniqmark. The name must
 %    be suitable for |\csname|-constructs, i.e. fully expansible to a
@@ -72,7 +59,7 @@
   \global\@namedef{uniq@now@#1}{\uniq@ONE}%
   \else
   \expandafter\ifx\csname uniq@now@#1\endcsname\uniq@MANY\else
-  \immediate\write\@auxout{%
+  \immediate\write\uniq@channel{%
     \string\uniq@setmany{#1}%
   }%
   \ifuniq{#1}{%
@@ -178,6 +165,8 @@
 \AtEndDocument{%
   \immediate\write\@auxout{\string\uniq@maybesuggestrerun}%
 }
+\ExecuteOptions{aux}
+\ProcessOptions\relax
 %    \end{macrocode}
 %\iffalse
 %</code>

@@ -11,78 +11,79 @@
 %
 %\iffalse (hide this from DocInput)
 %<*driver>
-\documentclass{ltxdoc}
-
-\let\pkg\textsf
-\def\thmtools{\pkg{thmtools}}
-\def\thmversion{2010/04/05 v0.1beta13}
-
-\usepackage[T1]{fontenc}
-\usepackage[widespace]{fourier}
-\usepackage[scaled=0.88]{helvet}
-\usepackage[scaled]{luximono}
-
-\usepackage{amsmath, amsthm}
-\usepackage{thm-patch, thm-kv, thm-autoref, thm-listof, thm-restate}
-\declaretheorem{remark}
-\declaretheorem{lemma}
-\declaretheorem[sibling=lemma, shaded, name={Rule of Thumb}]{ruleofthumb}
-\usepackage{color}
-\declaretheorem[shaded={bgcolor={rgb}{1,0,0},rulecolor={rgb}{0,1,0},rulewidth=2em,
-   margin=1em, textwidth=5cm}]{eyesore}
-
-
-\EnableCrossrefs
-\CodelineIndex
-\RecordChanges
-\OnlyDescription
-\title{The \thmtools\ bundle\thanks{%
-  This documents \thmtools\ version \thmversion.
-  Newer releases might be available at http://absatzen.de/.
-}}
-\author{Ulrich M. Schwarz, \texttt{ulmi@absatzen.de}}
-
-\begin{document}
-  \maketitle
-  \begin{abstract}
-    \thmtools\ is a collection of tools and enhancements for theorem
-    environments.
-  \end{abstract}
-  \begin{remark}
-    Each of the packages has its own documentation in a file named after the
-    package itself. The only difference is that those documentations include
-    the reasonably-well documented source code.
-  \end{remark}
-  \section*{\pkg{thm-kv}}
-  \DocInput{thm-kv.dtx}
-  
-  \section*{\pkg{thm-restate}}
-  \DocInput{thm-restate.dtx}
-  
-  \section*{\pkg{thm-autoref}}  
-  \DocInput{thm-autoref.dtx}
-
-  \section*{\pkg{thm-listof}}
-  \DocInput{thm-listof.dtx}
-  
-  \section*{\pkg{thm-patch}}  
-  \DocInput{thm-patch.dtx}
-
-  \section*{\pkg{aliasctr}}
-  \DocInput{aliasctr.dtx}
-
-  \section*{\pkg{parseargs}}
-  \DocInput{parseargs.dtx}
-
-  \section*{\pkg{unique}}
-  \DocInput{unique.dtx}
-\end{document}
+\makeatletter
+\ifx\documentclass\@twoclasserror\else
+  \expandafter\@firstofone
+\fi{%
+  \makeatother
+  %% we are either \RequirePackage'd
+  %% (which we won't support) or compiled directly.
+  %% If we are compiled directly, yield the manual.
+  %% Otherwise, this looks like a debugging session
+  %% that directly uses the dtx file instead of the sty.
+  \input{thmtools-manual.tex}
+  \endinput
+}
 %</driver>
 %<*thmtools>
 %\fi
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thmtools}[2008/07/05 v0.1beta7 Tools for theorem typesetting (ulmi)]
-\RequirePackage{thm-kv, thm-autoref, thm-listof}
+%    \begin{macrocode}
+% common abbreviations and marker macros.
+\let\@xa\expandafter
+\let\@nx\noexpand
+\def\thmt@quark{\thmt@quark}
+\newtoks\thmt@toks
+
+
+% a scratch counter, mostly for fake hyperlinks
+\newcounter{thmt@dummyctr}%
+\def\theHthmt@dummyctr{dummy.\arabic{thmt@dummyctr}}%
+\def\thethmt@dummyctr{}%
+
+\newcommand\thmt@mkextendingkeyhandler[3]{%
+% #1: family
+% #2: prefix for file
+% #3: key hint for error
+  \kv@set@family@handler{#1}{%
+    \IfFileExists{#2-##1.sty}{%
+      \PackageInfo{thmtools}%
+        {Automatically pulling in `#2-##1'}%
+      \RequirePackage{#2-##1}%
+      \ifcsname KV@#1@##1\endcsname
+        \csname KV@#1@##1\endcsname{##2}%
+      \else
+        \PackageError{thmtools}%
+        {#3 `##1' not known}
+        {I don't know what that key does.\MessageBreak
+         I've even loaded the file `#2-##1.sty', but that didn't help.
+        }%
+      \fi
+    }{%
+      \PackageError{thmtools}%
+      {#3 `##1' not known}
+      {I don't know what that key does by myself,\MessageBreak
+       and no file `#2-##1.sty' to tell me seems to exist.
+      }%
+    }%
+  }
+}
+
+\RequirePackage{thm-patch, thm-kv, 
+  thm-autoref, thm-listof, 
+  thm-restate}
+
+% Glue code for the big players.  
+\@ifpackageloaded{amsthm}{%
+  \RequirePackage{thm-amsthm}
+}{}
+\@ifpackageloaded{ntheorem}{%
+  \RequirePackage{thm-ntheorem}
+}{}
+\@ifclassloaded{beamer}{%
+  \RequirePackage{thm-beamer}
+}{}
+%    \end{macrocode}
+
 %\iffalse
 %</thmtools>
 %\fi

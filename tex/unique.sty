@@ -11,21 +11,35 @@
 %% The `thmtools' package has the LPPL maintenance status: maintained.
 %% Current Maintainer is Ulrich M. Schwarz, ulmi@absatzen.de
 %% 
-%% Copyright (C) 2008 by Ulrich M. Schwarz.
+%% Copyright (C) 2008-2020 by Ulrich M. Schwarz.
 %% 
 %% This file may be distributed and/or modified under the
 %% conditions of the LaTeX Project Public License, version 1.3a.
 %% This version is obtainable at
 %% http://www.latex-project.org/lppl/lppl-1-3a.txt
 %% 
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{unique}[2007/07/29 v0.1 test for uniqueness (ulmi)]
+%% 
+\NeedsTeXFormat {LaTeX2e}
+\ProvidesPackage {unique}[2010/05/18 v24]
+
+\DeclareOption{unq}{%
+  \newwrite\uniq@channel
+  \InputIfFileExists{\jobname.unq}{}{}%
+  \immediate\openout\uniq@channel=\jobname.unq
+  \AtEndDocument{%
+    \immediate\closeout\uniq@channel%
+  }
+}
+\DeclareOption{aux}{%
+  \let\uniq@channel\@auxout
+}
+
 \newcommand\setuniqmark[1]{%
   \expandafter\ifx\csname uniq@now@#1\endcsname\relax
   \global\@namedef{uniq@now@#1}{\uniq@ONE}%
   \else
   \expandafter\ifx\csname uniq@now@#1\endcsname\uniq@MANY\else
-  \immediate\write\@auxout{%
+  \immediate\write\uniq@channel{%
     \string\uniq@setmany{#1}%
   }%
   \ifuniq{#1}{%
@@ -78,6 +92,8 @@
 \AtEndDocument{%
   \immediate\write\@auxout{\string\uniq@maybesuggestrerun}%
 }
+\ExecuteOptions{aux}
+\ProcessOptions\relax
 \endinput
 %%
 %% End of file `unique.sty'.

@@ -10,68 +10,9 @@
 % \fi
 %
 %\iffalse (hide this from DocInput)
-%<*driver>
-\documentclass{ltxdoc}
-
-\usepackage[T1]{fontenc}
-\usepackage{fourier}
-\usepackage[scaled=0.8]{helvet}
-\usepackage{luximono}
-
-\usepackage{amsmath, amsthm}
-\usepackage{thm-patch}
-\newtheorem{lemma}{Lemma}
-\GetFileInfo{thm-listof.sty}
-\providecommand\pkg{\textsf}
-\EnableCrossrefs
-\CodelineIndex
-\RecordChanges
-\begin{document}
-
- \newcommand\thmlistof{\textsf{thm-listof}}
- \title{The \thmlistof\ package\thanks{%
-   This file documents version~\fileversion\ of~\filedate,
-   RCS ${}$Id: thm-listof.dtx,v 1.11 2009/03/22 18:05:57 ulmi Exp ulmi ${}$.
- }}
- \author{Ulrich M. Schwarz\thanks{ulmi@absatzen.de}}
-
- \maketitle
-
-\begin{abstract}
-\end{abstract}
-
-  \DocInput{thm-listof.dtx}
-\end{document}
-%</driver>
 %<*listof>
 %\fi
 %
-% \CharacterTable
-% {Upper-case \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
-% Lower-case \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
-% Digits \0\1\2\3\4\5\6\7\8\9
-% Exclamation \! Double quote \" Hash (number) \#
-% Dollar \$ Percent \% Ampersand \&
-% Acute accent \' Left paren \( Right paren \)
-% Asterisk \* Plus \+ Comma \,
-% Minus \- Point \. Solidus \/
-% Colon \: Semicolon \; Less than \<
-% Equals \= Greater than \> Question mark \?
-% Commercial at \@ Left bracket \[ Backslash \\
-% Right bracket \] Circumflex \^ Underscore \_
-% Grave accent \` Left brace \{ Vertical bar \|
-% Right brace \} Tilde \~}
-% \CheckSum{160}
-%
-% \DoNotIndex{\@for,\addtocounter,\arabic,\csname,\endcsname,\cup,\CurrentOption}
-% \DoNotIndex{\{,\},\do,\define@key,\def,\DeclareOption,\else,\ensuremath,\expandafter}
-% \DoNotIndex{\hspace,\fi,\rule,\ifcase,\ifx,\in,\InputIfFileExists,\leq,\let,\mathpalette}
-% \DoNotIndex{\NeedsTeXFormat,\ldots,\ldotp,\newcommand,\newcounter,\or}
-% \DoNotIndex{\PackageInfo,\PackageWarning,\parm,\ProcessOptions,\protected@edef}
-% \DoNotIndex{\providecommand,\ProvidesPackage,\relax,\renewcommand,\RequirePackage}
-% \DoNotIndex{\setcounter,\setkeys,\rlap,\setminus,\widthof,\mathrm}
-%
-%\section{Usage}
 % This package provides two main commands:
 % \DescribeMacro{\listoftheorems}
 % |\listoftheorems| will generate, well, a list of all theorems, lemmas,
@@ -111,25 +52,22 @@
 % daring, the code for the theorem type ``lemma'' is in |\l@lemma| and so on.
 %
 %\StopEventually{}
-%\section{Implementation}
 %    \begin{macrocode}
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thm-listof}[2010/04/05 v0.1beta13 thm-listof (ulmi)]
 \let\@xa=\expandafter
 \let\@nx=\noexpand
-\RequirePackage{thm-patch}
+\RequirePackage{thm-patch,keyval,kvsetkeys}
 
 \def\thmtlo@oldchapter{0}%
 \newcommand\thmtlo@chaptervspacehack{}
-\@ifundefined{chapter}{}{%
+\ifcsname chapter\endcsname
   \def\thmtlo@chaptervspacehack{%
-    \ifnum \arabic{chapter}>\thmtlo@oldchapter\relax
+    \ifnum \value{chapter}>\thmtlo@oldchapter\relax
       % new chapter, add vspace to loe.
       \addtocontents{loe}{\protect\addvspace{10\p@}}%
-      \edef\thmtlo@oldchapter{\arabic{chapter}}%
+      \xdef\thmtlo@oldchapter{\arabic{chapter}}%
     \fi
   }%
-}
+\fi
 
 \providecommand\listtheoremname{List of Theorems}
 \newcommand\listoftheorems[1][]{%
@@ -138,6 +76,9 @@
   \bgroup
   \setlisttheoremstyle{#1}%
   \let\listfigurename\listtheoremname
+  \def\contentsline##1{%
+    \csname thmt@contentsline@##1\endcsname{##1}%
+  }%
   \let\thref@starttoc\@starttoc
   \def\@starttoc##1{\thref@starttoc{loe}}%
   % new hack: to allow multiple calls, we defer the opening of the
@@ -158,7 +99,7 @@
 }
 
 \newcommand\setlisttheoremstyle[1]{%
-  \setkeys{thmt-listof}{#1}%
+  \kvsetkeys{thmt-listof}{#1}%
 }
 \define@key{thmt-listof}{numwidth}{\def\thmt@listnumwidth{#1}}
 \define@key{thmt-listof}{ignore}[\thmt@allenvs]{\ignoretheorems{#1}}
@@ -175,10 +116,21 @@
   \@xa\protected@edef\csname l@\thmt@envname\endcsname{% CHECK: why p@edef?
     \@nx\@dottedtocline{1}{1.5em}{\@nx\thmt@listnumwidth}%
   }%
-  \@xa\def\csname ll@\thmt@envname\endcsname{%
-    \protect\numberline{\csname the\thmt@envname\endcsname}%
-    \thmt@thmname
-    \ifx\@empty\thmt@optarg\else\protect\thmtformatoptarg{\thmt@optarg}\fi
+  \ifthmt@isstarred
+    \@xa\def\csname ll@\thmt@envname\endcsname{%
+      \protect\numberline{\protect\let\protect\autodot\protect\@empty}%
+      \thmt@thmname
+      \ifx\@empty\thmt@optarg\else\protect\thmtformatoptarg{\thmt@optarg}\fi
+    }%
+  \else
+    \@xa\def\csname ll@\thmt@envname\endcsname{%
+      \protect\numberline{\csname the\thmt@envname\endcsname}%
+      \thmt@thmname
+      \ifx\@empty\thmt@optarg\else\protect\thmtformatoptarg{\thmt@optarg}\fi
+    }%
+  \fi
+  \@xa\gdef\csname thmt@contentsline@\thmt@envname\endcsname{%
+    \thmt@contentslineShow% default:show
   }%
 }
 \def\thmt@allenvs{\@gobble}
@@ -196,36 +148,59 @@
     \csname ll@\thmt@envname\endcsname
   }%
 }
+
+\newcommand\showtheorems[1]{%
+  \@for\thm:=#1\do{%
+    \typeout{showing \thm}%
+    \@xa\let\csname thmt@contentsline@\thm\endcsname
+      =\thmt@contentslineShow
+  }%
+}
+
 \newcommand\ignoretheorems[1]{%
   \@for\thm:=#1\do{%
-    \@xa\let\csname l@\thm\endcsname=\@gobbletwo
+    \@xa\let\csname thmt@contentsline@\thm\endcsname
+      =\thmt@contentslineIgnore
   }%
 }
 \newcommand\onlynamedtheorems[1]{%
   \@for\thm:=#1\do{%
-    \@xa\let\csname l@\thm\endcsname=\thmt@showifnamedtheorem
+    \global\@xa\let\csname thmt@contentsline@\thm\endcsname
+      =\thmt@contentslineIfNamed
   }%
 }
-\def\thmt@showifnamedtheorem#1#2{%
-  % check for \thmtformatoptarg on top level of first argument.
-  \thmt@sh@wifnamedtheorem#1\thmtformatoptarg\@nil{%
-    \@dottedtocline{1}{1.5em}{\thmt@listnumwidth}{#1}{#2}%
-  }{}%
+
+\AtBeginDocument{%
+\@ifpackageloaded{hyperref}{%
+  \let\thmt@hygobble\@gobble
+}{%
+  \let\thmt@hygobble\@empty
 }
-\def\thmt@sh@wifnamedtheorem#1\thmtformatoptarg#2\@nil{%
+\let\thmt@contentsline\contentsline
+}
+
+\def\thmt@contentslineIgnore#1#2#3{%
+  \thmt@hygobble
+}
+\def\thmt@contentslineShow{%
+  \thmt@contentsline
+}
+
+\def\thmt@contentslineIfNamed#1#2#3{%
+  \thmt@ifhasoptname #2\thmtformatoptarg\@nil{%
+    \thmt@contentslineShow{#1}{#2}{#3}%
+  }{%
+    \thmt@contentslineIgnore{#1}{#2}{#3}%
+    %\thmt@contentsline{#1}{#2}{#3}%
+  }
+}
+  
+\def\thmt@ifhasoptname #1\thmtformatoptarg#2\@nil{%
   \ifx\@nil#2\@nil
     \@xa\@secondoftwo
   \else
     \@xa\@firstoftwo
   \fi
-}
-
-\newcommand\showtheorems[1]{%
-  \@for\thm:=#1\do{%
-    \@xa\protected@edef\csname l@\thm\endcsname{% CHECK: why p@edef?
-      \@nx\@dottedtocline{1}{1.5em}{\@nx\thmt@listnumwidth}%
-    }%
-  }%
 }
 %    \end{macrocode}
 %\iffalse

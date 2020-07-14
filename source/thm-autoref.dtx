@@ -10,68 +10,8 @@
 % \fi
 %
 %\iffalse (hide this from DocInput)
-%<*driver>
-\documentclass{ltxdoc}
-
-\usepackage[T1]{fontenc}
-\usepackage{fourier}
-\usepackage[scaled=0.8]{helvet}
-\usepackage{luximono}
-
-\usepackage{amsmath, amsthm}
-\usepackage{thm-autoref}
-\newtheorem{lemma}{Lemma}
-\providecommand\pkg{\textsf}
-\GetFileInfo{thm-autoref.sty}
-\EnableCrossrefs
-\CodelineIndex
-\RecordChanges
-\begin{document}
-  \newcommand\thmrestate{\textsf{thm-patch}}
-  \title{The \thmrestate\ package\thanks{%
-    This file documents version~\fileversion\ of~\filedate,
-    RCS ${}$Id: thm-autoref.dtx,v 1.4 2008/03/09 18:59:17 ulmi Exp ${}$.
-  }}
-  \author{Ulrich M. Schwarz\thanks{ulmi@absatzen.de}}
-
-  \maketitle
-
- \begin{abstract}
-  Fixes interaction of theorems with hyperref's |\autoref| command.
- \end{abstract}
-
-  \DocInput{thm-autoref.dtx}
-\end{document}
-%</driver>
 %<*autoref>
 %\fi
-%
-% \CharacterTable
-% {Upper-case \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
-% Lower-case \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
-% Digits \0\1\2\3\4\5\6\7\8\9
-% Exclamation \! Double quote \" Hash (number) \#
-% Dollar \$ Percent \% Ampersand \&
-% Acute accent \' Left paren \( Right paren \)
-% Asterisk \* Plus \+ Comma \,
-% Minus \- Point \. Solidus \/
-% Colon \: Semicolon \; Less than \<
-% Equals \= Greater than \> Question mark \?
-% Commercial at \@ Left bracket \[ Backslash \\
-% Right bracket \] Circumflex \^ Underscore \_
-% Grave accent \` Left brace \{ Vertical bar \|
-% Right brace \} Tilde \~}
-% \CheckSum{160}
-%
-% \DoNotIndex{\@for,\addtocounter,\arabic,\csname,\endcsname,\cup,\CurrentOption}
-% \DoNotIndex{\{,\},\do,\define@key,\def,\DeclareOption,\else,\ensuremath,\expandafter}
-% \DoNotIndex{\hspace,\fi,\rule,\ifcase,\ifx,\in,\InputIfFileExists,\leq,\let,\mathpalette}
-% \DoNotIndex{\NeedsTeXFormat,\ldots,\ldotp,\newcommand,\newcounter,\or}
-% \DoNotIndex{\PackageInfo,\PackageWarning,\parm,\ProcessOptions,\protected@edef}
-% \DoNotIndex{\providecommand,\ProvidesPackage,\relax,\renewcommand,\RequirePackage}
-% \DoNotIndex{\setcounter,\setkeys,\rlap,\setminus,\widthof,\mathrm}
-%
-%\section{Usage}
 %
 % \pkg{hyperref}'s |\autoref| command does not work well with theorems that
 % share a counter: it'll always think it's a Lemma even if it's a Remark
@@ -79,12 +19,9 @@
 % intervention needed.
 %
 %\StopEventually{}
-%\section{Implementation}
 %    \begin{macrocode}
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thm-autoref}[2008/03/09 v0.1beta2 thm-autoref (ulmi)]
 
-\RequirePackage{thm-patch, aliasctr}
+\RequirePackage{thm-patch, aliasctr, parseargs, keyval}
 
 \let\@xa=\expandafter
 \let\@nx=\noexpand
@@ -103,6 +40,68 @@
 }
 \g@addto@macro\thmt@newtheorem@predefinition{\thmt@autorefsetup}%
 \g@addto@macro\thmt@newtheorem@postdefinition{\csname thmt@autoreffix\endcsname}%
+
+\def\thmt@refnamewithcomma #1#2#3,#4,#5\@nil{%
+  \@xa\def\csname\thmt@envname #1utorefname\endcsname{#3}%
+  \ifcsname #2refname\endcsname
+    \csname #2refname\endcsname{\thmt@envname}{#3}{#4}%
+  \fi
+}
+\define@key{thmdef}{refname}{\thmt@trytwice{}{%
+  \thmt@refnamewithcomma{a}{c}#1,\textbf{?? (pl. #1)},\@nil
+}}
+\define@key{thmdef}{Refname}{\thmt@trytwice{}{%
+  \thmt@refnamewithcomma{A}{C}#1,\textbf{?? (pl. #1)},\@nil
+}}
+
+
+\ifcsname Autoref\endcsname\else
+\let\thmt@HyRef@testreftype\HyRef@testreftype
+\def\HyRef@Testreftype#1.#2\\{%
+  \ltx@IfUndefined{#1Autorefname}{%
+    \thmt@HyRef@testreftype#1.#2\\%
+  }{%
+    \edef\HyRef@currentHtag{%
+      \expandafter\noexpand\csname#1Autorefname\endcsname
+      \noexpand~%
+    }%
+  }%
+}
+
+
+\let\thmt@HyPsd@@autorefname\HyPsd@@autorefname
+\def\HyPsd@@Autorefname#1.#2\@nil{%
+  \tracingall
+  \ltx@IfUndefined{#1Autorefname}{%
+    \thmt@HyPsd@@autorefname#1.#2\@nil
+  }{%
+    \csname#1Autorefname\endcsname\space
+  }%
+}%
+\def\Autoref{%
+  \parse{%
+  {\parseFlag*{\def\thmt@autorefstar{*}}{\let\thmt@autorefstar\@empty}}%
+  {\parseMand{%
+    \bgroup
+    \let\HyRef@testreftype\HyRef@Testreftype
+    \let\HyPsd@@autorefname\HyPsd@@Autorefname
+    \@xa\autoref\thmt@autorefstar{##1}%
+    \egroup
+    \let\@parsecmd\@empty
+  }}%
+  }%
+}
+\fi % ifcsname Autoref
+
+% not entirely appropriate here, but close enough: 
+\AtBeginDocument{%
+  \@ifpackageloaded{nameref}{%
+    \addtotheorempostheadhook{%
+      \expandafter\NR@gettitle\expandafter{\thmt@optarg}%
+  }}{}
+}
+
+
 %    \end{macrocode}
 %\iffalse
 %</autoref>

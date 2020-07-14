@@ -10,70 +10,9 @@
 % \fi
 %
 %\iffalse (hide this from DocInput)
-%<*driver>
-\documentclass{ltxdoc}
-
-\usepackage[T1]{fontenc}
-\usepackage{fourier}
-\usepackage[scaled=0.8]{helvet}
-\usepackage{luximono}
-
-\usepackage{amsmath, amsthm}
-\usepackage{thm-restate}
-\newtheorem{lemma}{Lemma}
-\providecommand\pkg{\textsf}
-\GetFileInfo{thm-restate.sty}
-\EnableCrossrefs
-\CodelineIndex
-\RecordChanges
-\begin{document}
-
- \newcommand\thmrestate{\textsf{thm-restate}}
- \title{The \thmrestate\ package\thanks{%
-   This file documents version~\fileversion\ of~\filedate,
-   RCS ${}$Id: thm-restate.dtx,v 1.16 2010/04/05 18:02:27 ulmi Exp ulmi ${}$.
- }}
- \author{Ulrich M. Schwarz\thanks{ulmi@absatzen.de}}
-
- \maketitle
-
-\begin{abstract}
-  This package provides one single environment, restatable, which lets you
-  repeat whole theorems without retyping them.
-\end{abstract}
-
-  \DocInput{thm-restate.dtx}
-\end{document}
-%</driver>
 %<*restate>
 %\fi
 %
-% \CharacterTable
-% {Upper-case \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
-% Lower-case \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
-% Digits \0\1\2\3\4\5\6\7\8\9
-% Exclamation \! Double quote \" Hash (number) \#
-% Dollar \$ Percent \% Ampersand \&
-% Acute accent \' Left paren \( Right paren \)
-% Asterisk \* Plus \+ Comma \,
-% Minus \- Point \. Solidus \/
-% Colon \: Semicolon \; Less than \<
-% Equals \= Greater than \> Question mark \?
-% Commercial at \@ Left bracket \[ Backslash \\
-% Right bracket \] Circumflex \^ Underscore \_
-% Grave accent \` Left brace \{ Vertical bar \|
-% Right brace \} Tilde \~}
-% \CheckSum{160}
-%
-% \DoNotIndex{\@for,\addtocounter,\arabic,\csname,\endcsname,\cup,\CurrentOption}
-% \DoNotIndex{\{,\},\do,\define@key,\def,\DeclareOption,\else,\ensuremath,\expandafter}
-% \DoNotIndex{\hspace,\fi,\rule,\ifcase,\ifx,\in,\InputIfFileExists,\leq,\let,\mathpalette}
-% \DoNotIndex{\NeedsTeXFormat,\ldots,\ldotp,\newcommand,\newcounter,\or}
-% \DoNotIndex{\PackageInfo,\PackageWarning,\parm,\ProcessOptions,\protected@edef}
-% \DoNotIndex{\providecommand,\ProvidesPackage,\relax,\renewcommand,\RequirePackage}
-% \DoNotIndex{\setcounter,\setkeys,\rlap,\setminus,\widthof,\mathrm}
-%
-%\section{Usage}
 %\DescribeEnv{restatable}
 %Only one environment is provided: \verb|restatable|, which takes one
 %optional and two mandatory arguments. The first mandatory argument is the
@@ -146,10 +85,7 @@
 %
 %
 %\StopEventually{}
-%\section{Implementation}
 %    \begin{macrocode}
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thm-restate}[2010/04/05 v0.1beta13 thm-restate (ulmi)]
 
 \let\@xa\expandafter
 \let\@nx\noexpand
@@ -158,7 +94,6 @@
   }{}
 \gdef\theHthmt@dummyctr{dummy.\arabic{thmt@dummyctr}}%
 \gdef\thethmt@dummyctr{}%
-\newtoks\thmt@toks
 \long\def\thmt@collect@body#1#2\end#3{%
   \@xa\thmt@toks\@xa{\the\thmt@toks #2}%
   \def\thmttmpa{#3}%\def\thmttmpb{restatable}%
@@ -174,8 +109,10 @@
   }%
 }
 
-\def\thmt@trivialref#1{%
-  \@xa\@xa\@xa\thmt@trivi@lr@f\csname r@#1\endcsname\@nil
+\def\thmt@trivialref#1#2{%
+  \ifcsname r@#1\endcsname
+    \@xa\@xa\@xa\thmt@trivi@lr@f\csname r@#1\endcsname\relax\@nil
+  \else #2\fi
 }
 \def\thmt@trivi@lr@f#1#2\@nil{#1}
 
@@ -205,6 +142,8 @@
 
 \newif\ifthmt@thisistheone
 \newenvironment{thmt@restatable}[3][]{%
+  \thmt@toks{}%
+  \stepcounter{thmt@dummyctr}%
   \long\def\thmrst@store##1{%
     \@xa\gdef\csname #3\endcsname{%
       \@ifstar{%
@@ -227,7 +166,8 @@
             \@currentlabel
             \protect\def\@xa\protect\csname the\ctr\endcsname{\csname the\ctr\endcsname}%
             \ifcsname theH\ctr\endcsname
-              \protect\def\@xa\protect\csname theH\ctr\endcsname{\csname theH\ctr\endcsname}%
+              \protect\def\@xa\protect\csname theH\ctr\endcsname{%
+                (restate \protect\theHthmt@dummyctr)\csname theH\ctr\endcsname}%
             \fi
             \protect\setcounter{\ctr}{\number\csname c@\ctr\endcsname}%
           }%
@@ -236,7 +176,10 @@
         \egroup
       \else
         \@xa\protected@edef\csname the#2\endcsname{%
-          \thmt@trivialref{thmt@@#3}}%
+          \thmt@trivialref{thmt@@#3}{??}}%
+        \ifcsname r@thmt@@#3\endcsname\else
+          \G@refundefinedtrue
+        \fi
         \@xa\let\csname c@#2\endcsname=\c@thmt@dummyctr
         \@xa\let\csname theH#2\endcsname=\theHthmt@dummyctr
         \let\label=\@gobble
@@ -248,7 +191,7 @@
             \protect\setcounter{equation}{\arabic{equation}}%
           }%
         }
-        \thmt@trivialref{thmt@@#3@data}%
+        \thmt@trivialref{thmt@@#3@data}{}%
       \fi
       %\def\@currenvir{#2}%
       \csname #2\@xa\endcsname\ifx\@nx#1\@nx\else[#1]\fi

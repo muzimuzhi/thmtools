@@ -1,0 +1,761 @@
+%&pdflatex
+\documentclass[paper=a4, pagesize, DIV=20,
+  english, 
+  headings=small,11pt,
+  titlepage=false,
+  numbers=noendperiod
+]{scrreprt}
+\addtokomafont{sectioning}{\rmfamily}
+
+\usepackage[T1]{fontenc}
+\usepackage[charter]{mathdesign}
+\usepackage{luximono}
+\usepackage[scaled]{helvet}
+
+\usepackage[dvipsnames]{xcolor}
+
+\usepackage{doc,shortvrb,xspace}
+\makeatletter
+\let\PrintDescribeMacro\@gobble
+\let  \PrintDescribeEnv\@gobble
+\let    \PrintMacroName\@gobble
+\let      \PrintEnvName\@gobble
+\makeatother
+
+\usepackage{listings}
+
+\usepackage{amsmath, amsthm}
+\usepackage{tikz}
+
+\usepackage{nameref}
+\usepackage{hyperref}
+\usepackage{cleveref}[2010/05/01]
+
+\usepackage{thmtools, thm-restate}
+\usepackage[unq]{unique}
+
+\providecommand\pkg[1]{\textsf{#1}}
+\providecommand\Thmtools{\pkg{Thmtools}\xspace}
+\providecommand\thmtools{\pkg{thmtools}\xspace}
+\providecommand\oarg[1]{\texttt{[}\textit{#1}\texttt{]}}
+\providecommand\marg[1]{\texttt{\{}\textit{#1}\texttt{\}}}
+
+
+\providecommand\clap{\makebox[0pt][c]}
+
+\lstloadlanguages{[LaTeX]TeX}
+\lstset{language=[LaTeX]TeX,basicstyle=\small\ttfamily,keywordstyle=\mdseries,aboveskip=0pt}
+
+\lstnewenvironment{preamble}[1][]{%
+  \lstset{backgroundcolor=\color{Purple!15},#1}%
+}{%
+}
+\lstnewenvironment{body}[1][]{%
+  \lstset{backgroundcolor=\color{Yellow!30},#1}%
+}{%
+}
+
+\newenvironment{source}{%
+  \par\noindent\strut\minipage[t]{0.61\linewidth}
+}{%
+  \endminipage
+}
+\newenvironment{result}{%
+  \hfill\minipage[t]{0.37\linewidth}
+}{%
+  \endminipage\strut\par
+}
+\MakeShortVerb{\|}
+
+
+\declaretheorem{theorem}
+\declaretheorem[numberwithin=section]{theoremS}
+\declaretheorem[name=\"Ubung]{exercise}
+\declaretheorem[sibling=theorem]{lemma}
+\declaretheorem[numbered=no,
+  name=Euclid's Prime Theorem]{euclid}
+\declaretheorem[numbered=unless unique]{singleton}
+\declaretheorem[numbered=unless unique]{couple}
+\declaretheorem[style=remark]{remark}
+\declaretheorem{Theorem}
+
+\declaretheorem[shaded={bgcolor=Lavender,
+      textwidth=12em}]{BoxI}
+
+\declaretheorem[shaded={rulecolor=Lavender,
+  rulewidth=2pt, bgcolor={rgb}{1,1,1}}]{BoxII}
+
+    \declaretheorem[thmbox=L]{boxtheorem L}
+    \declaretheorem[thmbox=M]{boxtheorem M}
+    \declaretheorem[thmbox=S]{boxtheorem S}
+
+\declaretheoremstyle[
+      spaceabove=6pt, spacebelow=6pt,
+      headfont=\normalfont\bfseries,
+      notefont=\mdseries, notebraces={(}{)},
+      postheadspace=1em,
+      qed=\qedsymbol
+    ]{mystyle}
+\declaretheorem[style=mystyle
+  ]{styledtheorem}
+
+\declaretheorem[name=Theorem, refname={theorem,theorems},
+    Refname={Theorem,Theorems}]{callmeal}
+
+
+\input{VERSION.tex}
+
+\title{\Thmtools Users' Guide}
+\author{Ulrich M. Schwarz -- ulmi@absatzen.de\thanks{
+  who would like to thank the users for testing, encouragement, feature requests, and
+  bug reports. In particular, Denis Bitouz\'e prompted further improvement
+  when \thmtools got stuck in a ``good enough for me'' slump.
+}}
+\date{\VERSION}
+
+\begin{document}
+  \maketitle
+  \section*{\abstractname}
+  
+  The \thmtools bundle is a collection of packages that is designed to
+  provide an easier interface to theorems, and to facilitate some more
+  advanced tasks.
+  
+  If you are a first-time user and you don't think your requirements are out
+  of the ordinary, browse the examples in \autoref{cha:impatient}. If you're
+  here because the other packages you've tried so far just can't do what you
+  want, take inspiration from \autoref{cha:extravagant}. If you're a repeat
+  customer, you're most likely to be interested in the refence section in
+  \autoref{cha:reference}.
+  
+  \begin{multicols}{2}[\section*{\contentsname}]
+  \makeatletter\let\chapter\@gobbletwo
+  \tableofcontents
+  \end{multicols}
+  \clearpage
+  
+  \chapter{\Thmtools for the impatient}\label{cha:impatient}
+  
+  \section*{How to use this document}
+  
+  This guide consists mostly of examples and their output, sometimes with a
+  few additional remarks. Since theorems are defined in the preamble and
+  used in the document, the snippets are two-fold:
+  \begin{source}
+  \begin{preamble}[gobble=4]
+    % Preamble code looks like this.
+    \usepackage{amsthm}
+    \usepackage{thmtools}
+    \declaretheorem{theorem}
+  \end{preamble}
+  \begin{body}[gobble=4]
+    % Document code looks like this.
+    \begin{theorem}[Euclid]
+     \label{thm:euclid}%
+     For every prime $p$, there is a prime $p'>p$.
+     In particular, the list of primes,
+     \begin{equation}\label{eq:1}
+       2,3,5,7,\dots
+     \end{equation}
+     is infinite.
+    \end{theorem}
+  \end{body}
+  \end{source}
+  \begin{result}
+    The result looks like this:
+%    \begin{theorem}[Euclid]
+%      For every prime $p$, there is a prime $p'>p$.
+%      In particular, there are infinitely many primes.
+%    \end{theorem}
+  \begin{restatable}[Euclid]{theorem}{firsteuclid}
+     \label{thm:euclid}%
+     For every prime $p$, there is a prime $p'>p$.
+     In particular, the list of primes,
+     \begin{equation}\label{eq:1}
+       2,3,5,7,\dots
+     \end{equation}
+     is infinite.
+  \end{restatable}
+  \end{result}
+  
+  Note that in all cases, you will need a \emph{backend} to provide the
+  command \lstinline|\newtheorem| with the usual behaviour. The \LaTeX\
+  kernel has a built-in backend which cannot do very much; the most common
+  backends these days are the amsthm and ntheorem packages. Throughout this
+  document, we'll use amsthm.
+  
+  \section{Elementary definitions}
+  
+  As you have seen above, the new command to define theorems is
+  \lstinline|\declaretheorem|, which in its most basic form just takes the
+  name of the environment. All other options can be set through a key-val
+  interface:
+  \begin{source}
+  \begin{preamble}[gobble=4]
+    \usepackage{amsthm}
+    \usepackage{thmtools}
+    \declaretheorem[numberwithin=section]{theoremS}
+  \end{preamble}
+  \begin{body}[gobble=4]
+    \begin{theoremS}[Euclid]
+      For every prime $p$, there is a prime $p'>p$.
+      In particular, there are infinitely many primes.
+    \end{theoremS}
+  \end{body}
+  \end{source}
+  \begin{result}
+    \begin{restatable}[Euclid]{theoremS}{euclidii}
+      For every prime $p$, there is a prime $p'>p$.
+      In particular, there are infinitely many primes.
+    \end{restatable}
+  \end{result}
+  
+  Instead of ``numberwithin='', you can also use ``parent='' and
+  ``within=''. They're all the same, use the one you find easiest to
+  remember.
+  
+  Note the example above looks somewhat bad: sometimes, the name of the environment, 
+  with the first
+  letter uppercased, is not a good choice for the theorem's title.
+  
+  \begin{source}
+  \begin{preamble}[gobble=4]
+    \usepackage{amsthm}
+    \usepackage{thmtools}
+    \declaretheorem[name=\"Ubung]{exercise}
+  \end{preamble}
+  \begin{body}[gobble=4]
+    \begin{exercise}
+      Prove Euclid's Theorem.
+    \end{exercise}
+  \end{body}
+  \end{source}
+  \begin{result}
+    \begin{exercise}
+      Prove Euclid's Theorem.
+    \end{exercise}
+  \end{result}
+  
+  To save you from having to look up the name of the key every time, you can
+  also use ``title='' and ``heading='' instead of ``name=''; they do exactly
+  the same and hopefully one of these will be easy to remember for you.
+
+  Of course, you do not have to follow the abominal practice of numbering
+  theorems, lemmas, etc., separately:  
+  \begin{source}
+  \begin{preamble}[gobble=4]
+    \usepackage{amsthm}
+    \usepackage{thmtools}
+    \declaretheorem[sibling=theorem]{lemma}
+  \end{preamble}
+  \begin{body}[gobble=4]
+    \begin{lemma}
+      For every prime $p$, there is a prime $p'>p$.
+      In particular, there are infinitely many primes.      
+    \end{lemma}
+  \end{body}
+  \end{source}
+  \begin{result}
+    \begin{lemma}
+      For every prime $p$, there is a prime $p'>p$.
+      In particular, there are infinitely many primes.      
+    \end{lemma}
+  \end{result}
+
+  Again, instead of ``sibling='', you can also use ``numberlike='' and
+  ``sharecounter=''.
+
+  Some theorems have a fixed name and are not supposed to get a number.
+  To this end, amsthm provides \lstinline|\newtheorem*|, which is
+  accessible through thmtools:
+  \begin{source}
+  \begin{preamble}[gobble=4]
+    \usepackage{amsthm}
+    \usepackage{thmtools}
+    \declaretheorem[numbered=no,
+      name=Euclid's Prime Theorem]{euclid}
+  \end{preamble}
+  \begin{body}[gobble=4]
+    \begin{euclid}
+      For every prime $p$, there is a prime $p'>p$.
+      In particular, there are infinitely many primes.      
+    \end{euclid}
+  \end{body}
+  \end{source}
+  \begin{result}
+    \begin{euclid}
+      For every prime $p$, there is a prime $p'>p$.
+      In particular, there are infinitely many primes.      
+    \end{euclid}
+  \end{result}
+
+  As a somewhat odd frill, you can turn off the number if there's only one
+  instance of the kind in the document. This might happen when you split and
+  join your papers into short conference versions and longer journal papers
+  and tech reports. Note that this doesn't combine well with the sibling
+  key: how do you count like somebody who suddenly doesn't count anymore?
+  Also, it takes an extra \LaTeX\ run to settle.
+  \begin{source}
+  \begin{preamble}[gobble=4]
+    \usepackage{amsthm}
+    \usepackage{thmtools}
+    \usepackage[unq]{unique}
+    \declaretheorem[numbered=unless unique]{singleton}
+    \declaretheorem[numbered=unless unique]{couple}
+  \end{preamble}
+  \begin{body}[gobble=4]
+    \begin{couple}
+      Marc \& Anne
+    \end{couple}
+    \begin{singleton}
+      Me.
+    \end{singleton}
+    \begin{couple}
+      Buck \& Britta
+    \end{couple}
+  \end{body}
+  \end{source}
+  \begin{result}
+    \begin{couple}
+      Marc \& Anne
+    \end{couple}
+    \begin{singleton}
+      Me.
+    \end{singleton}
+    \begin{couple}
+      Buck \& Britta
+    \end{couple}
+  \end{result}
+
+  \section{Frilly references}
+
+  In case you didn't know, you should: \pkg{hyperref}, \pkg{nameref} and
+  \pkg{cleveref} offer ways of ``automagically'' knowing that
+  \lstinline|\label{foo}| was inside a theorem, so that a reference adds the
+  string ``Theorem''. This is all done for you, but there's one catch: you
+  have to tell \thmtools\ what the name to add is. (In singular and plural
+  form for \pkg{cleveref}.
+  \begin{source}
+    \begin{preamble}[gobble=6]
+      \usepackage{amsthm, thmtools}
+      \usepackage{
+        nameref,%\nameref
+        hyperref%\autoref; 
+        % n.b. \Autoref is defined by thmtools
+        cleveref,% \cref
+        % nb cleveref after! hyperref
+      }
+      \declaretheorem[name=Theorem, 
+        refname={theorem,theorems},
+        Refname={Theorem,Theorems}]{callmeal}
+    \end{preamble}
+    \begin{body}[gobble=6]
+      \begin{callmeal}[Simon]\label{simon}
+        One
+      \end{callmeal}
+      \begin{callmeal}\label{garfunkel}
+        and another, and together, 
+        \autoref{simon}, ``\nameref{simon}'',
+        and \cref{garfunkel} are referred 
+        to as \cref{simon,garfunkel}.
+        \Cref{simon,garfunkel}, if you are at 
+        the beginning of a sentence.
+      \end{callmeal}
+    \end{body}
+  \end{source}
+  \begin{result}
+      \begin{callmeal}[Simon]\label{simon}
+        One
+      \end{callmeal}
+      \begin{callmeal}\label{garfunkel}
+        and another, and together, \autoref{simon}, ``\nameref{simon}'',
+        and \cref{garfunkel} are referred to as \cref{simon,garfunkel}.
+        \Cref{simon,garfunkel}, if you are at the beginning of a sentence.
+      \end{callmeal}
+  \end{result}
+
+  \section{Styling theorems}
+  
+  The major backends provide a command \lstinline|\theoremstyle| to switch
+  between looks of theorems. This is handled as follows:
+  \begin{source}
+  \begin{preamble}[gobble=4]
+    \usepackage{amsthm}
+    \usepackage{thmtools}
+    \declaretheorem[style=remark]{remark}
+    \declaretheorem{Theorem}
+  \end{preamble}
+  \begin{body}[gobble=4]
+    \begin{Theorem}
+      This is a theorem.
+    \end{Theorem}
+    \begin{remark}
+      Note how it still retains the default style, `plain'.
+    \end{remark}
+  \end{body}
+  \end{source}
+  \begin{result}
+    \begin{Theorem}
+      This is a theorem.
+    \end{Theorem}
+    \begin{remark}
+      Note how it still retains the default style, `plain'.
+    \end{remark}
+  \end{result}
+  
+  Thmtools also supports the shadethm and thmbox packages:
+  \begin{source}
+  \begin{preamble}[gobble=4]
+    \usepackage{amsthm}
+    \usepackage{thmtools}
+    \usepackage[dvipsnames]{xcolor}
+    \declaretheorem[shaded={bgcolor=Lavender,
+      textwidth=12em}]{BoxI}
+    \declaretheorem[shaded={rulecolor=Lavender,
+      rulewidth=2pt, bgcolor={rgb}{1,1,1}}]{BoxII}
+  \end{preamble}
+  \begin{body}[gobble=4]
+    \begin{BoxI}[Euclid]
+      For every prime $p$, there is a prime $p'>p$.
+      In particular, there are infinitely many primes.
+    \end{BoxI}
+    \begin{BoxII}[Euclid]
+      For every prime $p$, there is a prime $p'>p$.
+      In particular, there are infinitely many primes.
+    \end{BoxII}
+  \end{body}
+  \end{source}
+  \begin{result}
+    \begin{BoxI}
+      For every prime $p$, there is a prime $p'>p$.
+      In particular, there are infinitely many primes.
+    \end{BoxI}
+    \begin{BoxII}
+      For every prime $p$, there is a prime $p'>p$.
+      In particular, there are infinitely many primes.
+    \end{BoxII}
+  \end{result}
+
+  As you can see, the color parameters can take two forms: it's either the
+  name of a color that is already defined, without curly braces, or it can
+  start with a curly brace, in which case it is assumed that
+  \lstinline|\definecolor{colorname}|$\langle$\textsl{what you said}$\rangle$ will be
+  valid \LaTeX\ code. In our case, we use the rbg model to manually specify
+  white. (Shadethm's default value is some sort of gray.)
+  
+  For the thmbox package, use the thmbox key:
+  \begin{source}
+  \begin{preamble}[gobble=4]
+    \usepackage{amsthm}
+    \usepackage{thmtools}
+    \declaretheorem[thmbox=L]{boxtheorem L}
+    \declaretheorem[thmbox=M]{boxtheorem M}
+    \declaretheorem[thmbox=S]{boxtheorem S}
+  \end{preamble}
+  \begin{body}[gobble=4]
+    \begin{boxtheorem L}[Euclid]
+      For every prime $p$, there is a prime $p'>p$.
+      In particular, there are infinitely many primes.
+    \end{boxtheorem L}
+    \begin{boxtheorem M}[Euclid]
+      For every prime $p$, there is a prime $p'>p$.
+      In particular, there are infinitely many primes.
+    \end{boxtheorem M}
+    \begin{boxtheorem S}[Euclid]
+      For every prime $p$, there is a prime $p'>p$.
+      In particular, there are infinitely many primes.
+    \end{boxtheorem S}
+  \end{body}
+  \end{source}
+  \begin{result}
+    \begin{boxtheorem L}[Euclid]
+      For every prime $p$, there is a prime $p'>p$.
+      In particular, there are infinitely many primes.
+    \end{boxtheorem L}
+    \begin{boxtheorem M}[Euclid]
+      For every prime $p$, there is a prime $p'>p$.
+      In particular, there are infinitely many primes.
+    \end{boxtheorem M}
+    \begin{boxtheorem S}[Euclid]
+      For every prime $p$, there is a prime $p'>p$.
+      In particular, there are infinitely many primes.
+    \end{boxtheorem S}
+  \end{result}
+
+  Note that for both thmbox and shaded keys, it's quite possible they will not
+  cooperate with a style key you give at the same time.
+
+  \subsection{Declaring new theoremstyles}
+  
+  \Thmtools\ also offers a new command to define new theoremstyles. It is
+  partly a frontend to the \lstinline|\newtheoremstyle| command of amsthm or
+  ntheorem, but it offers (more or less successfully) the settings of both to 
+  either. So we are talking about the same things, consider the sketch in
+  \autoref{fig:params}. To get a result like that, you would use something
+  like
+  \begin{source}
+  \begin{preamble}[gobble=4]
+    \declaretheoremstyle[
+      spaceabove=6pt, spacebelow=6pt,
+      headfont=\normalfont\bfseries,
+      notefont=\mdseries, notebraces={(}{)},
+      postheadspace=1em,
+      qed=\qedsymbol
+    ]{mystyle}
+    \declaretheorem[style=mystyle]{styledtheorem}
+  \end{preamble}
+  \begin{body}[gobble=4]
+    \begin{styledtheorem}[Euclid]
+      For every prime $p$\dots
+    \end{styledtheorem}
+  \end{body}
+  \end{source}
+  \begin{result}
+    \begin{styledtheorem}[Euclid]
+      For every prime $p$\dots
+    \end{styledtheorem}
+  \end{result}
+  Again, the defaults are reasonable and you don't
+  have to give values for everything.
+  
+  There is one important thing you cannot see in this example: there are
+  more keys you can pass to \lstinline|\declaretheoremstyle|: if \thmtools\ cannot
+  figure out at all what to do with it, it will pass it on to the
+  \lstinline|\declaretheorem| commands that use that style. For example, you may use
+  the boxed and shaded keys here.
+  
+  To change the order in which title, number and note appear, there is a key
+  headstyle. Currently, the values ``margin'' and ``swapnumber'' are
+  supported. The daring may also try to give a macro here that uses the
+  commands \lstinline|\NUMBER|, \lstinline|\NAME| and \lstinline|\NOTE|. 
+  You cannot circumvent the fact
+  that headpunct comes at the end, though, nor the fonts and braces you
+  select with the other keys.
+  
+  \begin{figure}\centering
+    % please don't make me touch this picture ever again.
+    \fbox{
+    \begin{minipage}{0.618\textwidth}\Large
+    \tikzset{font=\normalfont\small\sffamily\itshape,y=12pt,>=latex}
+    \noindent which resulted in the following insight:
+    \par
+    \tikz{\draw[|<->|] (0,-1)--(0,1); 
+      \draw[anchor=west] (0,0) node {spaceabove};}
+    \par
+    \tikz{\draw[|<->|] (-1,0)--(1,0); 
+      \draw[anchor=south] (0,0) node {headindent};}
+    \textbf{Theo%
+    \smash{\clap{\tikz{\draw (0,0)--(0,1.2) node [anchor=south]{headfont};}}}%
+      rem 1.2 
+      (\smash{\rlap{\tikz{\draw (0,0)--(0,2.5) node [anchor=base west]{notebraces};}}}%
+       Euc%
+\smash{\clap{\tikz{\draw (0,0)--(0,1.2) node [anchor=south]{notefont};}}}%
+       lid)%
+      .\smash{\rlap{\tikz{\draw (0,0)--(0,1.2) node [anchor=south west]{headpunct};}}}}%
+      \tikz{\draw[|<->|] (-1,0)--(1,0); 
+      \draw[anchor=south] (0,0) node {postheadspace};}
+    For every prime $p$, there is a prime $p'>p$.
+    In particular, the list of primes,
+    $2,3,5,7,\dots$,
+    is infinite.
+   \hfill{\tikz{\draw[anchor=north east] (0,0) node{qed}; }}$\Box$
+    \par
+    \tikz{\draw[|<->|] (0,-1)--(0,1); 
+      \draw[anchor=west] (0,0) node {spacebelow};}
+    \par
+   
+   As a consequence, lorem ipsum dolor sit amet frob-%nicate foo
+%   paret.
+  \end{minipage}
+  }
+    \caption{Settable parameters of a theorem style.}
+    \label{fig:params}
+  \end{figure}
+
+  \section{Repeating theorems}
+  
+  Sometimes, you want to repeat a theorem you have given in full earlier,
+  for example you either want to state your strong result in the
+  introduction and then again in the full text, or you want to re-state a
+  lemma in the appendix where you prove it. For example, I lied about
+  \autoref{thm:euclid} on p.\,\pageref{thm:euclid}: the true code used was
+  \begin{source}
+    \begin{preamble}[gobble=6]
+      \usepackage{thmtools, thm-restate}
+      \declaretheorem{theorem}
+    \end{preamble}
+    \begin{body}[gobble=6]
+      \begin{restatable}[Euclid]{theorem}{firsteuclid}
+        \label{thm:euclid}%
+        For every prime $p$, there is a prime $p'>p$.
+        In particular, the list of primes,
+        \begin{equation}\label{eq:1}
+          2,3,45,7,\dots
+        \end{equation}
+        is infinite.
+      \end{restatable}
+    \end{body}
+    and to the right, I just use
+    \begin{body}[gobble=6]
+      \firsteuclid*
+      \vdots
+      \firsteuclid*
+    \end{body}
+  \end{source}
+  \begin{result}
+    \firsteuclid*
+    \vdots
+    \firsteuclid*
+  \end{result}
+  
+  Note that in spite of being a theorem-environment, it gets number one all
+  over again. Also, we get equation number~\eqref{eq:1} again. The star in 
+  \lstinline|\firsteuclid*| tells thmtools that it should redirect the label
+  mechanism, so that this reference: \autoref{thm:euclid} points to
+  p.\,\pageref{thm:euclid}, where the unstarred environment is used. (You can
+  also use a starred environment and an unstarred command, in which case the
+  behaviour is reversed.) Also, if you use hyperref, the links will lead you
+  to the unstarred occurence.
+  
+  Just to demonstrate that we also handle more involved cases, I repeat
+  another theorem here, but this one was numbered within its section: note
+  we retain the section number which does not fit the current section:
+  \begin{source}
+    \begin{body}
+      \euclidii*
+    \end{body}
+  \end{source}
+  \begin{result}
+    \euclidii*
+  \end{result}
+
+  
+  \section{Lists of theorems}
+  
+  To get a list of theorems with default formatting, just use
+  \lstinline|\listoftheorems|:
+  \begin{source}
+    \begin{body}[gobble=6]
+      \listoftheorems
+    \end{body}
+  \end{source}
+  \begin{result}
+    \let\chapter\section
+    \let\clearpage\relax
+    \listoftheorems
+  \end{result}
+  
+  Not everything might be of the same importance, so you can filter out
+  things by environment name:
+  \begin{source}
+    \begin{body}[gobble=6]
+      \listoftheorems[ignoreall, 
+        show={theorem,Theorem,euclid}]
+    \end{body}
+  \end{source}
+  \begin{result}
+    \let\chapter\section
+    \let\clearpage\relax
+    \listoftheorems[ignoreall, show={theorem,Theorem,euclid}]
+  \end{result}
+  
+  And you can also restrict to those environments that have an optional
+  argument given. Note that two theorems disappear compared to the previous
+  example. You could also say just ``onlynamed'', in which case it will
+  apply to \emph{all} theorem environments you have defined.
+  \begin{source}
+    \begin{body}[gobble=6]
+      \listoftheorems[ignoreall, 
+        onlynamed={theorem,Theorem,euclid}]
+    \end{body}
+  \end{source}
+  \begin{result}
+    \let\chapter\section
+    \let\clearpage\relax
+    \listoftheorems[ignoreall, onlynamed={theorem,Theorem,euclid}]
+  \end{result}
+
+  As might be expected, the heading given is defined in \lstinline|\listoftheoremname|.
+
+  \chapter{\Thmtools for the extravagant}\label{cha:extravagant}
+
+  This chapter will go into detail on the slightly more technical offerings
+  of this bundle. In particular, it will demonstrate how to use the general
+  hooks provided to extend theorems in the way you want them to behave.
+  Again, this is done mostly by some examples.
+  
+  \section{Understanding \thmtools' extension mechanism}
+
+  TBD.
+
+  \section{Case in point: the thmbox key}
+
+  \DocInput{thmdef-thmbox.dtx}
+
+
+  \section{Case in point: the shaded key}
+  
+  \DocInput{thmdef-shaded.dtx}
+  
+
+  \chapter{\Thmtools for the completionist}\label{cha:reference}
+
+  This will eventually contain a reference to all known keys, commands, etc.
+
+
+  \appendix
+  
+
+  \chapter{\Thmtools for the morbidly curious}\label{cha:sourcecode}
+
+  This chapter consists of the implementation of Thmtools, in case you
+  wonder how this or that feature was implemented. Read on if you want a
+  look under the bonnet, but you enter at your own risk, and bring an oily
+  rag with you.
+
+  \section{Core functionality}
+  
+  \subsection{The main package}
+  \DocInput{thmtools.dtx}
+
+  \subsection{Adding hooks to the relevant commands}
+  \DocInput{thm-patch.dtx}
+
+  \subsection{The key-value interfaces}
+  \DocInput{thm-kv.dtx}
+
+  \subsection{Lists of theorems}
+  \DocInput{thm-listof.dtx}
+
+  \subsection{Re-using environments}
+  \DocInput{thm-restate.dtx}
+
+  \subsection{Fixing autoref and friends}  
+  \DocInput{thm-autoref.dtx}
+
+  \section{Glue code for different backends}
+  
+  \subsection{amsthm}
+  \DocInput{thm-amsthm.dtx}
+
+  \subsection{beamer}
+  \DocInput{thm-beamer.dtx}
+
+  \subsection{ntheorem}
+  \DocInput{thm-ntheorem.dtx}
+  
+  \section{Generic tools}
+  
+  \subsection{A generalized argument parser}
+  \DocInput{parseargs.dtx}
+  
+  \subsection{Different counters sharing the same register}
+  \DocInput{aliasctr.dtx}
+  
+  \subsection{Tracking occurences: none, one or many}
+  \DocInput{unique.dtx}
+
+  
+
+      
+\end{document}

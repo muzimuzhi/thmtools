@@ -11,16 +11,64 @@
 %% The `thmtools' package has the LPPL maintenance status: maintained.
 %% Current Maintainer is Ulrich M. Schwarz, ulmi@absatzen.de
 %% 
-%% Copyright (C) 2008 by Ulrich M. Schwarz.
+%% Copyright (C) 2008-2020 by Ulrich M. Schwarz.
 %% 
 %% This file may be distributed and/or modified under the
 %% conditions of the LaTeX Project Public License, version 1.3a.
 %% This version is obtainable at
 %% http://www.latex-project.org/lppl/lppl-1-3a.txt
 %% 
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thmtools}[2008/07/05 v0.1beta7 Tools for theorem typesetting (ulmi)]
-\RequirePackage{thm-kv, thm-autoref, thm-listof}
+%% 
+\NeedsTeXFormat {LaTeX2e}
+\ProvidesPackage {thmtools}[2010/05/18 v24]
+\let\@xa\expandafter
+\let\@nx\noexpand
+\def\thmt@quark{\thmt@quark}
+\newtoks\thmt@toks
+
+\newcounter{thmt@dummyctr}%
+\def\theHthmt@dummyctr{dummy.\arabic{thmt@dummyctr}}%
+\def\thethmt@dummyctr{}%
+
+\newcommand\thmt@mkextendingkeyhandler[3]{%
+  \kv@set@family@handler{#1}{%
+    \IfFileExists{#2-##1.sty}{%
+      \PackageInfo{thmtools}%
+        {Automatically pulling in `#2-##1'}%
+      \RequirePackage{#2-##1}%
+      \ifcsname KV@#1@##1\endcsname
+        \csname KV@#1@##1\endcsname{##2}%
+      \else
+        \PackageError{thmtools}%
+        {#3 `##1' not known}
+        {I don't know what that key does.\MessageBreak
+         I've even loaded the file `#2-##1.sty', but that didn't help.
+        }%
+      \fi
+    }{%
+      \PackageError{thmtools}%
+      {#3 `##1' not known}
+      {I don't know what that key does by myself,\MessageBreak
+       and no file `#2-##1.sty' to tell me seems to exist.
+      }%
+    }%
+  }
+}
+
+\RequirePackage{thm-patch, thm-kv,
+  thm-autoref, thm-listof,
+  thm-restate}
+
+\@ifpackageloaded{amsthm}{%
+  \RequirePackage{thm-amsthm}
+}{}
+\@ifpackageloaded{ntheorem}{%
+  \RequirePackage{thm-ntheorem}
+}{}
+\@ifclassloaded{beamer}{%
+  \RequirePackage{thm-beamer}
+}{}
+
 \endinput
 %%
 %% End of file `thmtools.sty'.

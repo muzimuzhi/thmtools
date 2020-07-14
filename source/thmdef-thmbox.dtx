@@ -1,0 +1,26 @@
+% \iffalse meta-comment
+%
+% Copyright (C) 2010 by Ulrich M. Schwarz
+% See file COPYING for more details.
+%\fi
+%
+%\iffalse (hide this from DocInput)
+%<*thmbox>
+%\fi
+%    \begin{macrocode}
+\define@key{thmdef}{thmbox}[L]{%
+  \let\oldproof=\proof
+  \let\oldendproof=\endproof
+  \let\oldexample=\example
+  \let\oldendexample=\endexample
+  \RequirePackage[nothm]{thmbox}
+  \let\proof=\oldproof
+  \let\endproof=\oldendproof
+  \let\example=\oldexample
+  \let\endexample=\oldendexample
+  \def\thmt@theoremdefiner{\newboxtheorem[#1]}%
+}%
+%    \end{macrocode}
+%\iffalse (hide this from DocInput)
+%</thmbox>
+%\fi

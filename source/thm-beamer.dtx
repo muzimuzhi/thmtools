@@ -1,0 +1,42 @@
+% \iffalse meta-comment
+%
+% Copyright (C) 2010 by Ulrich M. Schwarz
+% See file COPYING for more details.
+%\fi
+%
+%\iffalse (hide this from DocInput)
+%<*beamer>
+%\fi
+%    \begin{macrocode}
+\newif\ifthmt@hasoverlay
+\def\thmt@parsetheoremargs#1{%
+  \parse{%
+    {\parseOpt<>{\thmt@hasoverlaytrue\def\thmt@overlay{##1}}{}}%
+    {\parseOpt[]{\def\thmt@optarg{##1}}{\let\thmt@optarg\@empty}}%
+    {\ifthmt@hasoverlay\expandafter\@gobble\else\expandafter\@firstofone\fi
+        {\parseOpt<>{\thmt@hasoverlaytrue\def\thmt@overlay{##1}}{}}%
+    }%
+    {%
+      \def\thmt@local@preheadhook{}%
+      \def\thmt@local@postheadhook{}%
+      \def\thmt@local@prefoothook{}%
+      \def\thmt@local@postfoothook{}%
+      \thmt@local@preheadhook
+      \csname thmt@#1@preheadhook\endcsname
+      \thmt@generic@preheadhook
+      \protected@edef\tmp@args{%
+        \ifthmt@hasoverlay <\thmt@overlay>\fi
+        \ifx\@empty\thmt@optarg\else [{\thmt@optarg}]\fi
+      }%
+      \csname thmt@original@#1\@xa\endcsname\tmp@args
+      \thmt@local@postheadhook
+      \csname thmt@#1@postheadhook\endcsname
+      \thmt@generic@postheadhook
+      \let\@parsecmd\@empty
+    }%
+  }
+}%
+%    \end{macrocode}
+%\iffalse (hide this from DocInput)
+%</beamer>
+%\fi

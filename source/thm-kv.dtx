@@ -10,196 +10,114 @@
 % \fi
 %
 %\iffalse (hide this from DocInput)
-%<*driver>
-\documentclass{ltxdoc}
-
-\usepackage[T1]{fontenc}
-\usepackage{fourier}
-\usepackage[scaled=0.8]{helvet}
-\usepackage[scaled]{luximono}
-
-\usepackage{amsmath, amsthm}
-\usepackage{thm-kv, thm-patch}
-\newtheorem{lemma}{Lemma}
-\declaretheorem[sibling=lemma, shaded, name={Rule of Thumb}]{ruleofthumb}
-\usepackage{color}
-\declaretheorem[shaded={bgcolor={rgb}{1,0,0},rulecolor={rgb}{0,1,0},rulewidth=2em,
-   margin=1em, textwidth=5cm}]{eyesore}
-
-
-\GetFileInfo{thm-kv.sty}
-\providecommand\pkg{\textsf}
-\EnableCrossrefs
-\CodelineIndex
-\RecordChanges
-\begin{document}
-
- \newcommand\thmrestate{\textsf{thm-kv}}
- \title{The \thmrestate\ package\thanks{%
-   This file documents version~\fileversion\ of~\filedate,
-   RCS ${}$Id: thm-kv.dtx,v 1.8 2008/06/22 12:09:41 ulmi Exp ulmi ${}$.
- }}
- \author{Ulrich M. Schwarz\thanks{ulmi@absatzen.de}}
-
- \maketitle
-
-\begin{abstract}
-\end{abstract}
-  \DocInput{thm-kv.dtx}
-\end{document}
-%</driver>
 %<*kv>
 %\fi
 %
-% \CharacterTable
-% {Upper-case \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
-% Lower-case \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
-% Digits \0\1\2\3\4\5\6\7\8\9
-% Exclamation \! Double quote \" Hash (number) \#
-% Dollar \$ Percent \% Ampersand \&
-% Acute accent \' Left paren \( Right paren \)
-% Asterisk \* Plus \+ Comma \,
-% Minus \- Point \. Solidus \/
-% Colon \: Semicolon \; Less than \<
-% Equals \= Greater than \> Question mark \?
-% Commercial at \@ Left bracket \[ Backslash \\
-% Right bracket \] Circumflex \^ Underscore \_
-% Grave accent \` Left brace \{ Vertical bar \|
-% Right brace \} Tilde \~}
-% \CheckSum{160}
-%
-% \DoNotIndex{\@for,\addtocounter,\arabic,\csname,\endcsname,\cup,\CurrentOption}
-% \DoNotIndex{\{,\},\do,\define@key,\def,\DeclareOption,\else,\ensuremath,\expandafter}
-% \DoNotIndex{\hspace,\fi,\rule,\ifcase,\ifx,\in,\InputIfFileExists,\leq,\let,\mathpalette}
-% \DoNotIndex{\NeedsTeXFormat,\ldots,\ldotp,\newcommand,\newcounter,\or}
-% \DoNotIndex{\PackageInfo,\PackageWarning,\parm,\ProcessOptions,\protected@edef}
-% \DoNotIndex{\providecommand,\ProvidesPackage,\relax,\renewcommand,\RequirePackage}
-% \DoNotIndex{\setcounter,\setkeys,\rlap,\setminus,\widthof,\mathrm}
-%
-%\section{Usage}
-%
-% \DescribeMacro{\declaretheorem}
-%The macro
-%|\declaretheorem|\oarg{key=val-opts}\marg{name} can be used to define a
-%new theorem instead of |\newtheorem|. It is hoped that |\declaretheorem| is
-%easier to use than |\newtheorem|'s tangle of mutually-exclusive optional
-%arguments. The following is the list of keywords understood:
-%\begin{description}
-%  \item[parent, numberwithin, within]
-%    These keys govern when the theorem counter is reset. For example, giving
-%    parent=chapter gives you theorems numbered per chapter, so it's
-%    equivalent to the second optional argument to |\newtheorem|. There are
-%    three names so you'll remember at least one of them.
-%  \item[sibling, numberlike, sharenumber]
-%    These keys make the theorem share a common numbering with the given
-%    theorem. This is just like giving the first optional argument.
-%  \item[unnumbered, starred]
-%    If your theorem package supports it, this will call |\newtheorem*|,
-%    i.e. you'll get a theorem that is never numbered. Currently, only
-%    amsmath offers this possibility.
-%  \item[name, title, heading] |\newtheorem| takes \emph{two} options, the
-%    name of the environment (like |lem|) and its title (|Lemma|).
-%    |\declaretheorem| only requires the environment name, and the title
-%    defaults to the environment name with the first letter uppercased. If
-%    you name your environments |lemma|, |theorem|, etc., you don't need to
-%    do anything else. Otherwise, you can always manually specify the title.
-%  \item[(pre/post)(head/foot)hook] You can specify extra code that will be
-%    executed whenever you use the environment. \textbf{Warning:} this needs
-%    the \pkg{thm-patch} package, and you're responsible for loading it
-%    yourself if you want these keys to work. This functionality might be
-%    shifted over to \pkg{thm-patch} in future releases.
-%  \item[style]
-%    This will issue a |\theoremstyle{foo}| for you if you give |style=foo|.
-%    Note that currently, no care is taken to prevent this from becoming the
-%    default style for subsequent theorems.
-%\end{description}
-% 
-% \subsection{Examples}
-% In many cases, you'll just get by with
-% \begin{verbatim}
-%  \declaretheorem{lemma}   
-% \end{verbatim}
-% which creates the environment `lemma', which will be labeled `Lemma' and
-% numbered consecutively throughout:
-%\begin{lemma}
-%  This is what it looks like.
-%\end{lemma}
-% If you have more environments, you
-% might want
-% \begin{verbatim}
-%  \declaretheorem[sibling=lemma]{theorem} 
-% \end{verbatim}
-% which will make the theorems share the numbering with the lemmas. If you
-% had wanted per-chapter numbering for everything, you would have said
-%\begin{verbatim}
-%  \declaretheorem[parent=chapter]{lemma}
-%\end{verbatim}
-% without need to change subsequent declarations. A very fancy declaration
-% using the shadethm and thm-patch package would look like this:
-%\begin{verbatim}
-%  \declaretheorem[sibling=theorem, shaded, name={Rule of Thumb}]{ruleofthumb}
-%\end{verbatim}
-%
-%\begin{ruleofthumb}
-% If all else fails, read the manual. Usually all else fails because you
-% didn't.   
-% \end{ruleofthumb}
-%
-% You can customize the colors and border like this:
-%\begin{verbatim}
-%\declaretheorem[shaded={bgcolor={rgb}{1,0,0},rulecolor={rgb}{0,1,0},rulewidth=2em,
-%   margin=1em, textwidth=5cm}]{eyesore}
-%\end{verbatim}
-%\begin{eyesore}
-%  But doing that is strongly discouraged.
-%\end{eyesore}
-%
-% There is also an interface to the thmbox package: you can use |thmbox=X|, 
-% where X is one of the styles L, M, S as defined by that package.
-% (Actually, the parameter you give here is just passed on as optional
-% argument to |\newboxtheorem|, so the other parameters like headstyle are valid as well.)
-% The
-% redefinition of proof and example is suppressed unless you load the thmbox
-% package manually before you load thmtools.
-%
 %\StopEventually{}
-%\section{Implementation}
 %    \begin{macrocode}
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thm-kv}[2009/07/30 v0.1beta11 thm-kv interface (ulmi)]
+
 \let\@xa\expandafter
 \let\@nx\noexpand
-\RequirePackage{keyval}
+\RequirePackage{keyval,kvsetkeys,thm-patch}
 
-\define@key{thmt}{parent}{\thmt@setparent{#1}}
-\define@key{thmt}{numberwithin}{\thmt@setparent{#1}}
-\define@key{thmt}{within}{\thmt@setparent{#1}}
+\newif\if@thmt@firstkeyset
 
-\define@key{thmt}{sibling}{\thmt@setsibling{#1}}
-\define@key{thmt}{numberlike}{\thmt@setsibling{#1}}
-\define@key{thmt}{sharenumber}{\thmt@setsibling{#1}}
+% many keys are evaluated twice, because we don't know 
+% if they make sense before or after, or both.
+\def\thmt@trytwice{%
+  \if@thmt@firstkeyset
+    \@xa\@firstoftwo
+  \else
+    \@xa\@secondoftwo
+  \fi
+}
 
-\define@key{thmt}{title}{\thmt@setthmname{#1}}
-\define@key{thmt}{name}{\thmt@setthmname{#1}}
-\define@key{thmt}{heading}{\thmt@setthmname{#1}}
+\@for\keyname:=parent,numberwithin,within\do{%
+\define@key{thmdef}{\keyname}{\thmt@trytwice{\thmt@setparent{#1}}{}}%
+}
 
-\define@key{thmt}{unnumbered}[]{\thmt@isnumberedfalse}
-\define@key{thmt}{starred}[]{\thmt@isnumberedfalse}
+\@for\keyname:=sibling,numberlike,sharenumber\do{%
+\define@key{thmdef}{\keyname}{\thmt@trytwice{\thmt@setsibling{#1}}{}}%
+}
 
-\define@key{thmt}{preheadhook}{\addtotheorempreheadhook[\thmt@envname]{#1}}
-\define@key{thmt}{postheadhook}{\addtotheorempostheadhook[\thmt@envname]{#1}}
-\define@key{thmt}{prefoothook}{\addtotheoremprefoothook[\thmt@envname]{#1}}
-\define@key{thmt}{postfoothook}{\addtotheorempostfoothook[\thmt@envname]{#1}}
+\@for\keyname:=title,name,heading\do{%
+\define@key{thmdef}{\keyname}{\thmt@trytwice{\thmt@setthmname{#1}}{}}%
+}
 
-\define@key{thmt}{style}{\thmt@setstyle{#1}}
+\@for\keyname:=unnumbered,starred\do{%
+\define@key{thmdef}{\keyname}[]{\thmt@trytwice{\thmt@isnumberedfalse}{}}%
+}
 
-\providecommand\theoremstyle[1]{%
-  \PackageWarning{thm-kv}{%
-    Your backend doesn't have a `\string\theoremstyle' command.\MessageBreak
-    Your style request `#1' was ignored
+\def\thmt@YES{yes}
+\def\thmt@NO{no}
+\def\thmt@UNIQUE{unless unique}
+\define@key{thmdef}{numbered}[\thmt@YES]{
+  \def\thmt@tmp{#1}%
+  \thmt@trytwice{%
+    \ifx\thmt@tmp\thmt@YES
+      \thmt@isnumberedtrue
+    \else\ifx\thmt@tmp\thmt@NO
+      \thmt@isnumberedfalse
+    \else\ifx\thmt@tmp\thmt@UNIQUE
+      \RequirePackage[unq]{unique}
+      \ifuniq{\thmt@envname}{%
+        \thmt@isnumberedfalse
+      }{%
+        \thmt@isnumberedtrue
+      }%
+    \else
+      \PackageError{thmtools}{Unknown value `#1' to key numbered}{}%
+    \fi\fi\fi
+  }{% trytwice: after definition
+    \ifx\thmt@tmp\thmt@UNIQUE
+      \addtotheorempreheadhook[\thmt@envname]{\setuniqmark{\thmt@envname}}%
+      \addtotheorempreheadhook[\thmt@envname]{\def\thmt@dummyctrautorefname{\thmt@thmname\@gobble}}
+    \fi
   }%
 }
-\let\thmt@setstyle\theoremstyle
+
+
+\define@key{thmdef}{preheadhook}{\thmt@trytwice{}{\addtotheorempreheadhook[\thmt@envname]{#1}}}
+\define@key{thmdef}{postheadhook}{\thmt@trytwice{}{\addtotheorempostheadhook[\thmt@envname]{#1}}}
+\define@key{thmdef}{prefoothook}{\thmt@trytwice{}{\addtotheoremprefoothook[\thmt@envname]{#1}}}
+\define@key{thmdef}{postfoothook}{\thmt@trytwice{}{\addtotheorempostfoothook[\thmt@envname]{#1}}}
+
+\define@key{thmdef}{style}{\thmt@trytwice{\thmt@setstyle{#1}}{}}
+
+% ugly hack: style needs to be evaluated first so its keys
+% are not overridden by explicit other settings
+\define@key{thmdef0}{style}{%
+  \ifcsname thmt@style #1@defaultkeys\endcsname
+    \thmt@toks{\kvsetkeys{thmdef}}%
+    \@xa\@xa\@xa\the\@xa\@xa\@xa\thmt@toks\@xa\@xa\@xa{%
+      \csname thmt@style #1@defaultkeys\endcsname}%
+  \fi
+}
+\kv@set@family@handler{thmdef0}{}% ignore everything else.
+
+% fallback definition.
+% actually, only the kernel does not provide \theoremstyle.
+% is this one worth having glue code for the theorem package?
+\def\thmt@setstyle#1{%
+  \PackageWarning{thm-kv}{%
+    Your backend doesn't have a `\string\theoremstyle' command.
+  }%
+}
+
+\ifcsname theoremstyle\endcsname 
+  \let\thmt@originalthmstyle\theoremstyle
+  \def\thmt@outerstyle{plain}
+  \renewcommand\theoremstyle[1]{%
+    \def\thmt@outerstyle{#1}%
+    \thmt@originalthmstyle{#1}%
+  }
+  \def\thmt@setstyle#1{%
+    \thmt@originalthmstyle{#1}%
+  }
+  \g@addto@macro\thmt@newtheorem@postdefinition{%
+    \thmt@originalthmstyle{\thmt@outerstyle}%
+  }
+\fi
 
 \newif\ifthmt@isnumbered
 \newcommand\thmt@setparent[1]{%
@@ -212,6 +130,7 @@
   \def\thmt@thmname
 }
 
+\thmt@mkextendingkeyhandler{thmdef}{thmdef}{\string\declaretheorem\space key}
 
 \newcommand\declaretheorem[2][]{%
   \let\thmt@theoremdefiner\thmt@original@newtheorem
@@ -220,7 +139,9 @@
   \thmt@setparent{}%
   \thmt@setsibling{}%
   \thmt@isnumberedtrue%
-  \setkeys{thmt}{#1}%
+  \@thmt@firstkeysettrue%
+  \kvsetkeys{thmdef0}{#1}%
+  \kvsetkeys{thmdef}{#1}%
   \protected@edef\thmt@tmp{%
     \@nx\newtheorem
     \ifthmt@isnumbered\else *\fi
@@ -232,61 +153,104 @@
   \thmt@tmp
   % uniquely ugly kludge: some keys make only sense
   % afterwards.
-  \setkeys{thmt}{#1}%
+  % and it gets kludgier: again, the default-inherited
+  % keys need to have a go at it.
+  \@thmt@firstkeysetfalse%
+  \kvsetkeys{thmdef0}{#1}%
+  \kvsetkeys{thmdef}{#1}%
+}
+
+\providecommand\thmt@quark{\thmt@quark}
+
+% in-document keyval, i.e. \begin{theorem}[key=val,key=val]
+
+\thmt@mkextendingkeyhandler{thmuse}{thmuse}{\thmt@envname\space optarg key}
+
+\addtotheorempreheadhook{%
+  \ifx\thmt@optarg\@empty\else
+    \@xa\thmt@garbleoptarg\@xa{\thmt@optarg}\fi
+}%
+\providecommand\thmt@garbleoptarg[1]{%
+  \thmt@splitopt#1=\thmt@quark
+  \ifcsname KV@thmuse@\thmt@tmpkey\endcsname
+    % looks like a keyval-style argument
+    \PackageInfo{thmtools}{kv-style argument to `\thmt@envname'}
+    %\typeout{dbg: new-style arg `#1'}%
+    \let\thmt@newoptarg\@empty
+    \kvsetkeys{thmuse}{#1}%
+    \let\thmt@optarg\thmt@newoptarg
+  %\else
+  %  \typeout{dbg: old-style arg `#1'}%
+  \fi
+%  % optarg present, check if it's newstyle
+%  % a newstyle kv args starts with =.
+%    %\tracingall
+%  \if\expandafter\noexpand\@car #1\@nil=
+%    \let\thmt@newoptarg\@empty
+%    \@xa\def\@xa\thmt@optarg\@xa{\@cdr #1\@nil}%
+%    \def\thmt@tempa{\setkeys{thmt-optarg}}%
+%    \@xa\thmt@tempa\@xa{\thmt@optarg}% expansion!
+%    \let\thmt@optarg\thmt@newoptarg
+%  \else
+%    \typeout{(dbg: old-style arg `#1')}%
+%  \fi
+}
+\def\thmt@splitopt#1=#2\thmt@quark{%
+  \def\thmt@tmpkey{#1}%
+  \ifx\thmt@tmpkey\@empty
+    \def\thmt@tmpkey{\thmt@quark}%
+  \fi
+  \@onelevel@sanitize\thmt@tmpkey
+}
+
+\define@key{thmuse}{label}{%
+  %\typeout{setting label: #1}%
+  \addtotheorempostheadhook[local]{\label{#1}}%
+}
+\define@key{thmuse}{name}{%
+  %\typeout{optarg: #1}%
+  \def\thmt@newoptarg{#1}%
+}
+
+%    \end{macrocode}
+%
+% Defining new theorem styles; keys are in opt-arg
+% even though not having any doesn't make much sense.
+% It doesn't do anything exciting here, it's up to 
+% the glue layer to provide keys.
+%
+%    \begin{macrocode}
+\def\thmt@declaretheoremstyle@setup{}
+\def\thmt@declaretheoremstyle#1{%
+  \PackageWarning{thmtools}{Your backend doesn't allow styling theorems}{}
+}
+\newcommand\declaretheoremstyle[2][]{%
+  \def\thmt@style{#2}%
+  \@xa\def\csname thmt@style \thmt@style @defaultkeys\endcsname{}%
+  \thmt@declaretheoremstyle@setup
+  \kvsetkeys{thmstyle}{#1}%
+  \thmt@declaretheoremstyle{#2}%
+}
+
+\kv@set@family@handler{thmstyle}{%
+  \PackageInfo{thmtools}{%
+    Key `#1' (with value `#2')\MessageBreak 
+    is not a known style key.\MessageBreak
+    Will pass this to every \string\declaretheorem\MessageBreak
+    that uses `style=\thmt@style'%
+  }%
+  \ifx\kv@value\relax% no value given, don't pass on {}!
+    \@xa\g@addto@macro\csname thmt@style \thmt@style @defaultkeys\endcsname{%
+      #1,%
+    }%
+  \else
+    \@xa\g@addto@macro\csname thmt@style \thmt@style @defaultkeys\endcsname{%
+      #1={#2},%
+    }%
+  \fi
 }
 %    \end{macrocode}
-% \subsection{Package-specific extensions}
-% This is code that requires additional packages. These might be mutually
-% incompatible.
 %
-% \subsubsection{shadethm}
-%    \begin{macrocode}
-  \define@key{thmt}{shaded}[{}]{%
-    \RequirePackage{shadethm}%
-    \RequirePackage{thm-patch}%
-    \addtotheorempreheadhook[\thmt@envname]{%
-      \setlength\shadedtextwidth{\linewidth}%
-      \setkeys{thmt@shade}{#1}\begin{shadebox}}%
-    \addtotheorempostfoothook[\thmt@envname]{\end{shadebox}}%
-  }
-%   There are some parameters you could set the default for (try them as is,
-% first).
-%    (i) shadethmcolor  The shading color of the background.  See the
-%      documentation for the color package, but with a `gray' model, I find .97
-%      looks good out of my printer, while a darker shade like .92 is needed
-%      to make it copy well.  (Black is  0, white is 1.)
-%    (i*) shaderulecolor  The shading color of the border of the shaded box.
-%      See (i).  If \shadeboxrule is set to 0pt then this won't print anyway.
-%    (i**) shadeboxrule  The width of the border around the shading.  Set it to
-%      0pt (not just 0) to make it disappear.
-%    (i***) shadeboxsep  The length by which the shade box surrounds the text.
-\define@key{thmt@shade}{textwidth}{\setlength\shadedtextwidth{#1}}
-\define@key{thmt@shade}{bgcolor}{\definecolor{shadethmcolor}#1}
-\define@key{thmt@shade}{rulecolor}{\definecolor{shaderulecolor}#1}
-\define@key{thmt@shade}{rulewidth}{\setlength\shadeboxrule{#1}}
-\define@key{thmt@shade}{margin}{\setlength\shadeboxsep{#1}}
-%    \end{macrocode}
-% \subsubsection{thmbox}
-% Emmanuel Beffara's thmbox package lets you draw certain sorts of borders
-% around the theorems. Note that I don't think it honours \string\theoremstyle.
-%    \begin{macrocode}
-  \define@key{thmt}{thmbox}[L]{%
-    \let\oldproof=\proof
-    \let\oldendproof=\endproof
-    \let\oldexample=\example
-    \let\oldendexample=\endexample
-    \RequirePackage[nothm]{thmbox}
-    \let\proof=\oldproof
-    \let\endproof=\oldendproof
-    \let\example=\oldexample
-    \let\endexample=\oldendexample
-    \def\thmt@theoremdefiner{\newboxtheorem[#1]}%
-  }%
-%    \end{macrocode}
-% \subsubsection{beamer}
-% Nothing yet.
-%    \begin{macrocode}
-%    \end{macrocode}
 %\iffalse
 %</kv>
 %\fi

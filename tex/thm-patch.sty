@@ -11,70 +11,44 @@
 %% The `thmtools' package has the LPPL maintenance status: maintained.
 %% Current Maintainer is Ulrich M. Schwarz, ulmi@absatzen.de
 %% 
-%% Copyright (C) 2008 by Ulrich M. Schwarz.
+%% Copyright (C) 2008-2020 by Ulrich M. Schwarz.
 %% 
 %% This file may be distributed and/or modified under the
 %% conditions of the LaTeX Project Public License, version 1.3a.
 %% This version is obtainable at
 %% http://www.latex-project.org/lppl/lppl-1-3a.txt
 %% 
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thm-patch}[2008/09/02 v0.1beta6b thm-patch (ulmi)]
-\let\@xa=\expandafter
-\let\@nx=\noexpand
+%% 
+\NeedsTeXFormat {LaTeX2e}
+\ProvidesPackage {thm-patch}[2010/05/18 v24]
 \RequirePackage{parseargs}
-
-\@ifundefined{c@thmt@dummyctr}{%
-  \newcounter{thmt@dummyctr}%
-}{}%
-\gdef\theHthmt@dummyctr{dummy.\arabic{thmt@dummyctr}}%
-\gdef\thethmt@dummyctr{}%
 
 \newif\ifthmt@isstarred
 \newif\ifthmt@hassibling
 \newif\ifthmt@hasparent
 
-\@ifundefined{beamer@version}{%
-  \def\thmt@parsetheoremargs#1{%
-    \parse{%
-      {\parseOpt[]{\def\thmt@optarg{##1}}{\let\thmt@optarg\@empty}}%
-      {%
-        \csname thmt@#1@preheadhook\endcsname
-        \thmt@generic@preheadhook
-        \protected@edef\tmp@args{%
-          \ifx\@empty\thmt@optarg\else [\thmt@optarg]\fi
-        }%
-        \csname thmt@original@#1\@xa\endcsname\tmp@args
-        \csname thmt@#1@postheadhook\endcsname
-        \thmt@generic@postheadhook
-        \let\@parsecmd\@empty
+\def\thmt@parsetheoremargs#1{%
+  \parse{%
+    {\parseOpt[]{\def\thmt@optarg{##1}}{\let\thmt@optarg\@empty}}%
+    {%
+      \def\thmt@local@preheadhook{}%
+      \def\thmt@local@postheadhook{}%
+      \def\thmt@local@prefoothook{}%
+      \def\thmt@local@postfoothook{}%
+      \thmt@local@preheadhook
+      \csname thmt@#1@preheadhook\endcsname
+      \thmt@generic@preheadhook
+      \protected@edef\tmp@args{%
+        \ifx\@empty\thmt@optarg\else [{\thmt@optarg}]\fi
       }%
+      \csname thmt@original@#1\@xa\endcsname\tmp@args
+      \thmt@local@postheadhook
+      \csname thmt@#1@postheadhook\endcsname
+      \thmt@generic@postheadhook
+      \let\@parsecmd\@empty
     }%
   }%
-}{%
-  \newif\ifthmt@hasoverlay
-  \def\thmt@parsetheoremargs#1{%
-    \parse{%
-      {\parseOpt<>{\thmt@hasoverlaytrue\def\thmt@overlay{##1}}{}}%
-      {\parseOpt[]{\def\thmt@optarg{##1}}{\let\thmt@optarg\@empty}}%
-      {\ifthmt@hasoverlay\expandafter\@gobble\else\expandafter\@firstofone\fi
-          {\parseOpt<>{\thmt@hasoverlaytrue\def\thmt@overlay{##1}}{}}%
-      }%
-      {%
-        \csname thmt@#1@preheadhook\endcsname
-        \thmt@generic@preheadhook
-        \protected@edef\tmp@args{%
-          \ifthmt@hasoverlay <\thmt@overlay>\fi
-          \ifx\@empty\thmt@optarg\else [\thmt@optarg]\fi
-        }%
-        \csname thmt@original@#1\@xa\endcsname\tmp@args
-        \csname thmt@#1@postheadhook\endcsname
-        \thmt@generic@postheadhook
-        \let\@parsecmd\@empty
-      }%
-    }
-  }%
-}
+}%
 
 \let\thmt@original@newtheorem\newtheorem
 \let\thmt@theoremdefiner\thmt@original@newtheorem
@@ -95,7 +69,7 @@
 
 \newcommand\thmt@newtheoremiv{%
   \thmt@newtheorem@predefinition
-  % whee, now reassemble the whole shit.
+  % whee, now reassemble the whole shebang.
   \protected@edef\thmt@args{%
     \@nx\thmt@theoremdefiner%
     \ifthmt@isstarred *\fi
@@ -111,6 +85,9 @@
 \newcommand\thmt@newtheorem@predefinition{}
 \newcommand\thmt@newtheorem@postdefinition{}
 
+\g@addto@macro\thmt@newtheorem@predefinition{%
+  \@xa\thmt@providetheoremhooks\@xa{\thmt@envname}%
+}
 \g@addto@macro\thmt@newtheorem@postdefinition{%
   \@xa\thmt@addtheoremhook\@xa{\thmt@envname}%
   \ifthmt@isstarred\@namedef{the\thmt@envname}{}\fi
@@ -121,6 +98,16 @@
   \@xa\addtotheorempreheadhook\@xa[\@xa\thmt@envname\@xa]\@xa{%
     \thmt@tmp
   }%
+}
+\newcommand\thmt@providetheoremhooks[1]{%
+  \@namedef{thmt@#1@preheadhook}{}%
+  \@namedef{thmt@#1@postheadhook}{}%
+  \@namedef{thmt@#1@prefoothook}{}%
+  \@namedef{thmt@#1@postfoothook}{}%
+  \def\thmt@local@preheadhook{}%
+  \def\thmt@local@postheadhook{}%
+  \def\thmt@local@prefoothook{}%
+  \def\thmt@local@postfoothook{}%
 }
 \newcommand\thmt@addtheoremhook[1]{%
   % this adds two command calls to the newly-defined theorem.
@@ -134,17 +121,22 @@
     % these need to be in opposite order of headhooks.
     \csname thmtgeneric@prefoothook\endcsname
     \csname thmt@#1@prefoothook\endcsname
+    \csname thmt@local@prefoothook\endcsname
     \csname thmt@original@end#1\endcsname
     \csname thmt@generic@postfoothook\endcsname
     \csname thmt@#1@postfoothook\endcsname
+    \csname thmt@local@postfoothook\endcsname
   }%
-  \@namedef{thmt@#1@preheadhook}{}%
-  \@namedef{thmt@#1@postheadhook}{}%
-  \@namedef{thmt@#1@prefoothook}{}%
-  \@namedef{thmt@#1@postfoothook}{}%
 }
 \newcommand\thmt@generic@preheadhook{\refstepcounter{thmt@dummyctr}}
 \newcommand\thmt@generic@postheadhook{}
+\newcommand\thmt@generic@prefoothook{}
+\newcommand\thmt@generic@postfoothook{}
+
+\def\thmt@local@preheadhook{}
+\def\thmt@local@postheadhook{}
+\def\thmt@local@prefoothook{}
+\def\thmt@local@postfoothook{}
 
 \providecommand\g@prependto@macro[2]{%
   \begingroup

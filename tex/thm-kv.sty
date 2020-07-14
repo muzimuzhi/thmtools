@@ -11,48 +11,111 @@
 %% The `thmtools' package has the LPPL maintenance status: maintained.
 %% Current Maintainer is Ulrich M. Schwarz, ulmi@absatzen.de
 %% 
-%% Copyright (C) 2008 by Ulrich M. Schwarz.
+%% Copyright (C) 2008-2020 by Ulrich M. Schwarz.
 %% 
 %% This file may be distributed and/or modified under the
 %% conditions of the LaTeX Project Public License, version 1.3a.
 %% This version is obtainable at
 %% http://www.latex-project.org/lppl/lppl-1-3a.txt
 %% 
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thm-kv}[2009/07/30 v0.1beta11 thm-kv interface (ulmi)]
+%% 
+\NeedsTeXFormat {LaTeX2e}
+\ProvidesPackage {thm-kv}[2010/05/18 v24]
+
 \let\@xa\expandafter
 \let\@nx\noexpand
-\RequirePackage{keyval}
+\RequirePackage{keyval,kvsetkeys,thm-patch}
 
-\define@key{thmt}{parent}{\thmt@setparent{#1}}
-\define@key{thmt}{numberwithin}{\thmt@setparent{#1}}
-\define@key{thmt}{within}{\thmt@setparent{#1}}
+\newif\if@thmt@firstkeyset
 
-\define@key{thmt}{sibling}{\thmt@setsibling{#1}}
-\define@key{thmt}{numberlike}{\thmt@setsibling{#1}}
-\define@key{thmt}{sharenumber}{\thmt@setsibling{#1}}
+\def\thmt@trytwice{%
+  \if@thmt@firstkeyset
+    \@xa\@firstoftwo
+  \else
+    \@xa\@secondoftwo
+  \fi
+}
 
-\define@key{thmt}{title}{\thmt@setthmname{#1}}
-\define@key{thmt}{name}{\thmt@setthmname{#1}}
-\define@key{thmt}{heading}{\thmt@setthmname{#1}}
+\@for\keyname:=parent,numberwithin,within\do{%
+\define@key{thmdef}{\keyname}{\thmt@trytwice{\thmt@setparent{#1}}{}}%
+}
 
-\define@key{thmt}{unnumbered}[]{\thmt@isnumberedfalse}
-\define@key{thmt}{starred}[]{\thmt@isnumberedfalse}
+\@for\keyname:=sibling,numberlike,sharenumber\do{%
+\define@key{thmdef}{\keyname}{\thmt@trytwice{\thmt@setsibling{#1}}{}}%
+}
 
-\define@key{thmt}{preheadhook}{\addtotheorempreheadhook[\thmt@envname]{#1}}
-\define@key{thmt}{postheadhook}{\addtotheorempostheadhook[\thmt@envname]{#1}}
-\define@key{thmt}{prefoothook}{\addtotheoremprefoothook[\thmt@envname]{#1}}
-\define@key{thmt}{postfoothook}{\addtotheorempostfoothook[\thmt@envname]{#1}}
+\@for\keyname:=title,name,heading\do{%
+\define@key{thmdef}{\keyname}{\thmt@trytwice{\thmt@setthmname{#1}}{}}%
+}
 
-\define@key{thmt}{style}{\thmt@setstyle{#1}}
+\@for\keyname:=unnumbered,starred\do{%
+\define@key{thmdef}{\keyname}[]{\thmt@trytwice{\thmt@isnumberedfalse}{}}%
+}
 
-\providecommand\theoremstyle[1]{%
-  \PackageWarning{thm-kv}{%
-    Your backend doesn't have a `\string\theoremstyle' command.\MessageBreak
-    Your style request `#1' was ignored
+\def\thmt@YES{yes}
+\def\thmt@NO{no}
+\def\thmt@UNIQUE{unless unique}
+\define@key{thmdef}{numbered}[\thmt@YES]{
+  \def\thmt@tmp{#1}%
+  \thmt@trytwice{%
+    \ifx\thmt@tmp\thmt@YES
+      \thmt@isnumberedtrue
+    \else\ifx\thmt@tmp\thmt@NO
+      \thmt@isnumberedfalse
+    \else\ifx\thmt@tmp\thmt@UNIQUE
+      \RequirePackage[unq]{unique}
+      \ifuniq{\thmt@envname}{%
+        \thmt@isnumberedfalse
+      }{%
+        \thmt@isnumberedtrue
+      }%
+    \else
+      \PackageError{thmtools}{Unknown value `#1' to key numbered}{}%
+    \fi\fi\fi
+  }{% trytwice: after definition
+    \ifx\thmt@tmp\thmt@UNIQUE
+      \addtotheorempreheadhook[\thmt@envname]{\setuniqmark{\thmt@envname}}%
+      \addtotheorempreheadhook[\thmt@envname]{\def\thmt@dummyctrautorefname{\thmt@thmname\@gobble}}
+    \fi
   }%
 }
-\let\thmt@setstyle\theoremstyle
+
+\define@key{thmdef}{preheadhook}{\thmt@trytwice{}{\addtotheorempreheadhook[\thmt@envname]{#1}}}
+\define@key{thmdef}{postheadhook}{\thmt@trytwice{}{\addtotheorempostheadhook[\thmt@envname]{#1}}}
+\define@key{thmdef}{prefoothook}{\thmt@trytwice{}{\addtotheoremprefoothook[\thmt@envname]{#1}}}
+\define@key{thmdef}{postfoothook}{\thmt@trytwice{}{\addtotheorempostfoothook[\thmt@envname]{#1}}}
+
+\define@key{thmdef}{style}{\thmt@trytwice{\thmt@setstyle{#1}}{}}
+
+\define@key{thmdef0}{style}{%
+  \ifcsname thmt@style #1@defaultkeys\endcsname
+    \thmt@toks{\kvsetkeys{thmdef}}%
+    \@xa\@xa\@xa\the\@xa\@xa\@xa\thmt@toks\@xa\@xa\@xa{%
+      \csname thmt@style #1@defaultkeys\endcsname}%
+  \fi
+}
+\kv@set@family@handler{thmdef0}{}% ignore everything else.
+
+\def\thmt@setstyle#1{%
+  \PackageWarning{thm-kv}{%
+    Your backend doesn't have a `\string\theoremstyle' command.
+  }%
+}
+
+\ifcsname theoremstyle\endcsname
+  \let\thmt@originalthmstyle\theoremstyle
+  \def\thmt@outerstyle{plain}
+  \renewcommand\theoremstyle[1]{%
+    \def\thmt@outerstyle{#1}%
+    \thmt@originalthmstyle{#1}%
+  }
+  \def\thmt@setstyle#1{%
+    \thmt@originalthmstyle{#1}%
+  }
+  \g@addto@macro\thmt@newtheorem@postdefinition{%
+    \thmt@originalthmstyle{\thmt@outerstyle}%
+  }
+\fi
 
 \newif\ifthmt@isnumbered
 \newcommand\thmt@setparent[1]{%
@@ -65,6 +128,8 @@
   \def\thmt@thmname
 }
 
+\thmt@mkextendingkeyhandler{thmdef}{thmdef}{\string\declaretheorem\space key}
+
 \newcommand\declaretheorem[2][]{%
   \let\thmt@theoremdefiner\thmt@original@newtheorem
   \def\thmt@envname{#2}%
@@ -72,7 +137,9 @@
   \thmt@setparent{}%
   \thmt@setsibling{}%
   \thmt@isnumberedtrue%
-  \setkeys{thmt}{#1}%
+  \@thmt@firstkeysettrue%
+  \kvsetkeys{thmdef0}{#1}%
+  \kvsetkeys{thmdef}{#1}%
   \protected@edef\thmt@tmp{%
     \@nx\newtheorem
     \ifthmt@isnumbered\else *\fi
@@ -84,33 +151,81 @@
   \thmt@tmp
   % uniquely ugly kludge: some keys make only sense
   % afterwards.
-  \setkeys{thmt}{#1}%
+  % and it gets kludgier: again, the default-inherited
+  % keys need to have a go at it.
+  \@thmt@firstkeysetfalse%
+  \kvsetkeys{thmdef0}{#1}%
+  \kvsetkeys{thmdef}{#1}%
 }
-  \define@key{thmt}{shaded}[{}]{%
-    \RequirePackage{shadethm}%
-    \RequirePackage{thm-patch}%
-    \addtotheorempreheadhook[\thmt@envname]{%
-      \setlength\shadedtextwidth{\linewidth}%
-      \setkeys{thmt@shade}{#1}\begin{shadebox}}%
-    \addtotheorempostfoothook[\thmt@envname]{\end{shadebox}}%
-  }
-\define@key{thmt@shade}{textwidth}{\setlength\shadedtextwidth{#1}}
-\define@key{thmt@shade}{bgcolor}{\definecolor{shadethmcolor}#1}
-\define@key{thmt@shade}{rulecolor}{\definecolor{shaderulecolor}#1}
-\define@key{thmt@shade}{rulewidth}{\setlength\shadeboxrule{#1}}
-\define@key{thmt@shade}{margin}{\setlength\shadeboxsep{#1}}
-  \define@key{thmt}{thmbox}[L]{%
-    \let\oldproof=\proof
-    \let\oldendproof=\endproof
-    \let\oldexample=\example
-    \let\oldendexample=\endexample
-    \RequirePackage[nothm]{thmbox}
-    \let\proof=\oldproof
-    \let\endproof=\oldendproof
-    \let\example=\oldexample
-    \let\endexample=\oldendexample
-    \def\thmt@theoremdefiner{\newboxtheorem[#1]}%
+
+\providecommand\thmt@quark{\thmt@quark}
+
+
+\thmt@mkextendingkeyhandler{thmuse}{thmuse}{\thmt@envname\space optarg key}
+
+\addtotheorempreheadhook{%
+  \ifx\thmt@optarg\@empty\else
+    \@xa\thmt@garbleoptarg\@xa{\thmt@optarg}\fi
+}%
+\providecommand\thmt@garbleoptarg[1]{%
+  \thmt@splitopt#1=\thmt@quark
+  \ifcsname KV@thmuse@\thmt@tmpkey\endcsname
+    % looks like a keyval-style argument
+    \PackageInfo{thmtools}{kv-style argument to `\thmt@envname'}
+    %\typeout{dbg: new-style arg `#1'}%
+    \let\thmt@newoptarg\@empty
+    \kvsetkeys{thmuse}{#1}%
+    \let\thmt@optarg\thmt@newoptarg
+  %\else
+  %  \typeout{dbg: old-style arg `#1'}%
+  \fi
+}
+\def\thmt@splitopt#1=#2\thmt@quark{%
+  \def\thmt@tmpkey{#1}%
+  \ifx\thmt@tmpkey\@empty
+    \def\thmt@tmpkey{\thmt@quark}%
+  \fi
+  \@onelevel@sanitize\thmt@tmpkey
+}
+
+\define@key{thmuse}{label}{%
+  %\typeout{setting label: #1}%
+  \addtotheorempostheadhook[local]{\label{#1}}%
+}
+\define@key{thmuse}{name}{%
+  %\typeout{optarg: #1}%
+  \def\thmt@newoptarg{#1}%
+}
+
+\def\thmt@declaretheoremstyle@setup{}
+\def\thmt@declaretheoremstyle#1{%
+  \PackageWarning{thmtools}{Your backend doesn't allow styling theorems}{}
+}
+\newcommand\declaretheoremstyle[2][]{%
+  \def\thmt@style{#2}%
+  \@xa\def\csname thmt@style \thmt@style @defaultkeys\endcsname{}%
+  \thmt@declaretheoremstyle@setup
+  \kvsetkeys{thmstyle}{#1}%
+  \thmt@declaretheoremstyle{#2}%
+}
+
+\kv@set@family@handler{thmstyle}{%
+  \PackageInfo{thmtools}{%
+    Key `#1' (with value `#2')\MessageBreak
+    is not a known style key.\MessageBreak
+    Will pass this to every \string\declaretheorem\MessageBreak
+    that uses `style=\thmt@style'%
   }%
+  \ifx\kv@value\relax% no value given, don't pass on {}!
+    \@xa\g@addto@macro\csname thmt@style \thmt@style @defaultkeys\endcsname{%
+      #1,%
+    }%
+  \else
+    \@xa\g@addto@macro\csname thmt@style \thmt@style @defaultkeys\endcsname{%
+      #1={#2},%
+    }%
+  \fi
+}
 \endinput
 %%
 %% End of file `thm-kv.sty'.

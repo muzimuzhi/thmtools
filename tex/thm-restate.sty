@@ -11,15 +11,16 @@
 %% The `thmtools' package has the LPPL maintenance status: maintained.
 %% Current Maintainer is Ulrich M. Schwarz, ulmi@absatzen.de
 %% 
-%% Copyright (C) 2008 by Ulrich M. Schwarz.
+%% Copyright (C) 2008-2020 by Ulrich M. Schwarz.
 %% 
 %% This file may be distributed and/or modified under the
 %% conditions of the LaTeX Project Public License, version 1.3a.
 %% This version is obtainable at
 %% http://www.latex-project.org/lppl/lppl-1-3a.txt
 %% 
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thm-restate}[2010/04/05 v0.1beta13 thm-restate (ulmi)]
+%% 
+\NeedsTeXFormat {LaTeX2e}
+\ProvidesPackage {thm-restate}[2010/05/18 v24]
 
 \let\@xa\expandafter
 \let\@nx\noexpand
@@ -28,7 +29,6 @@
   }{}
 \gdef\theHthmt@dummyctr{dummy.\arabic{thmt@dummyctr}}%
 \gdef\thethmt@dummyctr{}%
-\newtoks\thmt@toks
 \long\def\thmt@collect@body#1#2\end#3{%
   \@xa\thmt@toks\@xa{\the\thmt@toks #2}%
   \def\thmttmpa{#3}%\def\thmttmpb{restatable}%
@@ -44,8 +44,10 @@
   }%
 }
 
-\def\thmt@trivialref#1{%
-  \@xa\@xa\@xa\thmt@trivi@lr@f\csname r@#1\endcsname\@nil
+\def\thmt@trivialref#1#2{%
+  \ifcsname r@#1\endcsname
+    \@xa\@xa\@xa\thmt@trivi@lr@f\csname r@#1\endcsname\relax\@nil
+  \else #2\fi
 }
 \def\thmt@trivi@lr@f#1#2\@nil{#1}
 
@@ -75,6 +77,8 @@
 
 \newif\ifthmt@thisistheone
 \newenvironment{thmt@restatable}[3][]{%
+  \thmt@toks{}%
+  \stepcounter{thmt@dummyctr}%
   \long\def\thmrst@store##1{%
     \@xa\gdef\csname #3\endcsname{%
       \@ifstar{%
@@ -97,7 +101,8 @@
             \@currentlabel
             \protect\def\@xa\protect\csname the\ctr\endcsname{\csname the\ctr\endcsname}%
             \ifcsname theH\ctr\endcsname
-              \protect\def\@xa\protect\csname theH\ctr\endcsname{\csname theH\ctr\endcsname}%
+              \protect\def\@xa\protect\csname theH\ctr\endcsname{%
+                (restate \protect\theHthmt@dummyctr)\csname theH\ctr\endcsname}%
             \fi
             \protect\setcounter{\ctr}{\number\csname c@\ctr\endcsname}%
           }%
@@ -106,7 +111,10 @@
         \egroup
       \else
         \@xa\protected@edef\csname the#2\endcsname{%
-          \thmt@trivialref{thmt@@#3}}%
+          \thmt@trivialref{thmt@@#3}{??}}%
+        \ifcsname r@thmt@@#3\endcsname\else
+          \G@refundefinedtrue
+        \fi
         \@xa\let\csname c@#2\endcsname=\c@thmt@dummyctr
         \@xa\let\csname theH#2\endcsname=\theHthmt@dummyctr
         \let\label=\@gobble
@@ -118,7 +126,7 @@
             \protect\setcounter{equation}{\arabic{equation}}%
           }%
         }
-        \thmt@trivialref{thmt@@#3@data}%
+        \thmt@trivialref{thmt@@#3@data}{}%
       \fi
       %\def\@currenvir{#2}%
       \csname #2\@xa\endcsname\ifx\@nx#1\@nx\else[#1]\fi

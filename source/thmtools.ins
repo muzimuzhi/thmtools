@@ -1,8 +1,12 @@
 %%
 %% This is a bog-standard .ins file: thmtools.ins 
 %%
+\input VERSION.tex
+%\show\VERSION
+\def\dropext #1.#2\relax{#1}
 \input docstrip.tex
-\keepsilent
+%\keepsilent
+\askonceonly
 \preamble
 This is a generated file.
 
@@ -10,13 +14,14 @@ This file is part of the `thmtools' package.
 The `thmtools' package has the LPPL maintenance status: maintained.
 Current Maintainer is Ulrich M. Schwarz, ulmi@absatzen.de
 
-Copyright (C) 2008 by Ulrich M. Schwarz.
+Copyright (C) 2008-\the\year by Ulrich M. Schwarz.
 
 This file may be distributed and/or modified under the
 conditions of the LaTeX Project Public License, version 1.3a. 
 This version is obtainable at
 http://www.latex-project.org/lppl/lppl-1-3a.txt
 
+^^J\noexpand\noexpand\noexpand\NeedsTeXFormat{LaTeX2e}^^J\noexpand\noexpand\noexpand\ProvidesPackage{\noexpand\expandafter\noexpand\dropext\outFileName\relax}[\VERSION]
 \endpreamble
 
 \generate{%
@@ -29,6 +34,11 @@ http://www.latex-project.org/lppl/lppl-1-3a.txt
           \file{parseargs.sty}{\from{parseargs.dtx}{parseargs}}
           \file{aliasctr.sty}{\from{aliasctr.dtx}{code}}
           \file{unique.sty}{\from{unique.dtx}{code}}
+          \file{thm-amsthm.sty}{\from{thm-amsthm.dtx}{amsthm}}
+          \file{thm-ntheorem.sty}{\from{thm-ntheorem.dtx}{ntheorem}}
+          \file{thm-beamer.sty}{\from{thm-beamer.dtx}{beamer}}
+          \file{thmdef-shaded.sty}{\from{thmdef-shaded.dtx}{shaded}}
+          \file{thmdef-thmbox.sty}{\from{thmdef-thmbox.dtx}{thmbox}}
          }
 \Msg{*********************************************************}
 \Msg{*}

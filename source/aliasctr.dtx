@@ -6,46 +6,14 @@
 % the LaTeX Project Public License, version 1.3a. The full license text 
 % is available from http://www.latex-project.org/
 %
-% \fi
-%
-%\iffalse
-%<*driver>
-\documentclass{ltxdoc}
-\usepackage{aliasctr}
-
-\usepackage[T1]{fontenc}
-\usepackage{fourier}
-\usepackage[scaled=0.87]{luximono, helvet}
-\newcommand\pkg{\textsf}
-\EnableCrossrefs
-\CodelineIndex
-\RecordChanges
-\GetFileInfo{aliasctr.sty}
-\author{Ulrich M. Schwarz\thanks{ulmi at absatzen dot de}}
-\title{The \pkg{aliasctr} package\thanks{%
-  This documents \pkg{aliasctr}~\fileversion, dated~\filedate.
-  Newer versions might be found at http://absatzen.de
-}}
-\begin{document}
-  \maketitle
-  \DocInput{aliasctr.dtx}
-\end{document}
-%</driver>
 %<*code>
-%\fi
-%    \iffalse $Id: aliasctr.dtx,v 1.3 2008/03/09 18:59:17 ulmi Exp $\fi
-%    \section{Usage}
+% \fi
 %    |\@counteralias{#1}{#2}| makes |#1| a counter that uses |#2|'s count register.
 %    This is useful for things like \pkg{hyperref}'s |\autoref|, which otherwise
 %    can't distinguish theorems and definitions if they share a counter.
 %
 %    For detailed information, see Die TeXnische Kom\"odie 3/2006.
 %    \StopEventually{}
-%    \section{Implementation}
-%    \begin{macrocode}
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{aliasctr}[2006/01/22 v0.1 counter aliasing (ulmi)]
-%    \end{macrocode}
 %    \begin{macro}{\@addtoreset}
 %    add |\@elt{#1}| to |\cl@#2|.
 %    This differs from the kernel implementation insofar as we trail the
