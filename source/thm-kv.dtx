@@ -36,39 +36,77 @@
 
 \RequirePackage{keyval,kvsetkeys,thm-patch}
 
-\@ifpackagelater{kvsetkeys}{2010/07/02}{%
-  % assume Heiko goes along with my patch...
-}{%
-  \RequirePackage{etex}
-  \PackageInfo{thm-kv}{kvsetkeys patch applied}%
-  \long\def\kv@processor@default#1#2#3{%
-    \protected@edef\kvsu@fam{#1}% new
-    \@onelevel@sanitize\kvsu@fam% new
-    \protected@edef\kvsu@key{#2}% new
-    \@onelevel@sanitize\kvsu@key% new
-    \unless\ifcsname KV@#1@\kvsu@key\endcsname
-      \unless\ifcsname KVS@#1@handler\endcsname
-        \kv@error@unknownkey{#1}{\kvsu@key}%
+\long\def\thmt@kv@processor@default#1#2#3{%
+ \def\kvsu@fam{#1}% new
+ \@onelevel@sanitize\kvsu@fam% new
+ \def\kvsu@key{#2}% new
+ \@onelevel@sanitize\kvsu@key% new
+ \unless\ifcsname KV@#1@\kvsu@key\endcsname
+   \unless\ifcsname KVS@#1@handler\endcsname
+     \kv@error@unknownkey{#1}{\kvsu@key}%
+   \else
+     \csname KVS@#1@handler\endcsname{#2}{#3}%
+   % still using #2 #3 here is intentional: handler might
+   % be used for strange stuff like implementing key names
+   % that contain strange characters or other strange things.
+     \relax
+   \fi
+ \else
+   \ifx\kv@value\relax
+     \unless\ifcsname KV@#1@\kvsu@key @default\endcsname
+       \kv@error@novalue{#1}{\kvsu@key}%
+     \else
+       \csname KV@#1@\kvsu@key @default\endcsname
+       \relax
+     \fi
+   \else
+     \csname KV@#1@\kvsu@key\endcsname{#3}%
+   \fi
+ \fi
+}
+
+\@ifpackagelater{kvsetkeys}{2011/04/06}{%
+  % Patch has disappeared somewhere... thanksalot.
+  \PackageInfo{thm-kv}{kvsetkeys patch (v1.13 or later)}
+  \long\def\tmp@KVS@PD#1#2#3{% no non-etex-support here...
+    \unless\ifcsname KV@#1@#2\endcsname
+     \unless\ifcsname KVS@#1@handler\endcsname
+        \kv@error@unknownkey{#1}{#2}%
       \else
         \csname KVS@#1@handler\endcsname{#2}{#3}%
-      % still using #2 #3 here is intentional: handler might
-      % be used for strange stuff like implementing key names
-      % that contain strange characters or other strange things.
         \relax
       \fi
     \else
       \ifx\kv@value\relax
-        \unless\ifcsname KV@#1@\kvsu@key @default\endcsname
-          \kv@error@novalue{#1}{\kvsu@key}%
+       \unless\ifcsname KV@#1@#2@default\endcsname
+          \kv@error@novalue{#1}{#2}%
         \else
-          \csname KV@#1@\kvsu@key @default\endcsname
+          \csname KV@#1@#2@default\endcsname
           \relax
         \fi
       \else
-        \csname KV@#1@\kvsu@key\endcsname{#3}%
+        \csname KV@#1@#2\endcsname{#3}%
       \fi
     \fi
+  }%
+  \ifx\tmp@KVS@PD\KVS@ProcessorDefault
+    \let\KVS@ProcessorDefault\thmt@kv@processor@default  
+    \def\kv@processor@default#1#2{%
+      \begingroup
+        \csname @safe@activestrue\endcsname
+        \let\ifincsname\iftrue
+        \edef\KVS@temp{\endgroup
+        \noexpand\KVS@ProcessorDefault{#1}{\unexpanded{#2}}%
+      }%
+    \KVS@temp
   }
+  \else
+    \PackageError{thm-kv}{kvsetkeys patch failed, try kvsetkeys v1.13 or earlier}
+  \fi
+}{%
+  \RequirePackage{etex}
+  \PackageInfo{thm-kv}{kvsetkeys patch applied (pre-1.13)}%
+  \let\kv@processor@default\thmt@kv@processor@default
 }
 
 % useful key handler defaults.
@@ -279,6 +317,7 @@
   \thmt@thmuse@iskvfalse
   \def\thmt@newoptarg{\@gobble}%
   \def\thmt@newoptargextra{}%
+  \let\thmt@shortoptarg\@empty
   \def\thmt@warn@unusedkeys{}%
   \@for\thmt@fam:=\thmt@thmuse@families\do{%
     \kvsetkeys{\thmt@fam}{#1}%
@@ -288,7 +327,9 @@
       \@xa\thmt@newoptarg
       \thmt@newoptargextra\@empty
     }%
-    \protected@edef\thmt@shortoptarg{\thmt@newoptarg\@empty}%
+    \ifx\thmt@shortoptarg\@empty
+      \protected@edef\thmt@shortoptarg{\thmt@newoptarg\@empty}%
+    \fi
     \thmt@warn@unusedkeys
   \else
     \def\thmt@optarg{#1}%
@@ -328,8 +369,13 @@
   \addtotheorempostheadhook[local]{\label{#1}}%
 }
 \thmt@define@thmuse@key{name}{%
-  \def\thmt@newoptarg{#1\@iden}%
+  \thmt@setnewoptarg #1\@iden%
 }
+\newcommand\thmt@setnewoptarg[1][]{%
+  \def\thmt@shortoptarg{#1}\thmt@setnewlongoptarg
+}
+\def\thmt@setnewlongoptarg #1\@iden{%
+  \def\thmt@newoptarg{#1\@iden}}
 
 \providecommand\thmt@suspendcounter[2]{%
   \@xa\protected@edef\csname the#1\endcsname{#2}%

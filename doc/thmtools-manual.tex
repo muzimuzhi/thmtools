@@ -542,7 +542,7 @@
   the boxed and shaded keys here.
   
   To change the order in which title, number and note appear, there is a key
-  headstyle. Currently, the values ``margin'' and ``swapnumber'' are
+  headformat. Currently, the values ``margin'' and ``swapnumber'' are
   supported. The daring may also try to give a macro here that uses the
   commands |\NUMBER|, |\NAME| and |\NOTE|. 
   You cannot circumvent the fact
@@ -692,7 +692,7 @@
     \listoftheorems[ignoreall, onlynamed={theorem,Theorem,euclid}]
   \end{result}
 
-  As might be expected, the heading given is defined in |\listoftheoremname|.
+  As might be expected, the heading given is defined in |\listtheoremname|.
 
   \section{Extended arguments to theorem environments}
   
@@ -701,7 +701,11 @@
   key-value list here as well. The following keys are known right now:
   \begin{description}
     \item[name] This is what used to be the old argument. It usually holds
-    the name of the theorem, or a source.
+    the name of the theorem, or a source. This key also accepts an
+    \emph{optional} argument, which will go into the list of theorems. Be
+    aware that since we already are within an optional argument, you have to
+    use an extra level of curly braces:
+    |\begin{theorem}[{name=[Short name]A long name,...}]|
     \item[label] This will issue a |\label| command after the head. Not very
     useful, more of a demo.
     \item[continues] Saying |continues=foo| will cause the number that is
@@ -710,7 +714,12 @@
     label as its argument.)
     \item[restate] Saying |restate=foo| will hopefully work like
     wrapping this theorem in a restatable environment. (It probably still fails
-    in cases that I didn't think of.)
+    in cases that I didn't think of.) This key also accepts an optional
+    argument: when restating, the restate key is replaced by this argument,
+    for example, |restate=[name=Boring rehash]foo| will result in a
+    different name. (Be aware that it is possible to give the same key
+    several times, but I don't promise the results. In case of the name key,
+    the names happen to override one another.)
   \end{description}
   \begin{source}
     \begin{body}[gobble=6]
@@ -891,11 +900,7 @@
     theorem, before the body. Does probably not apply (or make sense) for
     styles that have a linebreak after the head.
 
-  \key{headindent}
-    Value: a length. Horizontal space inserted before the head. Some
-    publishers like |\parindent| here for remarks, for example.
-
-  \key{headstyle}
+  \key{headformat}
     Value: \LaTeX\ code using the special placeholders |\NUMBER|, |\NAME|
     and |\NOTE|, which correspond to the (formatted, including the braces
     for |\NOTE| etc.) three parts of a theorem's head. This can be used to
@@ -910,6 +915,11 @@
       not working so well for unnumbered theorems.
       \item[] \emph{This list is likely to grow}
     \end{description}
+
+  \key{headindent}
+    Value: a length. Horizontal space inserted before the head. Some
+    publishers like |\parindent| here for remarks, for example.
+
 
   \section{Known keys to \texttt{\textbackslash declaretheorem}}
   \def\keydefaultcontext{declaretheorem}

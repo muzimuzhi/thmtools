@@ -20,7 +20,9 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-ntheorem}[2010/08/09 v50]
+\ProvidesPackage {thm-ntheorem}[2011/06/02 v61]
+
+\providecommand\thmt@space{ }
 
 \def\thmt@declaretheoremstyle@setup{}
 \def\thmt@declaretheoremstyle#1{%
@@ -95,7 +97,7 @@
       \item[\hskip\labelsep\theorem@headerfont%
         \def\NAME{\theorem@headerfont ####1}%
         \def\NUMBER{\bgroup\@upn{####2}\egroup}%
-        \def\NOTE{\if=####3=\else\bgroup\ (####3)\egroup\fi}%
+        \def\NOTE{\if=####3=\else\bgroup\thmt@space(####3)\egroup\fi}%
         \csname thmt@headstyle@#1\endcsname
         \theorem@separator
       ]
@@ -113,7 +115,7 @@
       \item[\hskip\labelsep\theorem@headerfont%
         \def\NAME{\the\thm@headfont ####1}%
         \def\NUMBER{\bgroup\@upn{####2}\egroup}%
-        \def\NOTE{\if=####3=\else\bgroup\ (####3)\egroup\fi}%
+        \def\NOTE{\if=####3=\else\bgroup\thmt@space(####3)\egroup\fi}%
         #1%
         \theorem@separator
       ]

@@ -252,7 +252,7 @@
         \label{thmt@@#3}%
       \fi
       % this will be the collected body.
-      ##1
+      ##1%
       \csname end#2\endcsname
       % if we faked the counter values, restore originals now.
       \ifthmt@thisistheone\else\thmt@restorecounters\fi
@@ -285,17 +285,27 @@
  ,restate phase 1%
  ,restate phase 2%
 }
+\newcommand\thmt@splitrestateargs[1][]{%
+  \g@addto@macro\thmt@storedoptargs{,#1}%
+  \def\tmp@a##1\@{\def\thmt@storename{##1}}%
+  \tmp@a
+}
 
 \newif\ifthmt@restatethis
 \define@key{restate phase 1}{restate}{%
-  \thmt@debug{we will restate as #1}%
+  \thmt@thmuse@iskvtrue
+  \def\thmt@storedoptargs{}% discard the first time around
+  \thmt@splitrestateargs #1\@
+  \def\thmt@storedoptargs{}% discard the first time around
+  %\def\thmt@storename{#1}%
+  \thmt@debug{we will restate as `\thmt@storename' with more args
+  `\thmt@storedoptargs'}%
   \@namedef{thmt@unusedkey@restate}{}%
   % spurious "unused key" fixes itself once we are after tracknames...
   \thmt@restatethistrue
-  \def\thmt@storedoptargs{}%
-  \def\thmt@storename{#1}%
   \protected@edef\tmp@a{%
     \@nx\thmt@thisistheonetrue
+    \@nx\def\@nx\@currenvir{\thmt@envname}%
     \@nx\@xa\@nx\thmt@restatable\@nx\@xa[\@nx\thmt@storedoptargs]%
       {\thmt@envname}{\thmt@storename}%
   }%
@@ -308,11 +318,15 @@
 \define@key{restate phase 2}{restate}{%
   % do not store restate as a key for repetition:
   % infinite loop.
+  % instead, retain the added keyvals
+  % overwriting thmt@storename should be safe here, it's been 
+  % xdefd into the postheadhook
+  \thmt@splitrestateargs #1\@
 }
 \kv@set@family@handler{restate phase 2}{%
   \ifthmt@restatethis
-  \@xa\@xa\@xa\g@addto@macro\@xa\@xa\@xa\thmt@storedoptargs\@xa\@xa\@xa{%
-    \@xa\kv@key\@xa=\kv@value,}%
+  \@xa\@xa\@xa\g@addto@macro\@xa\@xa\@xa\thmt@storedoptargs\@xa\@xa\@xa{\@xa\@xa\@xa,%
+    \@xa\kv@key\@xa=\kv@value}%
   \fi
 }
 

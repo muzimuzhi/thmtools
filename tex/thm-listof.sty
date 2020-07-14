@@ -20,7 +20,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-listof}[2010/08/09 v50]
+\ProvidesPackage {thm-listof}[2011/06/02 v61]
 \let\@xa=\expandafter
 \let\@nx=\noexpand
 \RequirePackage{thm-patch,keyval,kvsetkeys}
@@ -28,13 +28,15 @@
 \def\thmtlo@oldchapter{0}%
 \newcommand\thmtlo@chaptervspacehack{}
 \ifcsname c@chapter\endcsname
-  \def\thmtlo@chaptervspacehack{%
-    \ifnum \value{chapter}>\thmtlo@oldchapter\relax
-      % new chapter, add vspace to loe.
-      \addtocontents{loe}{\protect\addvspace{10\p@}}%
-      \xdef\thmtlo@oldchapter{\arabic{chapter}}%
-    \fi
-  }%
+  \ifx\c@chapter\relax\else
+    \def\thmtlo@chaptervspacehack{%
+      \ifnum \value{chapter}>\thmtlo@oldchapter\relax
+        % new chapter, add vspace to loe.
+        \addtocontents{loe}{\protect\addvspace{10\p@}}%
+        \xdef\thmtlo@oldchapter{\arabic{chapter}}%
+      \fi
+    }%
+  \fi
 \fi
 
 \providecommand\listtheoremname{List of Theorems}

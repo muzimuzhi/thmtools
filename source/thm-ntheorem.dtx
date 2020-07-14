@@ -9,6 +9,8 @@
 %\fi
 %    \begin{macrocode}
 
+\providecommand\thmt@space{ }
+
 % actually, ntheorem's so-called style is nothing like a style at all...
 \def\thmt@declaretheoremstyle@setup{}
 \def\thmt@declaretheoremstyle#1{%
@@ -88,7 +90,7 @@
       \item[\hskip\labelsep\theorem@headerfont%
         \def\NAME{\theorem@headerfont ####1}%
         \def\NUMBER{\bgroup\@upn{####2}\egroup}%
-        \def\NOTE{\if=####3=\else\bgroup\ (####3)\egroup\fi}%
+        \def\NOTE{\if=####3=\else\bgroup\thmt@space(####3)\egroup\fi}%
         \csname thmt@headstyle@#1\endcsname
         \theorem@separator
       ]
@@ -106,7 +108,7 @@
       \item[\hskip\labelsep\theorem@headerfont%
         \def\NAME{\the\thm@headfont ####1}%
         \def\NUMBER{\bgroup\@upn{####2}\egroup}%
-        \def\NOTE{\if=####3=\else\bgroup\ (####3)\egroup\fi}%
+        \def\NOTE{\if=####3=\else\bgroup\thmt@space(####3)\egroup\fi}%
         #1%
         \theorem@separator
       ]

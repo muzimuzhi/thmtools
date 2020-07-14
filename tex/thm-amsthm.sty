@@ -20,7 +20,9 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-amsthm}[2010/08/09 v50]
+\ProvidesPackage {thm-amsthm}[2011/06/02 v61]
+\providecommand\thmt@space{ }
+
 \define@key{thmstyle}{spaceabove}{%
   \def\thmt@style@spaceabove{#1}%
 }
@@ -54,10 +56,16 @@
 
 \newtoks\thmt@style@headstyle
 \define@key{thmstyle}{headformat}[]{%
+  \thmt@setheadstyle{#1}%
+}
+\define@key{thmstyle}{headstyle}[]{%
+  \thmt@setheadstyle{#1}%
+}
+\def\thmt@setheadstyle#1{%
   \thmt@style@headstyle{%
     \def\NAME{\the\thm@headfont ##1}%
     \def\NUMBER{\bgroup\@upn{##2}\egroup}%
-    \def\NOTE{\if=##3=\else\bgroup\ \the\thm@notefont(##3)\egroup\fi}%
+    \def\NOTE{\if=##3=\else\bgroup\thmt@space\the\thm@notefont(##3)\egroup\fi}%
   }%
   \def\thmt@tmp{#1}%
   \@onelevel@sanitize\thmt@tmp
@@ -70,7 +78,7 @@
   \else
     \thmt@style@headstyle\@xa{%
       \the\thmt@style@headstyle
-      #1
+      #1%
     }%
   \fi
   %\showthe\thmt@style@headstyle

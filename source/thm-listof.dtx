@@ -60,14 +60,17 @@
 \def\thmtlo@oldchapter{0}%
 \newcommand\thmtlo@chaptervspacehack{}
 \ifcsname c@chapter\endcsname
-  \def\thmtlo@chaptervspacehack{%
-    \ifnum \value{chapter}>\thmtlo@oldchapter\relax
-      % new chapter, add vspace to loe.
-      \addtocontents{loe}{\protect\addvspace{10\p@}}%
-      \xdef\thmtlo@oldchapter{\arabic{chapter}}%
-    \fi
-  }%
+  \ifx\c@chapter\relax\else
+    \def\thmtlo@chaptervspacehack{%
+      \ifnum \value{chapter}>\thmtlo@oldchapter\relax
+        % new chapter, add vspace to loe.
+        \addtocontents{loe}{\protect\addvspace{10\p@}}%
+        \xdef\thmtlo@oldchapter{\arabic{chapter}}%
+      \fi
+    }%
+  \fi
 \fi
+  
 
 \providecommand\listtheoremname{List of Theorems}
 \newcommand\listoftheorems[1][]{%
