@@ -21,11 +21,25 @@
 \usepackage{amsmath, amsthm}
 \usepackage{thm-patch}
 \newtheorem{lemma}{Lemma}
+\providecommand\pkg{\textsf}
 \GetFileInfo{thm-patch.sty}
 \EnableCrossrefs
 \CodelineIndex
 \RecordChanges
 \begin{document}
+
+ \newcommand\thmpatch{\textsf{thm-patch}}
+ \title{The \thmpatch\ package\thanks{%
+   This file documents version~\fileversion\ of~\filedate,
+   RCS ${}$Id: thm-patch.dtx,v 1.12 2008/06/22 12:11:29 ulmi Exp ulmi ${}$.
+ }}
+ \author{Ulrich M. Schwarz\thanks{ulmi@absatzen.de}}
+
+ \maketitle
+
+\begin{abstract}
+\end{abstract}
+
   \DocInput{thm-patch.dtx}
 \end{document}
 %</driver>
@@ -57,67 +71,119 @@
 % \DoNotIndex{\providecommand,\ProvidesPackage,\relax,\renewcommand,\RequirePackage}
 % \DoNotIndex{\setcounter,\setkeys,\rlap,\setminus,\widthof,\mathrm}
 %
-% \newcommand\thmrestate{\textsf{thm-patch}}
-% \title{The \thmrestate\ package\thanks{%
-%   This file documents version~\fileversion\ of~\filedate,
-%   RCS ${}$Id: thm-patch.dtx,v 1.6 2008/02/17 21:08:04 ulmi Exp ulmi ${}$.
-% }}
-% \author{Ulrich M. Schwarz\thanks{ulmi@absatzen.de}}
-%
-% \maketitle
-%
-%\begin{abstract}
-%\end{abstract}
 %\section{Usage}
 %
+% This package is maybe not very suitable for the end user. It redefines
+% |\newtheorem| in a way that lets other packages (or the user) add code
+% to the newly-defined theorems, in a reasonably cross-compatible (with 
+% the kernel, \pkg{theorem} and \pkg{amsthm}) way.
+%
+% \textbf{Warning:} the new |\newtheorem| is a superset of the allowed 
+% syntax. For example, you can give a star and both optional arguments, 
+% even though you cannot have an unnumbered theorem that shares a counter
+% and yet has a different reset-regimen. At some point, your command is
+% re-assembled and passed on to the original |\newtheorem|. This might
+% complain, or give you the usual ``Missing |\begin{document}|'' that
+% marks too many arguments in the preamble.
+%
+% \DescribeMacro{\addtotheorem(pre/post)(head/foot)hook}
+% A call to |\addtotheorempreheadhook|\oarg{kind}\marg{code} will
+% insert the code to be executed whenever a kind theorem is opened, before
+% the actual call takes place. (I.e., before the header ``Kind 1.3 (Foo)''
+% is typeset.) There are also posthooks that are executed after this header,
+% and the same for the end of the environment, even though nothing
+% interesting ever happens there. These are useful to put
+% |\begin{shaded}|\dots |\end{shaded}| around your theorems.
+% Note that foothooks are executed LIFO (last addition first) and headhooks
+% are executed FIFO (first addition first). There is a special kind called
+% generic that is called for all theorems. This is the default if no kind
+% is given.
+%
+% The added code may examine |\thmt@thmname| to get the title,
+% |\thmt@envname| to get the environment's name, and |\thmt@optarg| to get
+% the extra optional title, if any.
+%
+%\StopEventually{}
 %\section{Implementation}
 %    \begin{macrocode}
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thm-patch}[2008/02/17 BETA thm-patch (ulmi)]
+\ProvidesPackage{thm-patch}[2008/06/22 v0.1beta6 thm-patch (ulmi)]
 \let\@xa=\expandafter
 \let\@nx=\noexpand
+\RequirePackage{parseargs}
 
 \@ifundefined{c@thmt@dummyctr}{%
   \newcounter{thmt@dummyctr}%
 }{}%
 \gdef\theHthmt@dummyctr{dummy.\arabic{thmt@dummyctr}}%
+\gdef\thethmt@dummyctr{}%
 
 \newif\ifthmt@isstarred
 \newif\ifthmt@hassibling
 \newif\ifthmt@hasparent
 
+\@ifundefined{beamer@version}{%
+  \def\thmt@parsetheoremargs#1{%
+    \parse{%
+      {\parseOpt[]{\def\thmt@optarg{##1}}{\let\thmt@optarg\@empty}}%
+      {%
+        \csname thmt@#1@preheadhook\endcsname
+        \thmt@generic@preheadhook
+        \protected@edef\tmp@args{%
+          \ifx\@empty\thmt@optarg\else [\thmt@optarg]\fi
+        }%
+        \csname thmt@original@#1\@xa\endcsname\tmp@args
+        \csname thmt@#1@postheadhook\endcsname
+        \thmt@generic@postheadhook
+        \let\@parsecmd\@empty
+      }%
+    }%
+  }%
+}{%
+  \newif\ifthmt@hasoverlay
+  \def\thmt@parsetheoremargs#1{%
+    \parse{%
+      {\parseOpt<>{\thmt@hasoverlaytrue\def\thmt@overlay{##1}}{}}%
+      {\parseOpt[]{\def\thmt@optarg{##1}}{\let\thmt@optarg\@empty}}%
+      {\ifthmt@hasoverlay\expandafter\@gobble\else\expandafter\@firstofone\fi
+          {\parseOpt<>{\thmt@hasoverlaytrue\def\thmt@overlay{##1}}{}}%
+      }%
+      {%
+        \csname thmt@#1@preheadhook\endcsname
+        \thmt@generic@preheadhook
+        \protected@edef\tmp@args{%
+          \ifthmt@hasoverlay <\thmt@overlay>\fi
+          \ifx\@empty\thmt@optarg\else [\thmt@optarg]\fi
+        }%
+        \csname thmt@original@#1\@xa\endcsname\tmp@args
+        \csname thmt@#1@postheadhook\endcsname
+        \thmt@generic@postheadhook
+        \let\@parsecmd\@empty
+      }%
+    }
+  }%
+}
+
 \let\thmt@original@newtheorem\newtheorem
 \def\newtheorem{%
   \thmt@isstarredfalse
-  \let\thmt@sibling=\relax \thmt@hassiblingfalse
-  \let\thmt@parent=\relax  \thmt@hasparentfalse
-  \@ifstar
-    {\thmt@isstarredtrue\thmt@newtheoremii}%
-    {\thmt@newtheoremii}%
-}
-\newcommand\thmt@newtheoremii[1]{%
-  \def\thmt@envname{#1}%
-  \thmt@newtheoremiii
-}
-\newcommand\thmt@newtheoremiii[2][]{%
-  \def\thmt@thmname{#2}%
-  \ifx&#1&\else
-    \thmt@hassiblingtrue
-    \def\thmt@sibling{#1}%
-  \fi
-  \@ifnextchar[{%
-    \thmt@hasparenttrue
-    \def\tmp@a[####1]{\def\thmt@parent{####1}\thmt@newtheoremiv}%
-    \tmp@a
-  }{%
-    \thmt@newtheoremiv
+  \thmt@hassiblingfalse
+  \thmt@hasparentfalse
+  \parse{%
+    {\parseFlag*{\thmt@isstarredtrue}{}}%
+    {\parseMand{\def\thmt@envname{##1}}}%
+    {\parseOpt[]{\thmt@hassiblingtrue\def\thmt@sibling{##1}}{}}%
+    {\parseMand{\def\thmt@thmname{##1}}}%
+    {\parseOpt[]{\thmt@hasparenttrue\def\thmt@parent{##1}}{}}%
+    {\let\@parsecmd\thmt@newtheoremiv}%
   }%
 }
+
 \newcommand\thmt@newtheoremiv{%
   \thmt@newtheorem@predefinition
   % whee, now reassemble the whole shit.
   \protected@edef\thmt@args{%
-    \@nx\thmt@original@newtheorem%
+    \@nx\thmt@theoremdefiner%
     \ifthmt@isstarred *\fi
     {\thmt@envname}%
     \ifthmt@hassibling [\thmt@sibling]\fi
@@ -138,7 +204,7 @@
     \def\@nx\thmt@envname{\thmt@envname}%
     \def\@nx\thmt@thmname{\thmt@thmname}%
   }
-  \@xa\addtotheoremprehook\@xa[\@xa\thmt@envname\@xa]\@xa{%
+  \@xa\addtotheorempreheadhook\@xa[\@xa\thmt@envname\@xa]\@xa{%
     \thmt@tmp
   }%
 }
@@ -146,26 +212,46 @@
   % this adds two command calls to the newly-defined theorem.
   \@xa\let\csname thmt@original@#1\@xa\endcsname
           \csname#1\endcsname
-  \@xa\renewcommand\csname \thmt@envname\endcsname[1][]{%
-    \def\thmt@optarg{##1}%
-    \csname thmt@#1@preheadhook\endcsname
-    \thmt@generic@preheadhook
-    \csname thmt@original@#1\@xa\endcsname
-      \ifx\@empty\thmt@optarg\else [##1]\fi
-    \csname thmt@#1@postheadhook\endcsname
-    \thmt@generic@postheadhook
+  \@xa\renewcommand\csname #1\endcsname{
+    \thmt@parsetheoremargs{#1}%
   }%
+  \@xa\let\csname thmt@original@end#1\@xa\endcsname\csname end#1\endcsname
+  \@xa\def\csname end#1\endcsname{%
+    % these need to be in opposite order of headhooks.
+    \csname thmtgeneric@prefoothook\endcsname
+    \csname thmt@#1@prefoothook\endcsname    
+    \csname thmt@original@end#1\endcsname
+    \csname thmt@generic@postfoothook\endcsname
+    \csname thmt@#1@postfoothook\endcsname
+  }
   \@namedef{thmt@#1@preheadhook}{}%
   \@namedef{thmt@#1@postheadhook}{}%
+  \@namedef{thmt@#1@prefoothook}{}%
+  \@namedef{thmt@#1@postfoothook}{}%
 }
 \newcommand\thmt@generic@preheadhook{\refstepcounter{thmt@dummyctr}}
 \newcommand\thmt@generic@postheadhook{}
 
-\newcommand\addtotheoremprehook[1][generic]{%
+\providecommand\g@prependto@macro[2]{%
+  \begingroup
+    \toks@\@xa{\@xa{#1}{#2}}%
+    \def\tmp@a##1##2{##2##1}%
+    \@xa\@xa\@xa\gdef\@xa\@xa\@xa#1\@xa\@xa\@xa{\@xa\tmp@a\the\toks@}%
+  \endgroup
+}
+
+\newcommand\addtotheorempreheadhook[1][generic]{%
   \expandafter\g@addto@macro\csname thmt@#1@preheadhook\endcsname%
 }
-\newcommand\addtotheoremposthook[1][generic]{%
+\newcommand\addtotheorempostheadhook[1][generic]{%
   \expandafter\g@addto@macro\csname thmt@#1@postheadhook\endcsname%
+}
+
+\newcommand\addtotheoremprefoothook[1][generic]{%
+  \expandafter\g@prependto@macro\csname thmt@#1@prefoothook\endcsname%
+}
+\newcommand\addtotheorempostfoothook[1][generic]{%
+  \expandafter\g@prependto@macro\csname thmt@#1@postfoothook\endcsname%
 }
 
 %    \end{macrocode}

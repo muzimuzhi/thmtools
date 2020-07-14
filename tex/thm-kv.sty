@@ -19,7 +19,7 @@
 %% http://www.latex-project.org/lppl/lppl-1-3a.txt
 %% 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thm-kv}[2008/02/17 BETA thm-kv interface (ulmi)]
+\ProvidesPackage{thm-kv}[2008/06/22 v0.1beta6 thm-kv interface (ulmi)]
 \let\@xa\expandafter
 \let\@nx\noexpand
 \usepackage{keyval}
@@ -39,6 +39,21 @@
 \define@key{thmt}{unnumbered}[]{\thmt@isnumberedfalse}
 \define@key{thmt}{starred}[]{\thmt@isnumberedfalse}
 
+\define@key{thmt}{preheadhook}{\addtotheorempreheadhook[\thmt@envname]{#1}}
+\define@key{thmt}{postheadhook}{\addtotheorempostheadhook[\thmt@envname]{#1}}
+\define@key{thmt}{prefoothook}{\addtotheoremprefoothook[\thmt@envname]{#1}}
+\define@key{thmt}{postfoothook}{\addtotheorempostfoothook[\thmt@envname]{#1}}
+
+\define@key{thmt}{style}{\thmt@setstyle{#1}}
+
+\providecommand\theoremstyle[1]{%
+  \PackageWarning{thm-kv}{%
+    Your backend doesn't have a `\string\theoremstyle' command.\MessageBreak
+    Your style request `#1' was ignored
+  }%
+}
+\let\thmt@setstyle\theoremstyle
+
 \newif\ifthmt@isnumbered
 \newcommand\thmt@setparent[1]{%
   \def\thmt@parent{#1}%
@@ -51,6 +66,8 @@
 }
 
 \newcommand\declaretheorem[2][]{%
+  \let\thmt@theoremdefiner\thmt@original@newtheorem
+  \def\thmt@envname{#2}%
   \thmt@setthmname{\MakeUppercase #2}%
   \thmt@setparent{}%
   \thmt@setsibling{}%
@@ -65,7 +82,34 @@
     \ifx\thmt@parent\@empty\else [\thmt@parent]\fi
   }%\show\thmt@tmp
   \thmt@tmp
+  % uniquely ugly kludge: some keys make only sense
+  % afterwards.
+  \setkeys{thmt}{#1}%
 }
+  \define@key{thmt}{shaded}[{}]{%
+    \RequirePackage{shadethm}%
+    \addtotheorempreheadhook[\thmt@envname]{%
+      \setlength\shadedtextwidth{\linewidth}%
+      \setkeys{thmt@shade}{#1}\begin{shadebox}}%
+    \addtotheorempostfoothook[\thmt@envname]{\end{shadebox}}%
+  }
+\define@key{thmt@shade}{textwidth}{\setlength\shadedtextwidth{#1}}
+\define@key{thmt@shade}{bgcolor}{\definecolor{shadethmcolor}#1}
+\define@key{thmt@shade}{rulecolor}{\definecolor{shaderulecolor}#1}
+\define@key{thmt@shade}{rulewidth}{\setlength\shadeboxrule{#1}}
+\define@key{thmt@shade}{margin}{\setlength\shadeboxsep{#1}}
+  \define@key{thmt}{thmbox}[L]{%
+    \let\oldproof=\proof
+    \let\oldendproof=\endproof
+    \let\oldexample=\example
+    \let\oldendexample=\endexample
+    \RequirePackage[nothm]{thmbox}
+    \let\proof=\oldproof
+    \let\endproof=\oldendproof
+    \let\example=\oldexample
+    \let\endexample=\oldendexample
+    \def\thmt@theoremdefiner{\newboxtheorem[#1]}%
+  }%
 \endinput
 %%
 %% End of file `thm-kv.sty'.

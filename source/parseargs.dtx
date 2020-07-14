@@ -19,31 +19,37 @@
 \usepackage{luximono}
 
 \usepackage{amsmath, amsthm}
-\usepackage{thm-autoref}
+\usepackage{parseargs}
 \newtheorem{lemma}{Lemma}
 \providecommand\pkg{\textsf}
-\GetFileInfo{thm-autoref.sty}
+\GetFileInfo{parseargs.sty}
 \EnableCrossrefs
 \CodelineIndex
 \RecordChanges
 \begin{document}
-  \newcommand\thmrestate{\textsf{thm-patch}}
-  \title{The \thmrestate\ package\thanks{%
+  \newcommand\ParseArgs{\textsf{ParseArgs}}
+  \title{The \ParseArgs\ package\thanks{%
     This file documents version~\fileversion\ of~\filedate,
-    RCS ${}$Id: thm-autoref.dtx,v 1.4 2008/03/09 18:59:17 ulmi Exp ${}$.
+    RCS ${}$Id: parseargs.dtx,v 1.2 2008/06/22 12:09:33 ulmi Exp ulmi ${}$.
   }}
   \author{Ulrich M. Schwarz\thanks{ulmi@absatzen.de}}
 
   \maketitle
 
  \begin{abstract}
-  Fixes interaction of theorems with hyperref's |\autoref| command.
+ A command like |\newtheorem| with its gazillion different argument
+ possibilities is difficult to parse manually. And then, you add beamer
+ support and you have to wade through a maze of twisty call indirections, 
+ all alike.
+
+ This package provides a generic argument parser similar to the one that
+ will be in \LaTeX3.
  \end{abstract}
 
   \DocInput{thm-autoref.dtx}
 \end{document}
 %</driver>
-%<*autoref>
+%<*parseargs>
 %\fi
 %
 % \CharacterTable
@@ -73,37 +79,71 @@
 %
 %\section{Usage}
 %
-% \pkg{hyperref}'s |\autoref| command does not work well with theorems that
-% share a counter: it'll always think it's a Lemma even if it's a Remark
-% that shares the Lemma counter. Load this package to fix it. No further
-% intervention needed.
+% The main command provided by the package is |\parse|\marg{spec}.
+% \emph{spec} consists of groups of commands. Each group should set up the
+% command |\@parsecmd| which is then run. The important point is that
+% |\@parsecmd| will pick up its arguments from the running text, not from
+% the rest of \emph{spec}. When it's done storing the arguments,
+% |\@parsecmd| must call |\@parse| to continue with the next element of
+% \emph{spec}. The process terminates when we run out of spec.
+%
+% Helper macros are provided for the three usual argument types: mandatory,
+% optional, and flag.
 %
 %\StopEventually{}
 %\section{Implementation}
 %    \begin{macrocode}
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thm-autoref}[2008/03/09 v0.1beta2 thm-autoref (ulmi)]
+\ProvidesPackage{parseargs}[2008/05/12 v0.1alpha1 generic argument parser (ulmi)]
 
-\RequirePackage{thm-patch, aliasctr}
+\newtoks\@parsespec
+\def\parse@endquark{\parse@endquark}
+\newcommand\parse[1]{%
+  \@parsespec{#1\parse@endquark}\@parse}
 
-\let\@xa=\expandafter
-\let\@nx=\noexpand
-
-\newcommand\thmt@autorefsetup{%
-  \@xa\def\csname\thmt@envname autorefname\@xa\endcsname\@xa{\thmt@thmname}%
-  \ifthmt@hassibling
-    \@counteralias{\thmt@envname}{\thmt@sibling}%
-    \@xa\def\@xa\thmt@autoreffix\@xa{%
-      \@xa\let\csname the\thmt@envname\@xa\endcsname
-        \csname the\thmt@sibling\endcsname
-      \def\thmt@autoreffix{}%
-    }%
-    \protected@edef\thmt@sibling{\thmt@envname}%
-  \fi
+\newcommand\@parse{%
+  \edef\p@tmp{\the\@parsespec}%
+  \ifx\p@tmp\parse@endquark
+    \expandafter\@gobble
+  \else
+%    \typeout{parsespec remaining: \the\@parsespec}%
+    \expandafter\@firstofone
+  \fi{%
+    \@parsepop
+  }%
 }
-\g@addto@macro\thmt@newtheorem@predefinition{\thmt@autorefsetup}%
-\g@addto@macro\thmt@newtheorem@postdefinition{\csname thmt@autoreffix\endcsname}%
+\def\@parsepop{%
+  \expandafter\p@rsepop\the\@parsespec\@nil
+  \@parsecmd
+}
+\def\p@rsepop#1#2\@nil{%
+  #1%
+  \@parsespec{#2}%
+}
+
+\newcommand\parseOpt[4]{%
+  %\parseOpt{openchar}{closechar}{yes}{no}
+%  \typeout{attemping #1#2...}%
+  \def\@parsecmd{%
+    \@ifnextchar#1{\@@reallyparse}{#4\@parse}
+  }%
+  \def\@@reallyparse#1##1#2{%
+    #3\@parse
+  }%
+}
+
+\newcommand\parseMand[1]{%
+  %\parseMand{code}
+  \def\@parsecmd##1{#1\@parse}%
+}
+
+\newcommand\parseFlag[3]{%
+  %\parseFlag{flagchar}{yes}{no}
+  \def\@parsecmd{%
+    \@ifnextchar#1{#2\expandafter\@parse\@gobble}{#3\@parse}%
+  }%
+}
 %    \end{macrocode}
 %\iffalse
-%</autoref>
+%</parseargs>
 %\fi

@@ -19,10 +19,22 @@
 %% http://www.latex-project.org/lppl/lppl-1-3a.txt
 %% 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thm-listof}[2008/02/17 BETA thm-listof (ulmi)]
+\ProvidesPackage{thm-listof}[2008/05/10 v0.1beta3 thm-listof (ulmi)]
 \let\@xa=\expandafter
 \let\@nx=\noexpand
 \RequirePackage{thm-patch}
+
+\def\thmtlo@oldchapter{0}%
+\newcommand\thmtlo@chaptervspacehack{}
+\@ifundefined{chapter}{}{%
+  \def\thmtlo@chaptervspacehack{%
+    \ifnum \arabic{chapter}>\thmtlo@oldchapter\relax
+      % new chapter, add vspace to loe.
+      \addtocontents{loe}{\protect\addvspace{10\p@}}%
+      \edef\thmtlo@oldchapter{\arabic{chapter}}%
+    \fi
+  }%
+}
 
 \providecommand\listtheoremname{List of Theorems}
 \newcommand\listoftheorems{%
@@ -45,7 +57,8 @@
   \thmt@mklistcmd
 }
 
-\addtotheoremposthook{%
+\addtotheorempostheadhook{%
+  \thmtlo@chaptervspacehack
   \addcontentsline{loe}{\thmt@envname}{%
     \numberline{\csname the\thmt@envname\endcsname}%
     \thmt@thmname

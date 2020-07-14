@@ -19,7 +19,7 @@
 %% http://www.latex-project.org/lppl/lppl-1-3a.txt
 %% 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thm-restate}[2008/02/17 BETA thm-restate (ulmi)]
+\ProvidesPackage{thm-restate}[2008/03/09 v0.1beta2 thm-restate (ulmi)]
 
 \let\@xa\expandafter
 \let\@nx\noexpand
@@ -27,12 +27,12 @@
   \newcounter{thmt@dummyctr}%
   }{}
 \gdef\theHthmt@dummyctr{dummy.\arabic{thmt@dummyctr}}%
-
+\gdef\thethmt@dummyctr{}%
 \newtoks\thmt@toks
 \long\def\thmt@collect@body#1#2\end#3{%
   \@xa\thmt@toks\@xa{\the\thmt@toks #2}%
-  \def\thmttmpa{#3}\def\thmttmpb{restatable}%
-  \ifx\thmttmpa\thmttmpb
+  \def\thmttmpa{#3}%\def\thmttmpb{restatable}%
+  \ifx\thmttmpa\@currenvir%thmttmpb
     \@xa\@firstoftwo% this is the end of the environment.
   \else
     \@xa\@secondoftwo% go on collecting
@@ -44,28 +44,50 @@
   }%
 }
 
-\newenvironment{restatable}[3][]{%
-  \def\thmrst@type{#2}%
+\newif\ifthmt@thisistheone
+\newenvironment{thmt@restatable}[3][]{%
   \long\def\thmrst@store##1{%
-    \protected@edef\thmrst@nmbr{\csname the#2\endcsname}%
-    \@xa\long\@xa\gdef\csname #3\@xa\endcsname\@xa{%
-    \@xa\begingroup
-    \@xa\def\csname the#2\@xa\endcsname\@xa{\thmrst@nmbr}%
-    \@xa\let\csname c@#2\endcsname\c@thmt@dummyctr
-    \@xa\let\csname theH#2\endcsname\theHthmt@dummyctr
-    \let\label=\@gobble
-    %\def\@currenvir{#2}%
-    \csname #2\@xa\endcsname\ifx\@nx#1\@nx\else[#1]\fi
-    ##1
-    \csname end#2\endcsname
-    \endgroup
-  }##1\end{restatable}}%
-  %\def\@currenvir{#2}%
-  \csname #2\@xa\endcsname\ifx\@nx#1\@nx\else[#1]\fi
+    \@xa\gdef\csname #3\endcsname{%
+      \@ifstar{%
+        \thmt@thisistheonefalse\csname thmt@stored@#3\endcsname
+      }{%
+        \thmt@thisistheonetrue\csname thmt@stored@#3\endcsname
+      }%
+    }%
+    \@xa\long\@xa\gdef\csname thmt@stored@#3\@xa\endcsname\@xa{%
+      \begingroup
+      \ifthmt@thisistheone\else
+        \@xa\protected@edef\csname the#2\endcsname{%
+          \ifx\@refstar\@undefined\@xa\ref\else\@xa\@refstar\fi{thmt@@#3}}%
+        \@xa\let\csname c@#2\endcsname=\c@thmt@dummyctr
+        \@xa\let\csname theH#2\endcsname=\theHthmt@dummyctr
+        \let\label=\@gobble
+      \fi
+      %\def\@currenvir{#2}%
+      \csname #2\@xa\endcsname\ifx\@nx#1\@nx\else[#1]\fi
+      \ifthmt@thisistheone
+        \label{thmt@@#3}%
+      \fi
+      ##1
+      \csname end#2\endcsname
+      \endgroup
+    }%
+    \csname #3\@xa\endcsname\ifthmt@thisistheone\else*\fi
+    \@xa\end\@xa{\@currenvir}
+  }%
   \thmt@collect@body\thmrst@store
 }{%
-  \csname end\thmrst@type\endcsname
-  %\def\@currenvir{restatable}%
+  %% now empty, just used as a marker.
+}
+\newenvironment{restatable}{%
+  \thmt@thisistheonetrue\thmt@restatable
+}{%
+  \endthmt@restatable
+}
+\newenvironment{restatable*}{%
+  \thmt@thisistheonefalse\thmt@restatable
+}{%
+  \endthmt@restatable
 }
 \endinput
 %%

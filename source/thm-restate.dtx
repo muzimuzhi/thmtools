@@ -21,11 +21,27 @@
 \usepackage{amsmath, amsthm}
 \usepackage{thm-restate}
 \newtheorem{lemma}{Lemma}
+\providecommand\pkg{\textsf}
 \GetFileInfo{thm-restate.sty}
 \EnableCrossrefs
 \CodelineIndex
 \RecordChanges
 \begin{document}
+
+ \newcommand\thmrestate{\textsf{thm-restate}}
+ \title{The \thmrestate\ package\thanks{%
+   This file documents version~\fileversion\ of~\filedate,
+   RCS ${}$Id: thm-restate.dtx,v 1.12 2008/03/09 20:06:09 ulmi Exp ${}$.
+ }}
+ \author{Ulrich M. Schwarz\thanks{ulmi@absatzen.de}}
+
+ \maketitle
+
+\begin{abstract}
+  This package provides one single environment, restatable, which lets you
+  repeat whole theorems without retyping them.
+\end{abstract}
+
   \DocInput{thm-restate.dtx}
 \end{document}
 %</driver>
@@ -57,25 +73,12 @@
 % \DoNotIndex{\providecommand,\ProvidesPackage,\relax,\renewcommand,\RequirePackage}
 % \DoNotIndex{\setcounter,\setkeys,\rlap,\setminus,\widthof,\mathrm}
 %
-% \newcommand\thmrestate{\textsf{thm-restate}}
-% \title{The \thmrestate\ package\thanks{%
-%   This file documents version~\fileversion\ of~\filedate,
-%   RCS ${}$Id: thm-restate.dtx,v 1.8 2008/02/17 21:08:04 ulmi Exp ulmi ${}$.
-% }}
-% \author{Ulrich M. Schwarz\thanks{ulmi@absatzen.de}}
-%
-% \maketitle
-%
-%\begin{abstract}
-%  This package provides one single environment, restatable, which lets you
-%  repeat whole theorems without retyping them.
-%\end{abstract}
 %\section{Usage}
 %\DescribeEnv{restatable}
 %Only one environment is provided: \verb|restatable|, which takes one
 %optional and two mandatory arguments. The first mandatory argument is the
-%type of the theorem, i.e. if you want \verb|\begin{lemma}| to be called on
-%the inside, give \verb|lemma|. The second argument is the name of the macro
+%type of the theorem, i.e. if you want |\begin{lemma}| to be called on
+%the inside, give |lemma|. The second argument is the name of the macro
 %that the text should be stored in, for example \verb|mylemma|. Be careful
 %not to specify existing command names! The optional argument will become the
 %optional argument to your theorem command. Consider the following example:
@@ -93,7 +96,7 @@
 %    \begin{lemma}
 %      This is some other lemma of no import.
 %    \end{lemma}
-%    And now, here's Mr. Zorn again: \zornlemma
+%    And now, here's Mr. Zorn again: \zornlemma*
 %  \end{document}
 %\end{verbatim}
 %which yields
@@ -107,24 +110,33 @@
 %    \end{lemma}
 %    Actually, we have set a label in the environment, so we know that
 %    it's Lemma~\ref{thm:zorn} on page~\ref{thm:zorn}.
-%    And now, here's Mr. Zorn again: \zornlemma
+%    And now, here's Mr. Zorn again: \zornlemma*
 %    Since we prevent the label from being set again, we find that
 %    it's still Lemma~\ref{thm:zorn} on page~\ref{thm:zorn}, even though
-%    it occurs later also. Maybe at some point, there'll be a way to control
-%    which instance gets its labels executed.
+%    it occurs later also. 
+%
+% \DescribeEnv{restatable*}
+% As you can see, we use the starred form |\mylemma*|. As in many cases in
+% \LaTeX, the star means ``don't give a number'', since we want to retain
+% the original number. There is also a starred variant of the |restatable|
+% environment, where the first call doesn't determine the number, but a
+% later call to |\mylemma| without star would. Since the number is carried
+% around using \LaTeX' |\label| machanism, you'll need a rerun for things to
+% settle.
 %
 % \subsection{Restrictions}
 % The only counter that is saved is the one for the theorem number. So,
 % putting floats inside a restatable is not advised. You cannot nest
-% restatables either. The first occurrence is the priviledged one that 
-% determines the number and the label/page info, you cannot change that
-% at the moment. hyperref will get confused, too, so currently, links
-% won't work.
+% restatables either. You \emph{can} use the |\restatable|\dots|\endrestatable|
+% version, but everything up to the next matching |\end{...}| is scooped up.
+% I've also probably missed many border cases.
 %
+%
+%\StopEventually{}
 %\section{Implementation}
 %    \begin{macrocode}
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thm-restate}[2008/02/17 BETA thm-restate (ulmi)]
+\ProvidesPackage{thm-restate}[2008/03/09 v0.1beta2 thm-restate (ulmi)]
 
 \let\@xa\expandafter
 \let\@nx\noexpand
@@ -132,12 +144,12 @@
   \newcounter{thmt@dummyctr}%
   }{}
 \gdef\theHthmt@dummyctr{dummy.\arabic{thmt@dummyctr}}%
-
+\gdef\thethmt@dummyctr{}%
 \newtoks\thmt@toks
 \long\def\thmt@collect@body#1#2\end#3{%
   \@xa\thmt@toks\@xa{\the\thmt@toks #2}%
-  \def\thmttmpa{#3}\def\thmttmpb{restatable}%
-  \ifx\thmttmpa\thmttmpb
+  \def\thmttmpa{#3}%\def\thmttmpb{restatable}%
+  \ifx\thmttmpa\@currenvir%thmttmpb
     \@xa\@firstoftwo% this is the end of the environment.
   \else
     \@xa\@secondoftwo% go on collecting
@@ -149,28 +161,50 @@
   }%
 }
 
-\newenvironment{restatable}[3][]{%
-  \def\thmrst@type{#2}%
+\newif\ifthmt@thisistheone
+\newenvironment{thmt@restatable}[3][]{%
   \long\def\thmrst@store##1{%
-    \protected@edef\thmrst@nmbr{\csname the#2\endcsname}%
-    \@xa\long\@xa\gdef\csname #3\@xa\endcsname\@xa{%
-    \@xa\begingroup
-    \@xa\def\csname the#2\@xa\endcsname\@xa{\thmrst@nmbr}%
-    \@xa\let\csname c@#2\endcsname\c@thmt@dummyctr
-    \@xa\let\csname theH#2\endcsname\theHthmt@dummyctr
-    \let\label=\@gobble
-    %\def\@currenvir{#2}%
-    \csname #2\@xa\endcsname\ifx\@nx#1\@nx\else[#1]\fi
-    ##1
-    \csname end#2\endcsname
-    \endgroup
-  }##1\end{restatable}}%
-  %\def\@currenvir{#2}%
-  \csname #2\@xa\endcsname\ifx\@nx#1\@nx\else[#1]\fi
+    \@xa\gdef\csname #3\endcsname{%
+      \@ifstar{%
+        \thmt@thisistheonefalse\csname thmt@stored@#3\endcsname
+      }{%
+        \thmt@thisistheonetrue\csname thmt@stored@#3\endcsname
+      }%
+    }%
+    \@xa\long\@xa\gdef\csname thmt@stored@#3\@xa\endcsname\@xa{%
+      \begingroup
+      \ifthmt@thisistheone\else
+        \@xa\protected@edef\csname the#2\endcsname{%
+          \ifx\@refstar\@undefined\@xa\ref\else\@xa\@refstar\fi{thmt@@#3}}%
+        \@xa\let\csname c@#2\endcsname=\c@thmt@dummyctr
+        \@xa\let\csname theH#2\endcsname=\theHthmt@dummyctr
+        \let\label=\@gobble
+      \fi
+      %\def\@currenvir{#2}%
+      \csname #2\@xa\endcsname\ifx\@nx#1\@nx\else[#1]\fi
+      \ifthmt@thisistheone
+        \label{thmt@@#3}%
+      \fi
+      ##1
+      \csname end#2\endcsname
+      \endgroup
+    }%
+    \csname #3\@xa\endcsname\ifthmt@thisistheone\else*\fi
+    \@xa\end\@xa{\@currenvir}
+  }%
   \thmt@collect@body\thmrst@store
 }{%
-  \csname end\thmrst@type\endcsname
-  %\def\@currenvir{restatable}%
+  %% now empty, just used as a marker.
+}
+\newenvironment{restatable}{%
+  \thmt@thisistheonetrue\thmt@restatable
+}{%
+  \endthmt@restatable
+}
+\newenvironment{restatable*}{%
+  \thmt@thisistheonefalse\thmt@restatable
+}{%
+  \endthmt@restatable
 }
 %    \end{macrocode}
 %\iffalse

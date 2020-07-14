@@ -1,0 +1,82 @@
+% \iffalse meta-comment
+%
+% Copyright (C) 2008 by Ulrich M. Schwarz
+%
+% This file may be distributed and/or modified under the conditions of
+% the LaTeX Project Public License, version 1.3a.
+% The license can be obtained from
+% http://www.latex-project.org/lppl/lppl-1-3a.txt
+%
+% \fi
+%
+%\iffalse (hide this from DocInput)
+%<*driver>
+\documentclass{ltxdoc}
+
+\let\pkg\textsf
+\def\thmtools{\pkg{thmtools}}
+\def\thmversion{2008/06/22 v0.1beta6}
+
+\usepackage[T1]{fontenc}
+\usepackage[widespace]{fourier}
+\usepackage[scaled=0.88]{helvet}
+\usepackage[scaled]{luximono}
+
+\usepackage{amsmath, amsthm}
+\usepackage{thm-patch, thm-kv, thm-autoref, thm-listof, thm-restate}
+\declaretheorem{remark}
+\declaretheorem{lemma}
+\EnableCrossrefs
+\CodelineIndex
+\RecordChanges
+\OnlyDescription
+\title{The \thmtools\ bundle\thanks{%
+  This documents \thmtools\ version \thmversion.
+  Newer releases might be available at http://absatzen.de/.
+}}
+\author{Ulrich M. Schwarz, \texttt{ulmi@absatzen.de}}
+
+\begin{document}
+  \maketitle
+  \begin{abstract}
+    \thmtools\ is a collection of tools and enhancements for theorem
+    environments.
+  \end{abstract}
+  \begin{remark}
+    Each of the packages has its own documentation in a file named after the
+    package itself. The only difference is that those documentations include
+    the reasonably-well documented source code.
+  \end{remark}
+  \section*{\pkg{thm-kv}}
+  \DocInput{thm-kv.dtx}
+  
+  \section*{\pkg{thm-restate}}
+  \DocInput{thm-restate.dtx}
+  
+  \section*{\pkg{thm-autoref}}  
+  \DocInput{thm-autoref.dtx}
+
+  \section*{\pkg{thm-listof}}
+  \DocInput{thm-listof.dtx}
+  
+  \section*{\pkg{thm-patch}}  
+  \DocInput{thm-patch.dtx}
+
+  \section*{\pkg{aliasctr}}
+  \DocInput{aliasctr.dtx}
+
+  \section*{\pkg{parseargs}}
+  \DocInput{parseargs.dtx}
+
+  \section*{\pkg{unique}}
+  \DocInput{unique.dtx}
+\end{document}
+%</driver>
+%<*thmtools>
+%\fi
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{thmtools}[2008/06/22 v0.1beta6 Tools for theorem typesetting (ulmi)]
+\RequirePackage{thm-kv, thm-autoref, thm-listof}
+%\iffalse
+%</thmtools>
+%\fi

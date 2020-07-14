@@ -16,17 +16,30 @@
 \usepackage[T1]{fontenc}
 \usepackage{fourier}
 \usepackage[scaled=0.8]{helvet}
-\usepackage{luximono}
+\usepackage[scaled]{luximono}
 
 \usepackage{amsmath, amsthm}
-\usepackage{thm-patch}
+\usepackage{thm-kv}
 \newtheorem{lemma}{Lemma}
-\GetFileInfo{thm-patch.sty}
+\GetFileInfo{thm-kv.sty}
+\providecommand\pkg{\textsf}
 \EnableCrossrefs
 \CodelineIndex
 \RecordChanges
 \begin{document}
-  \DocInput{thm-patch.dtx}
+
+ \newcommand\thmrestate{\textsf{thm-kv}}
+ \title{The \thmrestate\ package\thanks{%
+   This file documents version~\fileversion\ of~\filedate,
+   RCS ${}$Id: thm-kv.dtx,v 1.8 2008/06/22 12:09:41 ulmi Exp ulmi ${}$.
+ }}
+ \author{Ulrich M. Schwarz\thanks{ulmi@absatzen.de}}
+
+ \maketitle
+
+\begin{abstract}
+\end{abstract}
+  \DocInput{thm-kv.dtx}
 \end{document}
 %</driver>
 %<*kv>
@@ -57,24 +70,49 @@
 % \DoNotIndex{\providecommand,\ProvidesPackage,\relax,\renewcommand,\RequirePackage}
 % \DoNotIndex{\setcounter,\setkeys,\rlap,\setminus,\widthof,\mathrm}
 %
-% \newcommand\thmrestate{\textsf{thm-kv}}
-% \title{The \thmrestate\ package\thanks{%
-%   This file documents version~\fileversion\ of~\filedate,
-%   RCS ${}$Id: thm-kv.dtx,v 1.4 2008/02/17 21:08:04 ulmi Exp ulmi ${}$.
-% }}
-% \author{Ulrich M. Schwarz\thanks{ulmi@absatzen.de}}
-%
-% \maketitle
-%
-%\begin{abstract}
-%\end{abstract}
 %\section{Usage}
 %
+% \DescribeMacro{\declaretheorem}
+%The macro
+%|\declaretheorem|\oarg{key=val-opts}\marg{name} can be used to define a
+%new theorem instead of |\newtheorem|. It is hoped that |\declaretheorem| is
+%easier to use than |\newtheorem|'s tangle of mutually-exclusive optional
+%arguments. The following is the list of keywords understood:
+%\begin{description}
+%  \item[parent, numberwithin, within]
+%    These keys govern when the theorem counter is reset. For example, giving
+%    parent=chapter gives you theorems numbered per chapter, so it's
+%    equivalent to the second optional argument to |\newtheorem|. There are
+%    three names so you'll remember at least one of them.
+%  \item[sibling, numberlike, sharenumber]
+%    These keys make the theorem share a common numbering with the given
+%    theorem. This is just like giving the first optional argument.
+%  \item[unnumbered, starred]
+%    If your theorem package supports it, this will call |\newtheorem*|,
+%    i.e. you'll get a theorem that is never numbered. Currently, only
+%    amsmath offers this possibility.
+%  \item[name, title, heading] |\newtheorem| takes \emph{two} options, the
+%    name of the environment (like |lem|) and its title (|Lemma|).
+%    |\declaretheorem| only requires the environment name, and the title
+%    defaults to the environment name with the first letter uppercased. If
+%    you name your environments |lemma|, |theorem|, etc., you don't need to
+%    do anything else. Otherwise, you can always manually specify the title.
+%  \item[(pre/post)(head/foot)hook] You can specify extra code that will be
+%    executed whenever you use the environment. \textbf{Warning:} this needs
+%    the \pkg{thm-patch} package, and you're responsible for loading it
+%    yourself if you want these keys to work. This functionality might be
+%    shifted over to \pkg{thm-patch} in future releases.
+%  \item[style]
+%    This will issue a |\theoremstyle{foo}| for you if you give |style=foo|.
+%    Note that currently, no care is taken to prevent this from becoming the
+%    default style for subsequent theorems.
+%\end{description}
 %
+%\StopEventually{}
 %\section{Implementation}
 %    \begin{macrocode}
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{thm-kv}[2008/02/17 BETA thm-kv interface (ulmi)]
+\ProvidesPackage{thm-kv}[2008/06/22 v0.1beta6 thm-kv interface (ulmi)]
 \let\@xa\expandafter
 \let\@nx\noexpand
 \usepackage{keyval}
@@ -94,6 +132,21 @@
 \define@key{thmt}{unnumbered}[]{\thmt@isnumberedfalse}
 \define@key{thmt}{starred}[]{\thmt@isnumberedfalse}
 
+\define@key{thmt}{preheadhook}{\addtotheorempreheadhook[\thmt@envname]{#1}}
+\define@key{thmt}{postheadhook}{\addtotheorempostheadhook[\thmt@envname]{#1}}
+\define@key{thmt}{prefoothook}{\addtotheoremprefoothook[\thmt@envname]{#1}}
+\define@key{thmt}{postfoothook}{\addtotheorempostfoothook[\thmt@envname]{#1}}
+
+\define@key{thmt}{style}{\thmt@setstyle{#1}}
+
+\providecommand\theoremstyle[1]{%
+  \PackageWarning{thm-kv}{%
+    Your backend doesn't have a `\string\theoremstyle' command.\MessageBreak
+    Your style request `#1' was ignored
+  }%
+}
+\let\thmt@setstyle\theoremstyle
+
 \newif\ifthmt@isnumbered
 \newcommand\thmt@setparent[1]{%
   \def\thmt@parent{#1}%
@@ -107,6 +160,8 @@
 
 
 \newcommand\declaretheorem[2][]{%
+  \let\thmt@theoremdefiner\thmt@original@newtheorem
+  \def\thmt@envname{#2}%
   \thmt@setthmname{\MakeUppercase #2}%
   \thmt@setparent{}%
   \thmt@setsibling{}%
@@ -121,7 +176,61 @@
     \ifx\thmt@parent\@empty\else [\thmt@parent]\fi
   }%\show\thmt@tmp
   \thmt@tmp
+  % uniquely ugly kludge: some keys make only sense
+  % afterwards.
+  \setkeys{thmt}{#1}%
 }
+%    \end{macrocode}
+% \subsection{Package-specific extensions}
+% This is code that requires additional packages. These might be mutually
+% incompatible.
+%
+% \subsubsection{shadethm}
+%    \begin{macrocode}
+  \define@key{thmt}{shaded}[{}]{%
+    \RequirePackage{shadethm}%
+    \addtotheorempreheadhook[\thmt@envname]{%
+      \setlength\shadedtextwidth{\linewidth}%
+      \setkeys{thmt@shade}{#1}\begin{shadebox}}%
+    \addtotheorempostfoothook[\thmt@envname]{\end{shadebox}}%
+  }
+%   There are some parameters you could set the default for (try them as is,
+% first).
+%    (i) shadethmcolor  The shading color of the background.  See the
+%      documentation for the color package, but with a `gray' model, I find .97
+%      looks good out of my printer, while a darker shade like .92 is needed
+%      to make it copy well.  (Black is  0, white is 1.)
+%    (i*) shaderulecolor  The shading color of the border of the shaded box.
+%      See (i).  If \shadeboxrule is set to 0pt then this won't print anyway.
+%    (i**) shadeboxrule  The width of the border around the shading.  Set it to
+%      0pt (not just 0) to make it disappear.
+%    (i***) shadeboxsep  The length by which the shade box surrounds the text.
+\define@key{thmt@shade}{textwidth}{\setlength\shadedtextwidth{#1}}
+\define@key{thmt@shade}{bgcolor}{\definecolor{shadethmcolor}#1}
+\define@key{thmt@shade}{rulecolor}{\definecolor{shaderulecolor}#1}
+\define@key{thmt@shade}{rulewidth}{\setlength\shadeboxrule{#1}}
+\define@key{thmt@shade}{margin}{\setlength\shadeboxsep{#1}}
+%    \end{macrocode}
+% \subsubsection{thmbox}
+% Emmanuel Beffara's thmbox package lets you draw certain sorts of borders
+% around the theorems. Note that I don't think it honours \string\theoremstyle.
+%    \begin{macrocode}
+  \define@key{thmt}{thmbox}[L]{%
+    \let\oldproof=\proof
+    \let\oldendproof=\endproof
+    \let\oldexample=\example
+    \let\oldendexample=\endexample
+    \RequirePackage[nothm]{thmbox}
+    \let\proof=\oldproof
+    \let\endproof=\oldendproof
+    \let\example=\oldexample
+    \let\endexample=\oldendexample
+    \def\thmt@theoremdefiner{\newboxtheorem[#1]}%
+  }%
+%    \end{macrocode}
+% \subsubsection{beamer}
+% Nothing yet.
+%    \begin{macrocode}
 %    \end{macrocode}
 %\iffalse
 %</kv>

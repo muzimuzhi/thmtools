@@ -1,6 +1,21 @@
+- maybe store more counters in thm-restate? currently, you cannot re-use
+  equation numbers, for example. Those all need to be carried around via
+  \label or equivalent.
+
+- when using framed, restated version has different vertical spacing. 
+  Oh dear oh dear, might be some addvspace artifact?
+
 - ref close-by/far-away
 - complex refs
   (these two are very similar)
+
+- re pre/posthooks: nesting nightmare: addposthook should _pre_pend and 
+  addprehook should _ap_pend. Still, check what we know about the order in which
+  kv executes the options. FIXED by implementing and using \g@prependto@macro
+  kv stuff might not matter: a key such as "shaded" that wants to add an 
+  environment should immediately do both, and user should specify keys in
+  right order (i.e. "prehook, posthook, shaded" or "shaded, prehook, posthook"
+  but *not* "prehook, shaded, posthook").
   
   
 - starred theorems and number in list-of-theorems
