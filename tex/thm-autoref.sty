@@ -20,7 +20,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-autoref}[2012/05/04 v63]
+\ProvidesPackage {thm-autoref}[2014/04/21 v66]
 
 \RequirePackage{thm-patch, aliasctr, parseargs, keyval}
 
@@ -45,7 +45,7 @@
 \def\thmt@refnamewithcomma #1#2#3,#4,#5\@nil{%
   \@xa\def\csname\thmt@envname #1utorefname\endcsname{#3}%
   \ifcsname #2refname\endcsname
-    \csname #2refname\endcsname{\thmt@envname}{#3}{#4}%
+    \csname #2refname\@xa\endcsname\@xa{\thmt@envname}{#3}{#4}%
   \fi
 }
 \define@key{thmdef}{refname}{\thmt@trytwice{}{%

@@ -44,7 +44,7 @@
 \def\thmt@refnamewithcomma #1#2#3,#4,#5\@nil{%
   \@xa\def\csname\thmt@envname #1utorefname\endcsname{#3}%
   \ifcsname #2refname\endcsname
-    \csname #2refname\endcsname{\thmt@envname}{#3}{#4}%
+    \csname #2refname\@xa\endcsname\@xa{\thmt@envname}{#3}{#4}%
   \fi
 }
 \define@key{thmdef}{refname}{\thmt@trytwice{}{%

@@ -20,7 +20,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thmtools}[2012/05/04 v63]
+\ProvidesPackage {thmtools}[2014/04/21 v66]
 \DeclareOption{debug}{%
   \def\thmt@debug{\typeout}%
 }
@@ -54,7 +54,7 @@
     \PackageWarningNoLine{thmtools}{%
       amsthm loaded after thmtools
     }{}%
-  }}%
+  }{}}%
 }
 \@ifpackageloaded{ntheorem}{%
   \RequirePackage{thm-ntheorem}
@@ -64,7 +64,7 @@
     \PackageWarningNoLine{thmtools}{%
       ntheorem loaded after thmtools
     }{}%
-  }}%
+  }{}}%
 }
 \@ifclassloaded{beamer}{%
   \RequirePackage{thm-beamer}

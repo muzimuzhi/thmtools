@@ -20,7 +20,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-patch}[2012/05/04 v63]
+\ProvidesPackage {thm-patch}[2014/04/21 v66]
 \RequirePackage{parseargs}
 
 \newif\ifthmt@isstarred
@@ -132,7 +132,7 @@
   \@xa\let\csname thmt@original@end#1\@xa\endcsname\csname end#1\endcsname
   \@xa\def\csname end#1\endcsname{%
     % these need to be in opposite order of headhooks.
-    \csname thmtgeneric@prefoothook\endcsname
+    \csname thmt@generic@prefoothook\endcsname
     \csname thmt@#1@prefoothook\endcsname
     \csname thmt@local@prefoothook\endcsname
     \csname thmt@original@end#1\endcsname
