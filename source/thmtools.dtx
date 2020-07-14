@@ -38,6 +38,12 @@
 \def\thmt@quark{\thmt@quark}
 \newtoks\thmt@toks
 
+\@for\opt:=lowercase,uppercase,anycase\do{%
+  \@xa\DeclareOption\@xa{\opt}{%
+    \@xa\PassOptionsToPackage\@xa{\CurrentOption}{thm-kv}%
+  }%
+}
+
 \ProcessOptions\relax
 
 % a scratch counter, mostly for fake hyperlinks
@@ -73,6 +79,9 @@
 }
 \@ifclassloaded{beamer}{%
   \RequirePackage{thm-beamer}
+}{}
+\@ifclassloaded{llncs}{%
+  \RequirePackage{thm-llncs}
 }{}
 %    \end{macrocode}
 

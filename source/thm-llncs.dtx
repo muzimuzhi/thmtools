@@ -1,0 +1,90 @@
+% \iffalse meta-comment
+%
+% Copyright (C) 2010 by Ulrich M. Schwarz
+% See file COPYING for more details.
+%\fi
+%
+%\iffalse (hide this from DocInput)
+%<*llncs>
+%\fi
+%    \begin{macrocode}
+\@ifclasslater{llncs}{2010/04/15}{}{%
+  \PackageWarningNoLine{thmtools}{%
+    LLNCS.cls too old, not supported by thmtools
+  }%
+  \endinput}
+% Thank you very much, Springer, for having yet another bloody
+% system. Annoyingly, it makes \xdefs all over the place, so 
+% they break \MakeUppercase and hence name=.
+\ifx\thmt@modifycase\@empty\else
+  \PackageWarningNoLine{thmtools}{%
+    LLNCS support disables automatic casing of theorem names
+  }%
+  \let\thmt@modifycase\@empty
+\fi
+%%
+% Usage:
+%
+%     \spnewtheorem{env_nam}{caption}[within]{cap_font}{body_font}
+% or  \spnewtheorem{env_nam}[numbered_like]{caption}{cap_font}{body_font}
+% or  \spnewtheorem*{env_nam}{caption}{cap_font}{body_font}
+\providecommand\thmt@style@headfont{\normalfont\bfseries}
+\providecommand\thmt@style@bodyfont{\normalfont\itshape}
+
+\let\thmt@original@spnewtheorem\spnewtheorem
+\let\thmt@theoremdefiner\thmt@original@spnewtheorem
+
+% cf thm-patch.dtx
+\def\spnewtheorem{%
+  \thmt@isstarredfalse
+  \thmt@hassiblingfalse
+  \thmt@hasparentfalse
+  \parse{%
+    {\parseFlag*{\thmt@isstarredtrue}{}}%
+    {\parseMand{\def\thmt@envname{##1}}}%
+    {\parseOpt[]{\thmt@hassiblingtrue\def\thmt@sibling{##1}}{}}%
+    {\parseMand{%
+      \def\thmt@thmname{##1}%
+    }}%
+    {\parseOpt[]{\thmt@hasparenttrue\def\thmt@parent{##1}}{}}%
+    {\parseMand{\def\thmt@style@headfont{##1}}}%
+    {\parseMand{\def\thmt@style@bodyfont{##1}}}%
+    {\let\@parsecmd\thmt@spnewtheoremiv}%
+  }%
+}
+
+\newcommand\thmt@spnewtheoremiv{%
+  \thmt@newtheorem@predefinition
+  % whee, now reassemble the whole shebang.
+  \protected@edef\thmt@args{%
+    \@nx\thmt@theoremdefiner%
+    \ifthmt@isstarred *\fi
+    {\thmt@envname}%
+    \ifthmt@hassibling [\thmt@sibling]\fi
+    {\thmt@thmname}%
+    \ifthmt@hasparent [\thmt@parent]\fi
+    {\thmt@style@headfont}{\thmt@style@bodyfont}%
+  }
+  \thmt@args
+  \thmt@newtheorem@postdefinition
+}
+
+% for the keyval interface:
+\define@key{thmdef}{headfont}{%
+  \def\thmt@style@headfont{#1}%
+}
+\define@key{thmdef}{bodyfont}{%
+\def\thmt@style@bodyfont{#1}%
+}
+
+\def\thmt@almost@spnewtheorem#1\relax{%
+  \def\thm@tmpa{\spnewtheorem#1}%
+  \@xa\@xa\@xa\thm@tmpa
+    \@xa\@xa\@xa{\@xa\thmt@style@headfont\@xa}%
+    \@xa{\thmt@style@bodyfont}%
+}
+\let\thmt@newtheorem\thmt@almost@spnewtheorem
+%    \end{macrocode}
+%\iffalse (hide this from DocInput)
+%</llncs>
+%\fi

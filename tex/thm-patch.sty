@@ -20,7 +20,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-patch}[2010/06/08 v35]
+\ProvidesPackage {thm-patch}[2010/07/05 v41]
 \RequirePackage{parseargs}
 
 \newif\ifthmt@isstarred
@@ -40,9 +40,16 @@
       \thmt@local@preheadhook
       \csname thmt@#1@preheadhook\endcsname
       \thmt@generic@preheadhook
-      \protected@edef\tmp@args{%
-        \ifx\@empty\thmt@optarg\else [{\thmt@optarg}]\fi
-      }%
+      % change following to \@xa-orgy at some point?
+      % forex, might have keyvals involving commands.
+      %\protected@edef\tmp@args{%
+      %  \ifx\@empty\thmt@optarg\else [{\thmt@optarg}]\fi
+      %}%
+      \ifx\@empty\thmt@optarg
+        \def\tmp@args{}%
+      \else
+        \@xa\def\@xa\tmp@args\@xa{\@xa[\@xa{\thmt@optarg}]}%
+      \fi
       \csname thmt@original@#1\@xa\endcsname\tmp@args
       %%moved down: \thmt@local@postheadhook
       %% (give postheadhooks a chance to re-set nameref data)

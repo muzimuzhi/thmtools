@@ -698,27 +698,36 @@
   
   Usually, the optional argument of a theorem serves just to give a note
   that is shown in the theorem's head. \Thmtools\ allows you to have a 
-  key-value list here as well. Currently, the only two keys that are
-  known are |name|, setting the note text, and |label|, which will put a
-  |\label| command after the heading, so it's only moderately useful right now.
-
-  But it's good to already know the following: we try to treat the argument
-  as a keyval argument. If \emph{any} key matches, we assume that is the
-  right thing to do. Otherwise, it is treated as an old-style direct note.
-  Note that for implementation reasons, keys that are unknown are silently
-  discarded.
+  key-value list here as well. The following keys are known right now:
+  \begin{description}
+    \item[name] This is what used to be the old argument. It usually holds
+    the name of the theorem, or a source.
+    \item[label] This will issue a |\label| command after the head. Not very
+    useful, more of a demo.
+    \item[continues] Saying |continues=foo| will cause the number that is
+    given to be changed to |\ref{foo}|, and a text is added to the note.
+    (The exact text is given by the macro |\thmcontinues|, which takes the
+    label as its argument.)
+  \end{description}
   \begin{source}
     \begin{body}[gobble=6]
       \begin{theorem}[name=Keyed theorem, 
         label=thm:key]
-        This is a key-val theorem.
+        This is a 
+        key-val theorem.
+      \end{theorem}
+      \begin{theorem}[continues=thm:key]
+        And it's spread out.
       \end{theorem}
     \end{body}
   \end{source}
   \begin{result}
     \begin{theorem}[name=Keyed theorem, 
-        label=thm:key]
+        label=thm:key,continues=thm:key]
         This is a key-val theorem.
+    \end{theorem}
+    \begin{theorem}[continues=thm:key]
+        And it's spread out.
     \end{theorem}
   \end{result}
 

@@ -20,7 +20,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-restate}[2010/06/08 v35]
+\ProvidesPackage {thm-restate}[2010/07/05 v41]
 
 \let\@xa\expandafter
 \let\@nx\noexpand
@@ -36,21 +36,20 @@
     \@xa\@firstoftwo% this is the end of the environment.
   \else
     \@xa\@secondoftwo% go on collecting
-  \fi{%
+  \fi{% this is the end, my friend, drop the \end.
+  % and call #1 with the collected body.
     \@xa#1\@xa{\the\thmt@toks}%
-  }{%
+  }{% go on collecting
     \@xa\thmt@toks\@xa{\the\thmt@toks\end{#3}}%
     \thmt@collect@body{#1}%
   }%
 }
-
 \def\thmt@trivialref#1#2{%
   \ifcsname r@#1\endcsname
     \@xa\@xa\@xa\thmt@trivi@lr@f\csname r@#1\endcsname\relax\@nil
   \else #2\fi
 }
 \def\thmt@trivi@lr@f#1#2\@nil{#1}
-
 \def\thmt@innercounters{%
   equation}
 \def\thmt@counterformatters{%
@@ -75,10 +74,31 @@
   \fi
 }
 
+\def\thmt@rst@storecounters#1{%
+  \bgroup
+        % ugly hack: save chapter,..subsection numbers
+        % for equation numbers.
+  \refstepcounter{thmt@dummyctr}% why is this here?
+  \def\@currentlabel{}%
+  \@for\ctr:=\thmt@innercounters\do{%
+    \thmt@sanitizethe{\ctr}%
+    \protected@edef\@currentlabel{%
+      \@currentlabel
+      \protect\def\@xa\protect\csname the\ctr\endcsname{\csname the\ctr\endcsname}%
+      \ifcsname theH\ctr\endcsname
+        \protect\def\@xa\protect\csname theH\ctr\endcsname{%
+          (restate \protect\theHthmt@dummyctr)\csname theH\ctr\endcsname}%
+      \fi
+      \protect\setcounter{\ctr}{\number\csname c@\ctr\endcsname}%
+    }%
+  }%
+  \label{thmt@@#1@data}%
+  \egroup
+}%
 \newif\ifthmt@thisistheone
 \newenvironment{thmt@restatable}[3][]{%
-  \thmt@toks{}%
-  \stepcounter{thmt@dummyctr}%
+  \thmt@toks{}% will hold body
+  \stepcounter{thmt@dummyctr}% used for data storage label.
   \long\def\thmrst@store##1{%
     \@xa\gdef\csname #3\endcsname{%
       \@ifstar{%
@@ -90,57 +110,58 @@
     \@xa\long\@xa\gdef\csname thmt@stored@#3\@xa\endcsname\@xa{%
       \begingroup
       \ifthmt@thisistheone
-        \bgroup
-        % ugly hack: save chapter,..subsection numbers
-        % for equation numbers.
-        \refstepcounter{thmt@dummyctr}%
-        \def\@currentlabel{}%
-        \@for\ctr:=\thmt@innercounters\do{%
-          \thmt@sanitizethe{\ctr}%
-          \protected@edef\@currentlabel{%
-            \@currentlabel
-            \protect\def\@xa\protect\csname the\ctr\endcsname{\csname the\ctr\endcsname}%
-            \ifcsname theH\ctr\endcsname
-              \protect\def\@xa\protect\csname theH\ctr\endcsname{%
-                (restate \protect\theHthmt@dummyctr)\csname theH\ctr\endcsname}%
-            \fi
-            \protect\setcounter{\ctr}{\number\csname c@\ctr\endcsname}%
-          }%
-        }%
-        \label{thmt@@#3@data}%
-        \egroup
+        % these are the valid numbers, store them for the other
+        % occasions.
+        \thmt@rst@storecounters{#3}%
       \else
+        % this one should use other numbers...
+        % first, fake the theorem number.
         \@xa\protected@edef\csname the#2\endcsname{%
           \thmt@trivialref{thmt@@#3}{??}}%
+        % if the number wasn't there, have a "re-run to get labels right"
+        % warning.
         \ifcsname r@thmt@@#3\endcsname\else
           \G@refundefinedtrue
         \fi
+        % prevent stepcountering the theorem number,
+        % but still, have some number for hyperref, just in case.
         \@xa\let\csname c@#2\endcsname=\c@thmt@dummyctr
         \@xa\let\csname theH#2\endcsname=\theHthmt@dummyctr
+        % disable labeling.
         \let\label=\@gobble
         \let\ltx@label=\@gobble% amsmath needs this
+        % We shall need to restore the counters at the end
+        % of the environment, so we get
+        % (4.2) [(3.1 from restate)] (4.3)
         \def\thmt@restorecounters{}%
         \@for\ctr:=\thmt@innercounters\do{%
           \protected@edef\thmt@restorecounters{%
             \thmt@restorecounters
-            \protect\setcounter{equation}{\arabic{equation}}%
+            \protect\setcounter{\ctr}{\arabic{\ctr}}%
           }%
-        }
+        }%
+        % pull the new semi-static definition of \theequation et al.
+        % from the aux file.
         \thmt@trivialref{thmt@@#3@data}{}%
       \fi
-      %\def\@currenvir{#2}%
-      \csname #2\@xa\endcsname\ifx\@nx#1\@nx\else[#1]\fi
+      % call the proper begin-env code, possibly with optional argument
+      \csname #2\@xa\endcsname\ifx\@nx#1\@nx\else[{#1}]\fi
       \ifthmt@thisistheone
+        % store a label so we can pick up the number later.
         \label{thmt@@#3}%
       \fi
+      % this will be the collected body.
       ##1
       \csname end#2\endcsname
+      % if we faked the counter values, restore originals now.
       \ifthmt@thisistheone\else\thmt@restorecounters\fi
       \endgroup
-    }%
+    }% thmt@stored@#3
+    % in either case, now call the just-created macro,
     \csname #3\@xa\endcsname\ifthmt@thisistheone\else*\fi
+    % and artificially close the current environment.
     \@xa\end\@xa{\@currenvir}
-  }%
+  }% thm@rst@store
   \thmt@collect@body\thmrst@store
 }{%
   %% now empty, just used as a marker.

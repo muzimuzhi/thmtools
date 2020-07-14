@@ -20,11 +20,62 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-kv}[2010/06/08 v35]
+\ProvidesPackage {thm-kv}[2010/07/05 v41]
 
 \let\@xa\expandafter
 \let\@nx\noexpand
+
+\DeclareOption{lowercase}{%
+  \PackageInfo{thm-kv}{Theorem names will be lowercased}%
+  \global\let\thmt@modifycase\MakeLowercase}
+
+\DeclareOption{uppercase}{%
+  \PackageInfo{thm-kv}{Theorem names will be uppercased}%
+  \global\let\thmt@modifycase\MakeUppercase}
+
+\DeclareOption{anycase}{%
+  \PackageInfo{thm-kv}{Theorem names will be unchanged}%
+  \global\let\thmt@modifycase\@empty}
+
+\ExecuteOptions{uppercase}
+\ProcessOptions\relax
+
 \RequirePackage{keyval,kvsetkeys,thm-patch}
+
+\@ifpackagelater{kvsetkeys}{2010/07/02}{%
+  % assume Heiko goes along with my patch...
+}{%
+  \RequirePackage{etex}
+  \PackageInfo{thm-kv}{kvsetkeys patch applied}%
+  \long\def\kv@processor@default#1#2#3{%
+    \protected@edef\kvsu@fam{#1}% new
+    \@onelevel@sanitize\kvsu@fam% new
+    \protected@edef\kvsu@key{#2}% new
+    \@onelevel@sanitize\kvsu@key% new
+    \unless\ifcsname KV@#1@\kvsu@key\endcsname
+      \unless\ifcsname KVS@#1@handler\endcsname
+        \kv@error@unknownkey{#1}{\kvsu@key}%
+      \else
+        \csname KVS@#1@handler\endcsname{#2}{#3}%
+      % still using #2 #3 here is intentional: handler might
+      % be used for strange stuff like implementing key names
+      % that contain strange characters or other strange things.
+        \relax
+      \fi
+    \else
+      \ifx\kv@value\relax
+        \unless\ifcsname KV@#1@\kvsu@key @default\endcsname
+          \kv@error@novalue{#1}{\kvsu@key}%
+        \else
+          \csname KV@#1@\kvsu@key @default\endcsname
+          \relax
+        \fi
+      \else
+        \csname KV@#1@\kvsu@key\endcsname{#3}%
+      \fi
+    \fi
+  }
+}
 
 \newcommand\thmt@mkignoringkeyhandler[1]{%
   \kv@set@family@handler{#1}{%
@@ -170,10 +221,13 @@
 
 \thmt@mkextendingkeyhandler{thmdef}{thmdef}{\string\declaretheorem\space key}
 
+\let\thmt@newtheorem\newtheorem
+
 \newcommand\declaretheorem[2][]{%
-  \let\thmt@theoremdefiner\thmt@original@newtheorem
+  % why was that here?
+  %\let\thmt@theoremdefiner\thmt@original@newtheorem
   \def\thmt@envname{#2}%
-  \thmt@setthmname{\MakeUppercase #2}%
+  \thmt@setthmname{\thmt@modifycase #2}%
   \thmt@setparent{}%
   \thmt@setsibling{}%
   \thmt@isnumberedtrue%
@@ -181,12 +235,14 @@
   \kvsetkeys{thmdef0}{#1}%
   \kvsetkeys{thmdef}{#1}%
   \protected@edef\thmt@tmp{%
-    \@nx\newtheorem
+    \@nx\thmt@newtheorem
     \ifthmt@isnumbered\else *\fi
     {#2}%
     \ifx\thmt@sibling\@empty\else [\thmt@sibling]\fi
     {\thmt@thmname}%
     \ifx\thmt@parent\@empty\else [\thmt@parent]\fi
+    \relax% added so we can delimited-read everything later
+    % (recall newtheorem is patched)
   }%\show\thmt@tmp
   \thmt@tmp
   % uniquely ugly kludge: some keys make only sense
@@ -266,6 +322,27 @@
   \def\thmt@newoptarg{#1\@iden}%
 }
 
+\providecommand\thmt@suspendcounter[2]{%
+  \@xa\protected@edef\csname the#1\endcsname{#2}%
+  \@xa\let\csname c@#1\endcsname\c@thmt@dummyctr
+}
+
+\providecommand\thmcontinues[1]{%
+  \ifcsname hyperref\endcsname
+    \hyperref[#1]{continuing}
+  \else
+    continuing
+  \fi
+  from p.\,\pageref{#1}%
+}
+
+\thmt@define@thmuse@key{continues}{%
+  \thmt@suspendcounter{\thmt@envname}{\thmt@trivialref{#1}{??}}%
+  \g@addto@macro\thmt@newoptarg{{, }%
+    \thmcontinues{#1}%
+    \@iden}%
+}
+
 \def\thmt@declaretheoremstyle@setup{}
 \def\thmt@declaretheoremstyle#1{%
   \PackageWarning{thmtools}{Your backend doesn't allow styling theorems}{}
@@ -280,8 +357,10 @@
 \@onlypreamble\declaretheoremstyle
 
 \kv@set@family@handler{thmstyle}{%
+  \@onelevel@sanitize\kv@value
+  \@onelevel@sanitize\kv@key
   \PackageInfo{thmtools}{%
-    Key `#1' (with value `#2')\MessageBreak
+    Key `\kv@key' (with value `\kv@value')\MessageBreak
     is not a known style key.\MessageBreak
     Will pass this to every \string\declaretheorem\MessageBreak
     that uses `style=\thmt@style'%

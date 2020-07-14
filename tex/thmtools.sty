@@ -20,7 +20,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thmtools}[2010/06/08 v35]
+\ProvidesPackage {thmtools}[2010/07/05 v41]
 \DeclareOption{debug}{%
   \def\thmt@debug{\typeout}%
 }
@@ -29,6 +29,12 @@
 \def\thmt@debug{\@gobble}
 \def\thmt@quark{\thmt@quark}
 \newtoks\thmt@toks
+
+\@for\opt:=lowercase,uppercase,anycase\do{%
+  \@xa\DeclareOption\@xa{\opt}{%
+    \@xa\PassOptionsToPackage\@xa{\CurrentOption}{thm-kv}%
+  }%
+}
 
 \ProcessOptions\relax
 
@@ -62,6 +68,9 @@
 }
 \@ifclassloaded{beamer}{%
   \RequirePackage{thm-beamer}
+}{}
+\@ifclassloaded{llncs}{%
+  \RequirePackage{thm-llncs}
 }{}
 
 \endinput
