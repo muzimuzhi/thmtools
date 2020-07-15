@@ -19,7 +19,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-restate}[2019/12/22 v68]
+\ProvidesPackage {thm-restate}[2020/07/16 v69]
 \RequirePackage{thmtools}
 \let\@xa\expandafter
 \let\@nx\noexpand
@@ -129,7 +129,7 @@
         \@xa\let\csname c@#2\endcsname=\c@thmt@dummyctr
         \@xa\let\csname theH#2\endcsname=\theHthmt@dummyctr
         % disable labeling.
-        \let\label=\@gobble
+        \let\label=\thmt@gobble@label
         \let\ltx@label=\@gobble% amsmath needs this
         % We shall need to restore the counters at the end
         % of the environment, so we get
@@ -171,6 +171,13 @@
   \thmt@collect@body\thmrst@store
 }{%
   %% now empty, just used as a marker.
+}
+
+\let\thmt@gobble@label\@gobble
+\AtBeginDocument{
+  \@ifpackageloaded{cleveref}{
+    \renewcommand*\thmt@gobble@label[2][]{}
+  }{}
 }
 
 \newenvironment{restatable}{%

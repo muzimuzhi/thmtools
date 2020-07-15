@@ -19,7 +19,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thmdef-shaded}[2019/12/22 v68]
+\ProvidesPackage {thmdef-shaded}[2020/07/16 v69]
   \define@key{thmdef}{shaded}[{}]{%
   \thmt@trytwice{}{%
     \RequirePackage{shadethm}%
@@ -30,13 +30,13 @@
     \addtotheorempostfoothook[\thmt@envname]{\end{shadebox}}%
     }%
   }
-\define@key{thmt@shade}{textwidth}{\setlength\shadedtextwidth{#1}}
-\define@key{thmt@shade}{bgcolor}{\thmt@definecolor{shadethmcolor}{#1}}
-\define@key{thmt@shade}{rulecolor}{\thmt@definecolor{shaderulecolor}{#1}}
-\define@key{thmt@shade}{rulewidth}{\setlength\shadeboxrule{#1}}
-\define@key{thmt@shade}{margin}{\setlength\shadeboxsep{#1}}
-\define@key{thmt@shade}{padding}{\setlength\shadeboxsep{#1}}
-\define@key{thmt@shade}{leftmargin}{\setlength\shadeleftshift{#1}}
+\define@key{thmt@shade}{textwidth}  {\setlength\shadedtextwidth{#1}}
+\define@key{thmt@shade}{bgcolor}    {\thmt@definecolor{shadethmcolor}{#1}}
+\define@key{thmt@shade}{rulecolor}  {\thmt@definecolor{shaderulecolor}{#1}}
+\define@key{thmt@shade}{rulewidth}  {\setlength\shadeboxrule{#1}}
+\define@key{thmt@shade}{margin}     {\setlength\shadeboxsep{#1}}
+\define@key{thmt@shade}{padding}    {\setlength\shadeboxsep{#1}}
+\define@key{thmt@shade}{leftmargin} {\setlength\shadeleftshift{#1}}
 \define@key{thmt@shade}{rightmargin}{\setlength\shaderightshift{#1}}
 \def\thmt@colorlet#1#2{%
   %\typeout{don't know how to let color `#1' be like color `#2'!}%

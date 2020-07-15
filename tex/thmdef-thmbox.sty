@@ -19,19 +19,19 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thmdef-thmbox}[2019/12/22 v68]
+\ProvidesPackage {thmdef-thmbox}[2020/07/16 v69]
 \define@key{thmdef}{thmbox}[L]{%
   \thmt@trytwice{%
-  \let\oldproof=\proof
-  \let\oldendproof=\endproof
-  \let\oldexample=\example
-  \let\oldendexample=\endexample
-  \RequirePackage[nothm]{thmbox}
-  \let\proof=\oldproof
-  \let\endproof=\oldendproof
-  \let\example=\oldexample
-  \let\endexample=\oldendexample
-  \def\thmt@theoremdefiner{\newboxtheorem[#1]}%
+    \let\oldproof=\proof
+    \let\oldendproof=\endproof
+    \let\oldexample=\example
+    \let\oldendexample=\endexample
+    \RequirePackage[nothm]{thmbox}
+    \let\proof=\oldproof
+    \let\endproof=\oldendproof
+    \let\example=\oldexample
+    \let\endexample=\oldendexample
+    \def\thmt@theoremdefiner{\newboxtheorem[#1]}%
   }{}%
 }%
 \endinput

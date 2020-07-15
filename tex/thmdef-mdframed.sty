@@ -19,7 +19,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thmdef-mdframed}[2019/12/22 v68]
+\ProvidesPackage {thmdef-mdframed}[2020/07/16 v69]
 \define@key{thmdef}{mdframed}[{}]{%
   \thmt@trytwice{}{%
     \RequirePackage{mdframed}%
@@ -27,7 +27,7 @@
     \addtotheorempreheadhook[\thmt@envname]{%
       \begin{mdframed}[#1]}%
     \addtotheorempostfoothook[\thmt@envname]{\end{mdframed}}%
-    }%
+  }%
 }
 \endinput
 %%
