@@ -18,16 +18,16 @@
 %    \begin{macrocode}
 \define@key{thmdef}{thmbox}[L]{%
   \thmt@trytwice{%
-  \let\oldproof=\proof
-  \let\oldendproof=\endproof
-  \let\oldexample=\example
-  \let\oldendexample=\endexample
-  \RequirePackage[nothm]{thmbox}
-  \let\proof=\oldproof
-  \let\endproof=\oldendproof
-  \let\example=\oldexample
-  \let\endexample=\oldendexample
-  \def\thmt@theoremdefiner{\newboxtheorem[#1]}%
+    \let\oldproof=\proof
+    \let\oldendproof=\endproof
+    \let\oldexample=\example
+    \let\oldendexample=\endexample
+    \RequirePackage[nothm]{thmbox}
+    \let\proof=\oldproof
+    \let\endproof=\oldendproof
+    \let\example=\oldexample
+    \let\endexample=\oldendexample
+    \def\thmt@theoremdefiner{\newboxtheorem[#1]}%
   }{}%
 }%
 %    \end{macrocode}
