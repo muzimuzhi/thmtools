@@ -224,7 +224,7 @@
         \@xa\let\csname c@#2\endcsname=\c@thmt@dummyctr
         \@xa\let\csname theH#2\endcsname=\theHthmt@dummyctr
         % disable labeling.
-        \let\label=\@gobble
+        \let\label=\thmt@gobble@label
         \let\ltx@label=\@gobble% amsmath needs this
         % We shall need to restore the counters at the end
         % of the environment, so we get
@@ -266,6 +266,14 @@
   \thmt@collect@body\thmrst@store
 }{%
   %% now empty, just used as a marker.
+}
+
+\let\thmt@gobble@label\@gobble
+% cleveref extends syntax of \label to \label[...]{...}
+\AtBeginDocument{
+  \@ifpackageloaded{cleveref}{
+    \renewcommand*\thmt@gobble@label[2][]{}
+  }{}
 }
 
 \newenvironment{restatable}{%
