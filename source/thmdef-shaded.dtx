@@ -8,7 +8,7 @@
 %<*shaded>
 %\fi
 %
-% Mostly, this key wraps the theorem in a shadebox environment.
+% Mostly, this key wraps the theorem in a |shadebox| environment.
 % The parameters are set by treating the value we are given as
 % a new key-val list, see below.
 %
@@ -24,20 +24,20 @@
     }%
   }
 %    \end{macrocode}
-% The docs for shadethm say:
+% The docs for |shadethm| say:
 % \begin{quote}
 %   There are some parameters you could set the default for (try them as is,
 % first).
 % \begin{itemize}
-%    \item shadethmcolor  The shading color of the background.  See the
+%    \item |shadethmcolor|\quad  The shading color of the background.  See the
 %      documentation for the color package, but with a `gray' model, I find .97
 %      looks good out of my printer, while a darker shade like .92 is needed
 %      to make it copy well.  (Black is  0, white is 1.)
-%    \item shaderulecolor  The shading color of the border of the shaded box.
+%    \item |shaderulecolor|\quad  The shading color of the border of the shaded box.
 %      See (i).  If shadeboxrule is set to 0pt then this won't print anyway.
-%    \item shadeboxrule  The width of the border around the shading.  Set it to
+%    \item |shadeboxrule|\quad  The width of the border around the shading.  Set it to
 %      0pt (not just 0) to make it disappear.
-%    \item shadeboxsep  The length by which the shade box surrounds the text.
+%    \item |shadeboxsep|\quad  The length by which the shade box surrounds the text.
 % \end{itemize}
 % \end{quote}
 %
@@ -56,13 +56,13 @@
 %
 % What follows is wizardry you don't have to understand. In essence,
 % we want to support two notions of color: one is ``everything that goes
-% after \lstinline|\definecolor{shadethmcolor}|'', such as 
-% \lstinline|{rgb}{0.8,0.85,1}|. On the other hand, we'd also like
-% to recognize an already defined color name such as \lstinline|blue|.
+% after |\definecolor{shadethmcolor}|'', such as 
+% |{rgb}{0.8,0.85,1}|. On the other hand, we'd also like
+% to recognize an already defined color name such as |blue|.
 %
 % To handle the latter case, we need to copy the definition of one color
-% into another. The xcolor package offers \lstinline|\colorlet| for that, 
-% for the color package, we just cross our fingers.
+% into another. The \pkg{xcolor} package offers |\colorlet| for that, 
+% for the \pkg{color} package, we just cross our fingers.
 %    \begin{macrocode}
 \def\thmt@colorlet#1#2{%
   %\typeout{don't know how to let color `#1' be like color `#2'!}%
@@ -78,19 +78,19 @@
 %    \end{macrocode}
 % Now comes the interesting part: we assume that a simple color name
 % must not be in braces, and a color definition starts with an opening
-% curly brace. (So, if \lstinline|\definecolor| ever gets an optional arg,
+% curly brace. (So, if |\definecolor| ever gets an optional arg,
 % we are in a world of pain.)
 %
-% If the second argument to \lstinline|\thmt@definecolor| (the key) starts
+% If the second argument to |\thmt@definecolor| (the key) starts
 % with a brace,
-% then \lstinline|\thmt@def@color| will have an empty second argument,
+% then |\thmt@def@color| will have an empty second argument,
 % delimited by the brace of the key. Hopefully, the key will have exactly
-% enough arguments to satisfy \lstinline|\definecolor|. Then, 
-% \lstinline|thmt@drop@relax| will be executed and gobble the fallback
-% values and the \lstinline|\thmt@colorlet|.
+% enough arguments to satisfy |\definecolor|. Then, 
+% |thmt@drop@relax| will be executed and gobble the fallback
+% values and the |\thmt@colorlet|.
 %
-% If the key does not contain an opening brace, \lstinline|\thmt@def@color|
-% will drop everything up to \lstinline|{gray}{0.5}|. So, first the color
+% If the key does not contain an opening brace, |\thmt@def@color|
+% will drop everything up to |{gray}{0.5}|. So, first the color
 % gets defined to a medium gray, but then, it immediately gets overwritten
 % with the definition corresponding to the color name.
 %    \begin{macrocode}

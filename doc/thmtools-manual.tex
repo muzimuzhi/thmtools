@@ -1,4 +1,4 @@
-%&pdflatex
+% !TeX program = pdflatex
 \documentclass[paper=a4, pagesize, DIV=20,
   english, 
   headings=small,11pt,
@@ -27,10 +27,18 @@
 \usepackage{listings}
 
 \usepackage{amsmath, amsthm}
+\usepackage{enumitem}
+\setlist[description, 1]{labelindent=2em, leftmargin=2em, rightmargin=2em, labelwidth=!}
 \usepackage{tikz}
+\usetikzlibrary{tikzmark}
 
 \usepackage{nameref}
 \usepackage{hyperref}
+\hypersetup{
+  colorlinks,
+  linkcolor=RoyalBlue,
+  linktocpage
+}
 \usepackage{cleveref}[2010/05/01]
 
 \usepackage{thmtools, thm-restate}
@@ -138,7 +146,8 @@
   \autoref{cha:reference}.
   
   \begin{multicols}{2}[\section*{\contentsname}]
-  \makeatletter\let\chapter\@gobbletwo
+  \makeatletter
+    \let\chapter\@gobbletwo
   \tableofcontents
   \end{multicols}
   \clearpage
@@ -160,13 +169,13 @@
   \begin{body}[gobble=4]
     % Document code looks like this.
     \begin{theorem}[Euclid]
-     \label{thm:euclid}%
-     For every prime $p$, there is a prime $p'>p$.
-     In particular, the list of primes,
-     \begin{equation}\label{eq:1}
-       2,3,5,7,\dots
-     \end{equation}
-     is infinite.
+      \label{thm:euclid}%
+      For every prime $p$, there is a prime $p'>p$.
+      In particular, the list of primes,
+      \begin{equation}\label{eq:1}
+        2,3,5,7,\dots
+      \end{equation}
+      is infinite.
     \end{theorem}
   \end{body}
   \end{source}
@@ -220,8 +229,8 @@
     \end{restatable}
   \end{result}
   
-  Instead of ``numberwithin='', you can also use ``parent='' and
-  ``within=''. They're all the same, use the one you find easiest to
+  Instead of |numberwithin=|, you can also use |parent=| and
+  |within=|. They're all the same, use the one you find easiest to
   remember.
   
   Note the example above looks somewhat bad: sometimes, the name of the environment, 
@@ -272,8 +281,8 @@
     \end{lemma}
   \end{result}
 
-  Again, instead of ``sibling='', you can also use ``numberlike='' and
-  ``sharecounter=''.
+  Again, instead of |sibling=|, you can also use |numberlike=| and
+  |sharecounter=|.
 
   Some theorems have a fixed name and are not supposed to get a number.
   To this end, \pkg{amsthm} provides |\newtheorem*|, which is
@@ -355,7 +364,8 @@
     \begin{preamble}[gobble=6]
       \usepackage{amsthm, thmtools}
       \usepackage{
-        nameref,%\nameref
+        % nameref,%\nameref
+        % n.b. usually nameref is autoloaded by hyperref
         hyperref,%\autoref
         % n.b. \Autoref is defined by thmtools
         cleveref,% \cref
@@ -391,6 +401,7 @@
   \end{result}
 
   \section{Styling theorems}
+  \label{sec:styling}
   
   The major backends provide a command |\theoremstyle| to switch
   between looks of theorems. This is handled as follows:
@@ -403,10 +414,11 @@
   \end{preamble}
   \begin{body}[gobble=4]
     \begin{Theorem}
-      This is a theorem.
+      Note how it still retains the default style, 
+      `plain'.
     \end{Theorem}
     \begin{remark}
-      Note how it still retains the default style, `plain'.
+      This is a remark.
     \end{remark}
   \end{body}
   \end{source}
@@ -419,7 +431,7 @@
     \end{remark}
   \end{result}
   
-  Thmtools also supports the shadethm and thmbox packages:
+  Thmtools also supports the \pkg{shadethm} and \pkg{thmbox} packages:
   \begin{source}
   \begin{preamble}[gobble=4]
     \usepackage{amsthm}
@@ -457,9 +469,9 @@
   start with a curly brace, in which case it is assumed that
   |\definecolor{colorname}|$\langle$\textsl{what you said}$\rangle$ will be
   valid \LaTeX\ code. In our case, we use the rbg model to manually specify
-  white. (Shadethm's default value is some sort of gray.)
+  white. (|shadethm|'s default value is {\fboxsep=0pt \fcolorbox{black}[gray]{0.92}{\phantom{XX}}} |[gray]{0.92}|)
   
-  For the thmbox package, use the thmbox key:
+  For the \pkg{thmbox} package, use the |thmbox| key:
   \begin{source}
   \begin{preamble}[gobble=4]
     \usepackage{amsthm}
@@ -498,7 +510,7 @@
     \end{boxtheorem S}
   \end{result}
 
-  Note that for both thmbox and shaded keys, it's quite possible they will not
+  Note that for both |thmbox| and |shaded| keys, it's quite possible they will not
   cooperate with a style key you give at the same time.
 
   \subsection{Declaring new theoremstyles}
@@ -539,52 +551,62 @@
   more keys you can pass to |\declaretheoremstyle|: if \thmtools\ cannot
   figure out at all what to do with it, it will pass it on to the
   |\declaretheorem| commands that use that style. For example, you may use
-  the boxed and shaded keys here.
+  the |boxed| and |shaded| keys here.
   
   To change the order in which title, number and note appear, there is a key
-  headformat. Currently, the values ``margin'' and ``swapnumber'' are
+  |headformat|. Currently, the values ``margin'' and ``swapnumber'' are
   supported. The daring may also try to give a macro here that uses the
   commands |\NUMBER|, |\NAME| and |\NOTE|. 
   You cannot circumvent the fact
-  that headpunct comes at the end, though, nor the fonts and braces you
+  that |headpunct| comes at the end, though, nor the fonts and braces you
   select with the other keys.
   
-  \begin{figure}\centering
-    % please don't make me touch this picture ever again.
-    \fbox{
-    \begin{minipage}{0.618\textwidth}\Large
-    \tikzset{font=\normalfont\small\sffamily\itshape,y=12pt,>=latex}
-    \noindent which resulted in the following insight:
-    \par
-    \tikz{\draw[|<->|] (0,-1)--(0,1); 
-      \draw[anchor=west] (0,0) node {spaceabove};}
-    \par
-    \tikz{\draw[|<->|] (-1,0)--(1,0); 
-      \draw[anchor=south] (0,0) node {headindent};}
-    \textbf{Theo%
-    \smash{\clap{\tikz{\draw (0,0)--(0,1.2) node [anchor=south]{headfont};}}}%
-      rem 1.2 
-      (\smash{\rlap{\tikz{\draw (0,0)--(0,2.5) node [anchor=base west]{notebraces};}}}%
-       Euc%
-\smash{\clap{\tikz{\draw (0,0)--(0,1.2) node [anchor=south]{notefont};}}}%
-       lid)%
-      .\smash{\rlap{\tikz{\draw (0,0)--(0,1.2) node [anchor=south west]{headpunct};}}}}%
-      \tikz{\draw[|<->|] (-1,0)--(1,0); 
-      \draw[anchor=south] (0,0) node {postheadspace};}
-    For every prime $p$, there is a prime $p'>p$.
-    In particular, the list of primes,
-    $2,3,5,7,\dots$,
-    is infinite.
-   \hfill{\tikz{\draw[anchor=north east] (0,0) node{qed}; }}$\Box$
-    \par
-    \tikz{\draw[|<->|] (0,-1)--(0,1); 
-      \draw[anchor=west] (0,0) node {spacebelow};}
-    \par
-   
-   As a consequence, lorem ipsum dolor sit amet frob-%nicate foo
-%   paret.
-  \end{minipage}
-  }
+  \begin{figure}
+    \centering
+    \fbox{%
+    \begin{tikzpicture}[
+      remember picture,
+      >=latex,
+      nodes={
+        font=\normalfont\sffamily\itshape\small,
+        RoyalBlue
+      },
+      every subnode/.style={
+        inner sep=0pt
+      },
+      tip/.style={|<->|}
+    ]
+      \node[black, font=\Large, text width=.618\textwidth, align=justify] 
+      {%
+        which resulted in the following insight: \\
+        \subnode{space above}{\rule{0pt}{1.3\baselineskip}} \\
+        \subnode{head indent}{\strut\hspace*{4em}}
+        \textbf{%
+          \subnode{head}{Theorem} 1.2 
+          \subnode{note brace}{(}%
+          \subnode{note}{\textit{Euclid}})%
+          \subnode{head punct}{.} %
+        }
+        \subnode{post head space}{\strut\hspace*{4.5em}}
+        For every prime~$p$, there is a prime~$p'>p$. In particular, the list 
+        of primes, $2,3,5,7,\dots$, is infinite. \hfill
+        \subnode{qed}{$\Box$} \\
+        \subnode{space below}{\rule{0pt}{1.3\baselineskip}} \\
+        As a consequence, lorem ipsum dolor sit amet frob-%nicate foo
+        %   paret.
+      };
+      
+      \draw[tip] (space above.south west) -- node[right] {spaceabove} (space above.north west);
+      \draw[tip] (head indent.west) -- node[above] {headindent} (head indent.east);
+      \draw (head.center) -- +(0, 10pt) node[above] {headfont};
+      \draw (note brace.north) -- +(0, 20pt) node[above] {notebraces};
+      \draw (note.center) -- +(0, 10pt) node[above] {notefont};
+      \draw (head punct.base east) -- +(0, 28pt) node[above] {headpunct};
+      \draw[tip] (post head space.west) -- node[above] {postheadspace} (post head space.east);
+      \node at ([xshift=-12pt]qed.150) {qed};
+      \draw[tip] (space below.south west) -- node[right] {spacebelow} (space below.north west);
+    \end{tikzpicture}%
+    }
     \caption{Settable parameters of a theorem style.}
     \label{fig:params}
   \end{figure}
@@ -631,14 +653,14 @@
   mechanism, so that this reference: \autoref{thm:euclid} points to
   p.\,\pageref{thm:euclid}, where the unstarred environment is used. (You can
   also use a starred environment and an unstarred command, in which case the
-  behaviour is reversed.) Also, if you use \pkg{hyperref}, the links will lead you
+  behaviour is reversed.) Also, if you use \pkg{hyperref} (like you see in this manual), the links will lead you
   to the unstarred occurence.
   
   Just to demonstrate that we also handle more involved cases, I repeat
   another theorem here, but this one was numbered within its section: note
   we retain the section number which does not fit the current section:
   \begin{source}
-    \begin{body}
+    \begin{body}[gobble=6]
       \euclidii*
     \end{body}
   \end{source}
@@ -678,7 +700,7 @@
   
   And you can also restrict to those environments that have an optional
   argument given. Note that two theorems disappear compared to the previous
-  example. You could also say just ``onlynamed'', in which case it will
+  example. You could also say just |onlynamed|, in which case it will
   apply to \emph{all} theorem environments you have defined.
   \begin{source}
     \begin{body}[gobble=6]
@@ -705,13 +727,16 @@
     \emph{optional} argument, which will go into the list of theorems. Be
     aware that since we already are within an optional argument, you have to
     use an extra level of curly braces:
-    |\begin{theorem}[{name=[Short name]A long name,...}]|
+    |\begin{theorem}[name={[Short name]A long name,...]}|
+    
     \item[label] This will issue a |\label| command after the head. Not very
     useful, more of a demo.
+    
     \item[continues] Saying |continues=foo| will cause the number that is
     given to be changed to |\ref{foo}|, and a text is added to the note.
     (The exact text is given by the macro |\thmcontinues|, which takes the
     label as its argument.)
+    
     \item[restate] Saying |restate=foo| will hopefully work like
     wrapping this theorem in a restatable environment. (It probably still fails
     in cases that I didn't think of.) This key also accepts an optional
@@ -766,8 +791,8 @@
   |...postheadhook|, |...prefoothook|
   and |...postfoothook|.
   All of these take an \emph{optional} argument, the name of the
-  environment, and the new code as a mandatory argument. The environment is 
-  optional because there  is also a set of ``generic'' hooks added to every
+  environment, and the new code as a mandatory argument. The name of environment is 
+  optional because there is also a set of ``generic'' hooks added to every
   theorem that you define.
   
   The other way is to use the keys |preheadhook| et al. in your
@@ -796,9 +821,9 @@
   handling itself is added as part of the headkeys.)
 
 
-  \section{Case in point: the shaded key}
+  \section{Case in point: the \texttt{shaded} key}
   
-  Let us look at a reasonably simple example: the shaded key, which we've
+  Let us look at a reasonably simple example: the |shaded| key, which we've
   already seen in the first section. You'll observe that we run into a
   problem similar to the four-hook mess: your code may either want to modify
   parameters that need to be set beforehand, or it wants to modify the 
@@ -826,8 +851,8 @@
   using internal macros with @ in their name (viz.,
   |\thmt@envname| and friends). You can also put them into a
   package (then, without the |\makeat...|), 
-  which is simply a file ending in .sty put somewhere that \LaTeX\ can find
-  it, which can then be laoded with |\usepackage|.
+  which is simply a file ending in |.sty| put somewhere that \LaTeX\ can find
+  it, which can then be loaded with |\usepackage|.
   To find out where exactly that is, and if you'd need to update
   administrative helper files such as a filename database FNDB, 
   please consult the documentation of your \TeX\ distribution.
@@ -912,7 +937,8 @@
     Additionally, a number of keywords are allowed here instead of \LaTeX\
     code:
     \begin{description}
-      \item[margin] Lets the number protude in the (left) margin.
+      \item[margin] Lets the number protrude in the (left) margin.
+      
       \item[swapnumber] Puts the number before the name. Currently
       not working so well for unnumbered theorems.
       \item[] \emph{This list is likely to grow}
@@ -932,16 +958,10 @@
     |section|.
 
   \key{numberwithin}
-    Value: a counter name. The theorem will be reset whenever that counter
-    is incremented. Usually, this will be a sectioning level, |chapter| or
-    |section|.
-    (Same as parent.)
+    (Same as |parent|.)
 
   \key{within}
-    Value: a counter name. The theorem will be reset whenever that counter
-    is incremented. Usually, this will be a sectioning level, |chapter| or
-    |section|.
-    (Same as parent.)
+    (Same as |parent|.)
 
   
   \key{sibling}
@@ -949,31 +969,21 @@
     Usually, this is the name of another theorem environment.
     
   \key{numberlike}
-    Value: a counter name. The theorem will use this counter for numbering.
-    Usually, this is the name of another theorem environment.
-    (Same as sibling.)
+    (Same as |sibling|.)
   
   \key{sharenumber}
-    Value: a counter name. The theorem will use this counter for numbering.
-    Usually, this is the name of another theorem environment.
-    (Same as sibling.)
+    (Same as |sibling|.)
 
   
   \key{title}
     Value: \TeX\ code. The title of the theorem. Default is the name of the
     environment, with |\MakeUppercase| prepended. You'll have to give
-    this if your title starts with a accented character, for example.
+    this if your title starts with an accented character, for example.
 
   \key{name}
-    Value: \TeX\ code. The title of the theorem. Default is the name of the
-    environment, with |\MakeUppercase| prepended. You'll have to give
-    this if your title starts with a accented character, for example.
     (Same as title.)
 
   \key{heading}
-    Value: \TeX\ code. The title of the theorem. Default is the name of the
-    environment, with |\MakeUppercase| prepended. You'll have to give
-    this if your title starts with a accented character, for example.
     (Same as title.)
   
   \key{numbered}
@@ -1009,14 +1019,14 @@
     group defined by the environment.
   
   \key{refname}
-    Value: one string, or two string separated by a comma (no spaces). This
+    Value: one string, or two strings separated by a comma (no spaces). This
     is the name of the theorem as used by |\autoref|, |\cref| and friends. If it is
     two strings, the second is the plural form used by |\cref|. Default
     value is the value of |name|, i.e. usually the environment name, with
-    \MakeUppercase.
+    |\MakeUppercase| prepended.
 
   \key{Refname}
-    Value: one string, or two string separated by a comma (no spaces). This
+    Value: one string, or two strings separated by a comma (no spaces). This
     is the name of the theorem as used by |\Autoref|, |\Cref| and friends. If it is
     two strings, the second is the plural form used by |\Cref|. This can be
     used for alternate spellings, for example if your style requests no
@@ -1041,7 +1051,7 @@
     \end{description}
   
   \key{thmbox}
-    Value: one of the characters L, M and S; see examples above.
+    Value: one of the characters |L|, |M| and |S|; see examples in \autoref{sec:styling}.
   
 
   \section{Known keys to in-document theorems}
@@ -1053,16 +1063,16 @@
   \key{name} Value: \TeX\ code that will be typeset.
   What you would have put in the optional argument in the
   non-keyval style, i.e. the note to the head. This is \emph{not} the same
-  as the name key to |\declaretheorem|, you cannot override that from within
+  as the |name| key to |\declaretheorem|, you cannot override that from within
   the document.
   
   \key{listhack} Value: doesn't matter. (But put something to trigger
-  key-val behaviour, maybe listhack=true.) Linebreak styles in \pkg{amsthm}
+  key-val behaviour, maybe |listhack=true|.) Linebreak styles in \pkg{amsthm}
   don't linebreak if they start with another list, like an |enumerate|
   environment. Giving the |listhack| key fixes that. \emph{Don't} give this
   key for non-break styles, you'll get too little vertical space! (Just use
   |\leavevmode| manually there.)
-  An all-around listhack that handles both situations might come in a
+  An all-around |listhack| that handles both situations might come in a
   cleaner rewrite of the style system.
 
   \section{Restatable -- hints and caveats}
@@ -1071,14 +1081,14 @@
   \begin{itemize}
     \item Some counters are saved so that the same values appear when you
     re-use them. The list of these counters is stored in the macro
-    |\thmt@innercounters| as a comma-separated list without spaces; default: equation.
+    |\thmt@innercounters| as a comma-separated list without spaces; default: |equation|.
 
     \item To preserve the influence of other counters (think: equation
     numbered per section and recall the theorem in another section), we need
     to know all macros that are used to turn a counter into printed output.
     Again, comma-separated list without spaces, without leading backslash, stored as
     |\thmt@counterformatters|. Default:
-    |@alph,@Alph,@arabic,@roman,@Roman,@fnsymbol|
+    |@alph,@Alph,@arabic,@roman,@Roman,@fnsymbol|.
     All these only take
     the \LaTeX\ counter |\c@foo| as arguments. If you bypass this and use
     |\romannumeral|, your numbers go wrong and you get what you deserve.
@@ -1101,7 +1111,7 @@
 
   \chapter{\Thmtools for the morbidly curious}\label{cha:sourcecode}
 
-  This chapter consists of the implementation of Thmtools, in case you
+  This chapter consists of the implementation of \thmtools, in case you
   wonder how this or that feature was implemented. Read on if you want a
   look under the bonnet, but you enter at your own risk, and bring an oily
   rag with you.
@@ -1123,18 +1133,18 @@
   \subsection{Re-using environments}
   \DocInput{thm-restate.dtx}
 
-  \subsection{Fixing autoref and friends}  
+  \subsection{Fixing \texttt{autoref} and friends}  
   \DocInput{thm-autoref.dtx}
 
   \section{Glue code for different backends}
   
-  \subsection{amsthm}
+  \subsection{\texttt{amsthm}}
   \DocInput{thm-amsthm.dtx}
 
-  \subsection{beamer}
+  \subsection{\texttt{beamer}}
   \DocInput{thm-beamer.dtx}
 
-  \subsection{ntheorem}
+  \subsection{\texttt{ntheorem}}
   \DocInput{thm-ntheorem.dtx}
   
   \section{Generic tools}
@@ -1145,7 +1155,7 @@
   \subsection{Different counters sharing the same register}
   \DocInput{aliasctr.dtx}
   
-  \subsection{Tracking occurences: none, one or many}
+  \subsection{Tracking occurrences: none, one or many}
   \DocInput{unique.dtx}
 
   

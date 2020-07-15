@@ -8,7 +8,7 @@
 %<*mdframed>
 %\fi
 %
-% Mostly, this key wraps the theorem in a mdframed environment.
+% Mostly, this key wraps the theorem in a |mdframed| environment.
 % The parameters are set by treating the value we are given as
 % a new key-val list, see below.
 %
@@ -20,7 +20,7 @@
     \addtotheorempreheadhook[\thmt@envname]{%
       \begin{mdframed}[#1]}%
     \addtotheorempostfoothook[\thmt@envname]{\end{mdframed}}%
-    }%
+  }%
 }
 %    \end{macrocode}
 %\iffalse (hide this from DocInput)
