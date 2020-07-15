@@ -1,3 +1,22 @@
 - ref close-by/far-away
 - complex refs
   (these two are very similar)
+
+Added by muzimuzhi
+ - repo
+   - keep a changelog, https://keepachangelog.com/en/1.0.0/
+   - pick changes prior to v68
+ - manual
+   - introduce the structure of bundle, dependences
+   - add index
+   - nicer doc for keys
+   - illustration for hooks and kv-interface for amsthm style
+   - "TBD" used in section 3.4, Restable - hints and caveats
+   - font (), style (enlarge font size, narrow line width)
+   - explain the meaning first person "|" used in doc
+ - code
+   - get rid of obsolete shadethm, add interface or doc for tcolorbox, lib theorem
+ - longterm
+   - questions on TeX-SX
+   - test suit
+   - CI
