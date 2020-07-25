@@ -353,7 +353,9 @@
     {#1}%
     \ifx\thmt@sibling\@empty\else [\thmt@sibling]\fi
     {\thmt@thmname}%
-    \ifx\thmt@parent\@empty\else [\thmt@parent]\fi
+    \ifthmt@isnumbered
+      \ifx\thmt@parent\@empty\else [\thmt@parent]\fi
+    \fi
     \relax% added so we can delimited-read everything later
     % (recall newtheorem is patched)
   }%\show\thmt@tmp
