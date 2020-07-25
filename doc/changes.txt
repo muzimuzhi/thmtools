@@ -2,11 +2,14 @@
 
 	* thm-kv.dtx:
 	removed dependency on etexcmds package
-	
+
 2020-07-16 Yukai Chou <muzimuzhi@gmail.com>
 
   * thm-restate.dtx:
   made compatible with cleveref's \label[]{} syntax
-  
+
   * thmtools-manual.tex (and comment part of dtx files):
   refined manual
+
+  * general:
+  updated license and maintenance status
