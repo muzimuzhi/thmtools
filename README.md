@@ -12,6 +12,6 @@ Provided features:
 
 License: LPPL 1.3c
 
-Currently the package is maintained by Yukai Chou, muzimuzhi@gmail.com
+Currently the package is maintained by Yukai Chou, muzimuzhi at gmail<span></span>.com
 
-Previous Maintainer was Ulrich M. Schwarz, ulmi@absatzen.de
+Previous Maintainer was Ulrich M. Schwarz, ulmi at absatzen<span></span>.de
