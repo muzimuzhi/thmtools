@@ -210,24 +210,35 @@
 }
 
 \@for\tmp@keyname:=parent,numberwithin,within\do{%
-\define@key{thmdef}{\tmp@keyname}{\thmt@trytwice{\thmt@setparent{#1}}{}}%
+  \define@key{thmdef}{\tmp@keyname}{\thmt@trytwice{\thmt@setparent{#1}}{}}%
+}
+\newcommand\thmt@setparent[1]{%
+  \def\thmt@parent{#1}%
 }
 
 \@for\tmp@keyname:=sibling,numberlike,sharenumber\do{%
-\define@key{thmdef}{\tmp@keyname}{\thmt@trytwice{\thmt@setsibling{#1}}{}}%
+  \define@key{thmdef}{\tmp@keyname}{\thmt@trytwice{\thmt@setsibling{#1}}{}}%
+}
+\newcommand\thmt@setsibling{%
+  \def\thmt@sibling
 }
 
 \@for\tmp@keyname:=title,name,heading\do{%
-\define@key{thmdef}{\tmp@keyname}{\thmt@trytwice{\thmt@setthmname{#1}}{}}%
+  \define@key{thmdef}{\tmp@keyname}{\thmt@trytwice{\thmt@setthmname{#1}}{}}%
+}
+\newcommand\thmt@setthmname{%
+  \def\thmt@thmname
 }
 
 \@for\tmp@keyname:=unnumbered,starred\do{%
-\define@key{thmdef}{\tmp@keyname}[]{\thmt@trytwice{\thmt@isnumberedfalse}{}}%
+  \define@key{thmdef}{\tmp@keyname}[]{\thmt@trytwice{\thmt@isnumberedfalse}{}}%
 }
 
 \def\thmt@YES{yes}
 \def\thmt@NO{no}
 \def\thmt@UNIQUE{unless unique}
+\newif\ifthmt@isnumbered
+
 \define@key{thmdef}{numbered}[\thmt@YES]{
   \def\thmt@tmp{#1}%
   \thmt@trytwice{%
@@ -254,10 +265,14 @@
 }
 
 
-\define@key{thmdef}{preheadhook}{\thmt@trytwice{}{\addtotheorempreheadhook[\thmt@envname]{#1}}}
-\define@key{thmdef}{postheadhook}{\thmt@trytwice{}{\addtotheorempostheadhook[\thmt@envname]{#1}}}
-\define@key{thmdef}{prefoothook}{\thmt@trytwice{}{\addtotheoremprefoothook[\thmt@envname]{#1}}}
-\define@key{thmdef}{postfoothook}{\thmt@trytwice{}{\addtotheorempostfoothook[\thmt@envname]{#1}}}
+\define@key{thmdef}{preheadhook}{%
+  \thmt@trytwice{}{\addtotheorempreheadhook[\thmt@envname]{#1}}}
+\define@key{thmdef}{postheadhook}{%
+  \thmt@trytwice{}{\addtotheorempostheadhook[\thmt@envname]{#1}}}
+\define@key{thmdef}{prefoothook}{%
+  \thmt@trytwice{}{\addtotheoremprefoothook[\thmt@envname]{#1}}}
+\define@key{thmdef}{postfoothook}{%
+  \thmt@trytwice{}{\addtotheorempostfoothook[\thmt@envname]{#1}}}
 
 \define@key{thmdef}{style}{\thmt@trytwice{\thmt@setstyle{#1}}{}}
 
@@ -296,16 +311,6 @@
   }
 \fi
 
-\newif\ifthmt@isnumbered
-\newcommand\thmt@setparent[1]{%
-  \def\thmt@parent{#1}%
-}
-\newcommand\thmt@setsibling{%
-  \def\thmt@sibling
-}
-\newcommand\thmt@setthmname{%
-  \def\thmt@thmname
-}
 
 \thmt@mkextendingkeyhandler{thmdef}{thmdef}{\string\declaretheorem\space key}
 
@@ -339,14 +344,18 @@
 \def\declaretheorem@ii#1#2{%
   % why was that here?
   %\let\thmt@theoremdefiner\thmt@original@newtheorem
-  \def\thmt@envname{#1}%
-  \thmt@setthmname{\thmt@modifycase #1}%
+  % init options
   \thmt@setparent{}%
   \thmt@setsibling{}%
   \thmt@isnumberedtrue%
   \@thmt@firstkeysettrue%
-  \kvsetkeys{thmdef0}{#2}%
-  \kvsetkeys{thmdef}{#2}%
+  % set envname
+  \def\thmt@envname{#1}%
+  \thmt@setthmname{\thmt@modifycase #1}%
+  % parse options
+  \kvsetkeys{thmdef0}{#2}% parse option "style" first
+  \kvsetkeys{thmdef}{#2}% parse other options
+  % call \newtheorem
   \protected@edef\thmt@tmp{%
     \@nx\thmt@newtheorem
     \ifthmt@isnumbered\else *\fi
@@ -360,11 +369,11 @@
     % (recall newtheorem is patched)
   }%\show\thmt@tmp
   \thmt@tmp
-  % uniquely ugly kludge: some keys make only sense
-  % afterwards.
-  % and it gets kludgier: again, the default-inherited
+  % uniquely ugly kludge: some keys make only sense afterwards.
+  % and it gets kludgier: again, the default-inherited 
   % keys need to have a go at it.
-  \@thmt@firstkeysetfalse%
+  \@thmt@firstkeysetfalse
+  % use false code in \thmt@trytwice{<true>}{<false>}
   \kvsetkeys{thmdef0}{#2}%
   \kvsetkeys{thmdef}{#2}%
 }
