@@ -13,3 +13,9 @@
 
   * general:
   updated license and maintenance status
+
+2020-07-24 Yukai Chou
+  
+  * thm-kv.dtx:
+  made \declaretheorem[<option list>]{<thmname>} accept a clist in <thmname>
+  made \declarethemrem accept an extra optional arg
