@@ -22,7 +22,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-kv}[2020/07/16 v69]
+\ProvidesPackage {thm-kv}[2020/07/26 v70]
 
 \let\@xa\expandafter
 \let\@nx\noexpand
@@ -208,24 +208,46 @@
 }
 
 \@for\tmp@keyname:=parent,numberwithin,within\do{%
-\define@key{thmdef}{\tmp@keyname}{\thmt@trytwice{\thmt@setparent{#1}}{}}%
+  \define@key{thmdef}{\tmp@keyname}{%
+    \thmt@trytwice{%
+      \thmt@setparent{#1}
+      \thmt@setsibling{}%
+    }{}%
+  }%
+}
+\newcommand\thmt@setparent{%
+  \def\thmt@parent
 }
 
 \@for\tmp@keyname:=sibling,numberlike,sharenumber\do{%
-\define@key{thmdef}{\tmp@keyname}{\thmt@trytwice{\thmt@setsibling{#1}}{}}%
+  \define@key{thmdef}{\tmp@keyname}{%
+    \thmt@trytwice{%
+      \thmt@setsibling{#1}%
+      \thmt@setparent{}%
+    }{}%
+  }%
+}
+\newcommand\thmt@setsibling{%
+  \def\thmt@sibling
 }
 
 \@for\tmp@keyname:=title,name,heading\do{%
-\define@key{thmdef}{\tmp@keyname}{\thmt@trytwice{\thmt@setthmname{#1}}{}}%
+  \define@key{thmdef}{\tmp@keyname}{\thmt@trytwice{\thmt@setthmname{#1}}{}}%
+}
+\newcommand\thmt@setthmname{%
+  \def\thmt@thmname
 }
 
 \@for\tmp@keyname:=unnumbered,starred\do{%
-\define@key{thmdef}{\tmp@keyname}[]{\thmt@trytwice{\thmt@isnumberedfalse}{}}%
+  \define@key{thmdef}{\tmp@keyname}[]{\thmt@trytwice{\thmt@isnumberedfalse}{}}%
 }
 
 \def\thmt@YES{yes}
 \def\thmt@NO{no}
 \def\thmt@UNIQUE{unless unique}
+\newif\ifthmt@isnumbered
+\newif\ifthmt@isunlessunique
+
 \define@key{thmdef}{numbered}[\thmt@YES]{
   \def\thmt@tmp{#1}%
   \thmt@trytwice{%
@@ -235,26 +257,37 @@
       \thmt@isnumberedfalse
     \else\ifx\thmt@tmp\thmt@UNIQUE
       \RequirePackage[unq]{unique}
-      \ifuniq{\thmt@envname}{%
-        \thmt@isnumberedfalse
-      }{%
-        \thmt@isnumberedtrue
-      }%
+      \thmt@isunlessuniquetrue
     \else
       \PackageError{thmtools}{Unknown value `#1' to key numbered}{}%
     \fi\fi\fi
   }{% trytwice: after definition
     \ifx\thmt@tmp\thmt@UNIQUE
-      \addtotheorempreheadhook[\thmt@envname]{\setuniqmark{\thmt@envname}}%
-      \addtotheorempreheadhook[\thmt@envname]{\def\thmt@dummyctrautorefname{\thmt@thmname\@gobble}}
+      \ifx\thmt@parent\@empty
+        \addtotheorempreheadhook[\thmt@envname]{\setuniqmark{\thmt@envname}}%
+      \else
+        \protected@edef\thmt@tmp{%
+          % expand \thmt@envname and \thmt@parent
+          \@nx\addtotheorempreheadhook[\thmt@envname @unique]{\@nx\setuniqmark{\thmt@envname.\@nx\@nameuse{the\thmt@parent}}}%
+          \@nx\addtotheorempreheadhook[\thmt@envname @numbered]{\@nx\setuniqmark{\thmt@envname.\@nx\@nameuse{the\thmt@parent}}}%
+          \@nx\addtotheorempreheadhook[\thmt@envname @unique]{\def\@nx\thmt@dummyctrautorefname{\thmt@thmname\@nx\@gobble}}%
+          \@nx\addtotheorempreheadhook[\thmt@envname @numbered]{\def\@nx\thmt@dummyctrautorefname{\thmt@thmname\@nx\@gobble}}%
+        }%
+        \thmt@tmp
+      \fi
+      % \addtotheorempreheadhook[\thmt@envname]{\def\thmt@dummyctrautorefname{\thmt@thmname\@gobble}}%
     \fi
   }%
 }
 
-\define@key{thmdef}{preheadhook}{\thmt@trytwice{}{\addtotheorempreheadhook[\thmt@envname]{#1}}}
-\define@key{thmdef}{postheadhook}{\thmt@trytwice{}{\addtotheorempostheadhook[\thmt@envname]{#1}}}
-\define@key{thmdef}{prefoothook}{\thmt@trytwice{}{\addtotheoremprefoothook[\thmt@envname]{#1}}}
-\define@key{thmdef}{postfoothook}{\thmt@trytwice{}{\addtotheorempostfoothook[\thmt@envname]{#1}}}
+\define@key{thmdef}{preheadhook}{%
+  \thmt@trytwice{}{\addtotheorempreheadhook[\thmt@envname]{#1}}}
+\define@key{thmdef}{postheadhook}{%
+  \thmt@trytwice{}{\addtotheorempostheadhook[\thmt@envname]{#1}}}
+\define@key{thmdef}{prefoothook}{%
+  \thmt@trytwice{}{\addtotheoremprefoothook[\thmt@envname]{#1}}}
+\define@key{thmdef}{postfoothook}{%
+  \thmt@trytwice{}{\addtotheorempostfoothook[\thmt@envname]{#1}}}
 
 \define@key{thmdef}{style}{\thmt@trytwice{\thmt@setstyle{#1}}{}}
 
@@ -288,52 +321,105 @@
   }
 \fi
 
-\newif\ifthmt@isnumbered
-\newcommand\thmt@setparent[1]{%
-  \def\thmt@parent{#1}%
-}
-\newcommand\thmt@setsibling{%
-  \def\thmt@sibling
-}
-\newcommand\thmt@setthmname{%
-  \def\thmt@thmname
-}
-
 \thmt@mkextendingkeyhandler{thmdef}{thmdef}{\string\declaretheorem\space key}
 
 \let\thmt@newtheorem\newtheorem
 
 \newcommand\declaretheorem[2][]{%
-  % why was that here?
-  %\let\thmt@theoremdefiner\thmt@original@newtheorem
-  \def\thmt@envname{#2}%
-  \thmt@setthmname{\thmt@modifycase #2}%
-  \thmt@setparent{}%
-  \thmt@setsibling{}%
-  \thmt@isnumberedtrue%
-  \@thmt@firstkeysettrue%
-  \kvsetkeys{thmdef0}{#1}%
-  \kvsetkeys{thmdef}{#1}%
-  \protected@edef\thmt@tmp{%
-    \@nx\thmt@newtheorem
-    \ifthmt@isnumbered\else *\fi
-    {#2}%
-    \ifx\thmt@sibling\@empty\else [\thmt@sibling]\fi
-    {\thmt@thmname}%
-    \ifx\thmt@parent\@empty\else [\thmt@parent]\fi
-    \relax% added so we can delimited-read everything later
-    % (recall newtheorem is patched)
-  }%\show\thmt@tmp
-  \thmt@tmp
-  % uniquely ugly kludge: some keys make only sense
-  % afterwards.
-  % and it gets kludgier: again, the default-inherited
-  % keys need to have a go at it.
-  \@thmt@firstkeysetfalse%
-  \kvsetkeys{thmdef0}{#1}%
-  \kvsetkeys{thmdef}{#1}%
+  % TODO: use \NewDocumentCommand from xparse?
+  % xparse will be part of latex2e format from latex2e 2020 Oct.
+  \@ifnextchar[%
+    {\declaretheorem@i{#1}{#2}}
+    {\declaretheorem@i{#1}{#2}[]}
 }
 \@onlypreamble\declaretheorem
+
+\def\declaretheorem@i#1#2[#3]{%
+  \@for\thmt@tmp:=#2\do{%
+    % strip spaces, \KV@@sp@def is defined in keyval.sty
+    \@xa\KV@@sp@def\@xa\thmt@tmp\@xa{\thmt@tmp}%
+    \@xa\declaretheorem@ii\@xa{\thmt@tmp}{#1,#3}%
+  }%
+}
+
+\def\declaretheorem@ii#1#2{%
+  % why was that here?
+  %\let\thmt@theoremdefiner\thmt@original@newtheorem
+  % init options
+  \thmt@setparent{}%
+  \thmt@setsibling{}%
+  \thmt@isnumberedtrue
+  \thmt@isunlessuniquefalse
+  \def\thmt@envname{#1}%
+  \thmt@setthmname{\thmt@modifycase #1}%
+  % use true code in \thmt@trytwice{<true>}{<false>}
+  \@thmt@firstkeysettrue
+  % parse options
+  \kvsetkeys{thmdef0}{#2}% parse option "style" first
+  \kvsetkeys{thmdef}{#2}%
+  % call patched \newtheorem
+  \ifthmt@isunlessunique
+    \ifx\thmt@parent\@empty
+    % define normal "unless unique" thm env
+    \ifuniq{#1}{\thmt@isnumberedfalse}{\thmt@isnumberedtrue}%
+    \declaretheorem@iii{#1}%
+    \else
+      % define special "unless unique" thm env,
+      % when "numbered=unless unique" and "numberwithin=<counter>" are both used
+      \declaretheorem@iv{#1}%
+      \thmt@isnumberedtrue
+      \declaretheorem@iii{#1@numbered}%
+      \thmt@isnumberedfalse
+      \declaretheorem@iii{#1@unique}%
+    \fi
+  \else
+    % define normal thm env
+    \declaretheorem@iii{#1}%
+  \fi
+  % use false code in \thmt@trytwice{<true>}{<false>}
+  \def\thmt@envname{#1}%
+  \@thmt@firstkeysetfalse
+  % uniquely ugly kludge: some keys make only sense afterwards.
+  % and it gets kludgier: again, the default-inherited
+  % keys need to have a go at it.
+  \kvsetkeys{thmdef0}{#2}%
+  \kvsetkeys{thmdef}{#2}%
+}
+
+\def\declaretheorem@iii#1{%
+  \protected@edef\thmt@tmp{%
+    \@nx\thmt@newtheorem
+    \ifthmt@isnumbered
+      {#1}%
+      \ifx\thmt@sibling\@empty\else [\thmt@sibling]\fi
+      {\thmt@thmname}%
+      \ifx\thmt@parent\@empty\else [\thmt@parent]\fi
+    \else
+      *{#1}{\thmt@thmname}%
+    \fi
+    \relax% added so we can delimited-read everything later
+  }%
+  \thmt@debug{Define theorem `#1' by ^^J\meaning\thmt@tmp}%
+  \thmt@tmp
+}
+
+\def\declaretheorem@iv#1{%
+  \protected@edef\thmt@tmp{%
+    % expand \thmt@envname and \thmt@parent
+    \@nx\newenvironment{#1}{%
+      \@nx\ifuniq{\thmt@envname.\@nx\@nameuse{the\thmt@parent}}{%
+        \def\@nx\thmt@rawenvname{#1@unique}%
+      }{%
+        \def\@nx\thmt@rawenvname{#1@numbered}%
+      }%
+      \begin{\@nx\thmt@rawenvname}%
+    }{%
+      \end{\@nx\thmt@rawenvname}%
+    }%
+  }%
+  \thmt@debug{Define special theorem `#1' by ^^J\meaning\thmt@tmp}%
+  \thmt@tmp
+}
 
 \providecommand\thmt@quark{\thmt@quark}
 
@@ -369,13 +455,6 @@
     \def\thmt@optarg{#1}%
     \def\thmt@shortoptarg{#1}%
   \fi
-}
-\def\thmt@splitopt#1=#2\thmt@quark{%
-  \def\thmt@tmpkey{#1}%
-  \ifx\thmt@tmpkey\@empty
-    \def\thmt@tmpkey{\thmt@quark}%
-  \fi
-  \@onelevel@sanitize\thmt@tmpkey
 }
 
 \def\thmt@thmuse@families{thm@track@keys}

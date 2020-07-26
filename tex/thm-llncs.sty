@@ -22,7 +22,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-llncs}[2020/07/16 v69]
+\ProvidesPackage {thm-llncs}[2020/07/26 v70]
 \@ifclasslater{llncs}{2010/04/15}{}{%
   \PackageWarningNoLine{thmtools}{%
     LLNCS.cls too old, not supported by thmtools
@@ -70,7 +70,7 @@
     {\thmt@thmname}%
     \ifthmt@hasparent [\thmt@parent]\fi
     {\thmt@style@headfont}{\thmt@style@bodyfont}%
-  }
+  }%
   \thmt@args
   \thmt@newtheorem@postdefinition
 }

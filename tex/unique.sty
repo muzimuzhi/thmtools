@@ -22,7 +22,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {unique}[2020/07/16 v69]
+\ProvidesPackage {unique}[2020/07/26 v70]
 
 \DeclareOption{unq}{%
   \newwrite\uniq@channel
@@ -38,24 +38,25 @@
 
 \newcommand\setuniqmark[1]{%
   \expandafter\ifx\csname uniq@now@#1\endcsname\relax
-  \global\@namedef{uniq@now@#1}{\uniq@ONE}%
+    \global\@namedef{uniq@now@#1}{\uniq@ONE}%
   \else
-  \expandafter\ifx\csname uniq@now@#1\endcsname\uniq@MANY\else
-  \immediate\write\uniq@channel{%
-    \string\uniq@setmany{#1}%
-  }%
-  \ifuniq{#1}{%
-    \uniq@warnnotunique{#1}%
-  }{}%
-  \fi
-  \global\@namedef{uniq@now@#1}{\uniq@MANY}%
+    \expandafter\ifx\csname uniq@now@#1\endcsname\uniq@MANY
+    \else
+      \immediate\write\uniq@channel{%
+        \string\uniq@setmany{#1}%
+      }%
+      \ifuniq{#1}{%
+        \uniq@warnnotunique{#1}%
+      }{}%
+    \fi
+    \global\@namedef{uniq@now@#1}{\uniq@MANY}%
   \fi
 }
 \newcommand\ifuniq[1]{%
   \expandafter\ifx\csname uniq@last@#1\endcsname\uniq@MANY
-  \expandafter \@secondoftwo
+    \expandafter\@secondoftwo
   \else
-  \expandafter\@firstoftwo
+    \expandafter\@firstoftwo
   \fi
 }
 \def\uniq@ONE{\uniq@ONE}
@@ -69,11 +70,11 @@
 }
 \def\uniq@warnifunique#1{%
   \expandafter\ifx\csname uniq@now@#1\endcsname\uniq@MANY\else
-  \PackageWarningNoLine{uniq}{%
-    `#1' is unique now.\MessageBreak
-    Rerun LaTeX to pick up the change%
-  }%
-  \@uniq@reruntrue
+    \PackageWarningNoLine{uniq}{%
+      `#1' is unique now.\MessageBreak
+      Rerun LaTeX to pick up the change%
+    }%
+    \@uniq@reruntrue
   \fi
 }
 \def\uniq@warnnotunique#1{%
@@ -85,10 +86,10 @@
 }
 \def\uniq@maybesuggestrerun{%
   \if@uniq@rerun
-  \PackageWarningNoLine{uniq}{%
-    Uniquenesses have changed. \MessageBreak
-    Rerun LaTeX to pick up the change%
-  }%
+    \PackageWarningNoLine{uniq}{%
+      Uniquenesses have changed. \MessageBreak
+      Rerun LaTeX to pick up the change%
+    }%
   \fi
 }
 \AtEndDocument{%
