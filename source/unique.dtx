@@ -15,7 +15,7 @@
 %<*code>
 %\fi
 %    Two macros are provided: |\setuniqmark| takes a single parameter,
-%    the name, which should be a string of letters. |\ifuniqmark| takes
+%    the name, which should be a string of letters. |\ifuniq| takes
 %    three parameters: a name, a true-part and a false-part. The true
 %    part is executed if and only if there was exactly one call to
 %    |\setuniqmark| with the given name during the previous \LaTeX\ run.
@@ -58,17 +58,18 @@
 %    \begin{macrocode}
 \newcommand\setuniqmark[1]{%
   \expandafter\ifx\csname uniq@now@#1\endcsname\relax
-  \global\@namedef{uniq@now@#1}{\uniq@ONE}%
+    \global\@namedef{uniq@now@#1}{\uniq@ONE}%
   \else
-  \expandafter\ifx\csname uniq@now@#1\endcsname\uniq@MANY\else
-  \immediate\write\uniq@channel{%
-    \string\uniq@setmany{#1}%
-  }%
-  \ifuniq{#1}{%
-    \uniq@warnnotunique{#1}%
-  }{}%
-  \fi
-  \global\@namedef{uniq@now@#1}{\uniq@MANY}%
+    \expandafter\ifx\csname uniq@now@#1\endcsname\uniq@MANY
+    \else
+      \immediate\write\uniq@channel{%
+        \string\uniq@setmany{#1}%
+      }%
+      \ifuniq{#1}{%
+        \uniq@warnnotunique{#1}%
+      }{}%
+    \fi
+    \global\@namedef{uniq@now@#1}{\uniq@MANY}%
   \fi
 }
 %    \end{macrocode}
@@ -77,19 +78,19 @@
 %    \begin{macro}{\ifuniq}
 %    Companion to |\setuniqmark|: if the uniqmark given in the first
 %    argument was called more than once, execute the second argument,
-%    otherwise execute the first argument. Note than no call to
+%    otherwise execute the third argument. Note that no call to
 %    |\setuniqmark| for a particular uniqmark at all means that this
 %    uniqmark is unique.
 %    
-%    This is a lazy version: we could always say false if we already had two calls
-%    to setuniqmark this run, but we have to rerun for any ifuniq prior
-%    to the first setuniqmark anyway, so why bother?
+%    This is a lazy version: we could always say false if we already had two
+%    calls to |\setuniqmark| this run, but we have to rerun for any |\ifuniq|
+%    prior to the first setuniqmark anyway, so why bother?
 %    \begin{macrocode}
 \newcommand\ifuniq[1]{%
   \expandafter\ifx\csname uniq@last@#1\endcsname\uniq@MANY
-  \expandafter \@secondoftwo
+    \expandafter\@secondoftwo
   \else
-  \expandafter\@firstoftwo
+    \expandafter\@firstoftwo
   \fi
 }
 %    \end{macrocode}
@@ -124,11 +125,11 @@
 %    \begin{macrocode}
 \def\uniq@warnifunique#1{%
   \expandafter\ifx\csname uniq@now@#1\endcsname\uniq@MANY\else
-  \PackageWarningNoLine{uniq}{%
-    `#1' is unique now.\MessageBreak
-    Rerun LaTeX to pick up the change%
-  }%
-  \@uniq@reruntrue
+    \PackageWarningNoLine{uniq}{%
+      `#1' is unique now.\MessageBreak
+      Rerun LaTeX to pick up the change%
+    }%
+    \@uniq@reruntrue
   \fi
 }
 %    \end{macrocode}
@@ -153,10 +154,10 @@
 %    \begin{macrocode}
 \def\uniq@maybesuggestrerun{%
   \if@uniq@rerun
-  \PackageWarningNoLine{uniq}{%
-    Uniquenesses have changed. \MessageBreak
-    Rerun LaTeX to pick up the change%
-  }%
+    \PackageWarningNoLine{uniq}{%
+      Uniquenesses have changed. \MessageBreak
+      Rerun LaTeX to pick up the change%
+    }%
   \fi
 }
 %    \end{macrocode}
