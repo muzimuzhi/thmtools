@@ -248,6 +248,7 @@
 \def\thmt@NO{no}
 \def\thmt@UNIQUE{unless unique}
 \newif\ifthmt@isnumbered
+\newif\ifthmt@isunlessunique
 
 \define@key{thmdef}{numbered}[\thmt@YES]{
   \def\thmt@tmp{#1}%
@@ -258,18 +259,25 @@
       \thmt@isnumberedfalse
     \else\ifx\thmt@tmp\thmt@UNIQUE
       \RequirePackage[unq]{unique}
-      \ifuniq{\thmt@envname}{%
-        \thmt@isnumberedfalse
-      }{%
-        \thmt@isnumberedtrue
-      }%
+      \thmt@isunlessuniquetrue
     \else
       \PackageError{thmtools}{Unknown value `#1' to key numbered}{}%
     \fi\fi\fi
   }{% trytwice: after definition
     \ifx\thmt@tmp\thmt@UNIQUE
-      \addtotheorempreheadhook[\thmt@envname]{\setuniqmark{\thmt@envname}}%
-      \addtotheorempreheadhook[\thmt@envname]{\def\thmt@dummyctrautorefname{\thmt@thmname\@gobble}}
+      \ifx\thmt@parent\@empty
+        \addtotheorempreheadhook[\thmt@envname]{\setuniqmark{\thmt@envname}}%
+      \else
+        \protected@edef\thmt@tmp{%
+          % expand \thmt@envname and \thmt@parent
+          \@nx\addtotheorempreheadhook[\thmt@envname @unique]{\@nx\setuniqmark{\thmt@envname.\@nx\@nameuse{the\thmt@parent}}}%
+          \@nx\addtotheorempreheadhook[\thmt@envname @numbered]{\@nx\setuniqmark{\thmt@envname.\@nx\@nameuse{the\thmt@parent}}}%
+          \@nx\addtotheorempreheadhook[\thmt@envname @unique]{\def\@nx\thmt@dummyctrautorefname{\thmt@thmname\@nx\@gobble}}%
+          \@nx\addtotheorempreheadhook[\thmt@envname @numbered]{\def\@nx\thmt@dummyctrautorefname{\thmt@thmname\@nx\@gobble}}%
+        }%
+        \thmt@tmp
+      \fi
+      % \addtotheorempreheadhook[\thmt@envname]{\def\thmt@dummyctrautorefname{\thmt@thmname\@gobble}}%
     \fi
   }%
 }
@@ -327,7 +335,7 @@
 \let\thmt@newtheorem\newtheorem
 
 % \declaretheorem[option list 1]{thmname list}[option list 1]
-% #1 = option list
+% #1 = option list 1
 % #2 = thmname list
 \newcommand\declaretheorem[2][]{%
   % TODO: use \NewDocumentCommand from xparse? 
@@ -357,15 +365,46 @@
   % init options
   \thmt@setparent{}%
   \thmt@setsibling{}%
-  \thmt@isnumberedtrue%
-  \@thmt@firstkeysettrue%
-  % set envname
+  \thmt@isnumberedtrue
+  \thmt@isunlessuniquefalse
   \def\thmt@envname{#1}%
   \thmt@setthmname{\thmt@modifycase #1}%
+  % use true code in \thmt@trytwice{<true>}{<false>}
+  \@thmt@firstkeysettrue
   % parse options
   \kvsetkeys{thmdef0}{#2}% parse option "style" first
-  \kvsetkeys{thmdef}{#2}% parse other options
+  \kvsetkeys{thmdef}{#2}%
   % call patched \newtheorem
+  \ifthmt@isunlessunique
+    \ifx\thmt@parent\@empty
+    % define normal "unless unique" thm env
+    \ifuniq{#1}{\thmt@isnumberedfalse}{\thmt@isnumberedtrue}%
+    \declaretheorem@iii{#1}%
+    \else
+      % define special "unless unique" thm env, 
+      % when "numbered=unless unique" and "numberwithin=<counter>" are both used
+      \declaretheorem@iv{#1}%
+      \thmt@isnumberedtrue
+      \declaretheorem@iii{#1@numbered}%
+      \thmt@isnumberedfalse
+      \declaretheorem@iii{#1@unique}%
+    \fi
+  \else
+    % define normal thm env
+    \declaretheorem@iii{#1}%
+  \fi
+  % use false code in \thmt@trytwice{<true>}{<false>}
+  \def\thmt@envname{#1}%
+  \@thmt@firstkeysetfalse
+  % uniquely ugly kludge: some keys make only sense afterwards.
+  % and it gets kludgier: again, the default-inherited 
+  % keys need to have a go at it.
+  \kvsetkeys{thmdef0}{#2}%
+  \kvsetkeys{thmdef}{#2}%
+}
+
+% define normal thm env, call \thmt@newtheorem
+\def\declaretheorem@iii#1{%
   \protected@edef\thmt@tmp{%
     \@nx\thmt@newtheorem
     \ifthmt@isnumbered
@@ -378,18 +417,30 @@
     \fi
     \relax% added so we can delimited-read everything later
   }%
+  \thmt@debug{Define theorem `#1' by ^^J\meaning\thmt@tmp}%
   \thmt@tmp
-  % uniquely ugly kludge: some keys make only sense afterwards.
-  % and it gets kludgier: again, the default-inherited 
-  % keys need to have a go at it.
-  \@thmt@firstkeysetfalse
-  % use false code in \thmt@trytwice{<true>}{<false>}
-  \kvsetkeys{thmdef0}{#2}%
-  \kvsetkeys{thmdef}{#2}%
 }
 
-% FIXME: not used?
-% \providecommand\thmt@quark{\thmt@quark}
+% define special thm env
+\def\declaretheorem@iv#1{%
+  \protected@edef\thmt@tmp{%
+    % expand \thmt@envname and \thmt@parent
+    \@nx\newenvironment{#1}{%
+      \@nx\ifuniq{\thmt@envname.\@nx\@nameuse{the\thmt@parent}}{%
+        \def\@nx\thmt@rawenvname{#1@unique}%
+      }{%
+        \def\@nx\thmt@rawenvname{#1@numbered}%
+      }%
+      \begin{\@nx\thmt@rawenvname}%
+    }{%
+      \end{\@nx\thmt@rawenvname}%
+    }%
+  }%
+  \thmt@debug{Define special theorem `#1' by ^^J\meaning\thmt@tmp}%
+  \thmt@tmp
+}
+
+\providecommand\thmt@quark{\thmt@quark}
 
 % in-document keyval, i.e. \begin{theorem}[key=val,key=val]
 
