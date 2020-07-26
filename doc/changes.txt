@@ -17,5 +17,10 @@
 2020-07-24 Yukai Chou
   
   * thm-kv.dtx:
-  made \declaretheorem[<option list>]{<thmname>} accept a clist in <thmname>
+  made \declaretheorem[<option list>]{<thmname>} accept a clist in <thmname>, #2
   made \declarethemrem accept an extra optional arg
+  made "numbered=unless unique" compatible with and aware of "numberwithin=<counter>", #3 & #4
+
+  * unique.dtx:
+  adjusted indent
+
