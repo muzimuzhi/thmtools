@@ -80,16 +80,17 @@
 \newcommand\listoftheorems[1][]{%
   %% much hacking here to pick up the definition from the class
   %% without oodles of conditionals.
-  \bgroup
+  \begingroup
   \setlisttheoremstyle{#1}%
   \let\listfigurename\listtheoremname
   \def\contentsline##1{%
     \csname thmt@contentsline@##1\endcsname{##1}%
   }%
   \@for\thmt@envname:=\thmt@allenvs\do{%
-  \@xa\protected@edef\csname l@\thmt@envname\endcsname{% CHECK: why p@edef?
-    \@nx\@dottedtocline{1}{1.5em}{\@nx\thmt@listnumwidth}%
-  }%
+    % CHECK: is \cs{l@\thmt@envname} repeatedly defined?
+    \@xa\protected@edef\csname l@\thmt@envname\endcsname{% CHECK: why p@edef?
+      \@nx\@dottedtocline{1}{1.5em}{\@nx\thmt@listnumwidth}%
+    }%
   }%
   \let\thref@starttoc\@starttoc
   \def\@starttoc##1{\thref@starttoc{loe}}%
@@ -108,7 +109,7 @@
   }%
   %\expandafter
   \listoffigures
-  \egroup
+  \endgroup
 }
 
 \newcommand\setlisttheoremstyle[1]{%
