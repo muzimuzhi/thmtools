@@ -22,7 +22,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-listof}[2020/07/26 v70]
+\ProvidesPackage {thm-listof}[2020/07/29 v71]
 \let\@xa=\expandafter
 \let\@nx=\noexpand
 \RequirePackage{thm-patch,keyval,kvsetkeys}
@@ -45,16 +45,17 @@
 \newcommand\listoftheorems[1][]{%
   %% much hacking here to pick up the definition from the class
   %% without oodles of conditionals.
-  \bgroup
+  \begingroup
   \setlisttheoremstyle{#1}%
   \let\listfigurename\listtheoremname
   \def\contentsline##1{%
     \csname thmt@contentsline@##1\endcsname{##1}%
   }%
   \@for\thmt@envname:=\thmt@allenvs\do{%
-  \@xa\protected@edef\csname l@\thmt@envname\endcsname{% CHECK: why p@edef?
-    \@nx\@dottedtocline{1}{1.5em}{\@nx\thmt@listnumwidth}%
-  }%
+    % CHECK: is \cs{l@\thmt@envname} repeatedly defined?
+    \@xa\protected@edef\csname l@\thmt@envname\endcsname{% CHECK: why p@edef?
+      \@nx\@dottedtocline{1}{1.5em}{\@nx\thmt@listnumwidth}%
+    }%
   }%
   \let\thref@starttoc\@starttoc
   \def\@starttoc##1{\thref@starttoc{loe}}%
@@ -73,7 +74,7 @@
   }%
   %\expandafter
   \listoffigures
-  \egroup
+  \endgroup
 }
 
 \newcommand\setlisttheoremstyle[1]{%
@@ -86,6 +87,19 @@
 \define@key{thmt-listof}{ignoreall}[true]{\ignoretheorems{\thmt@allenvs}}
 \define@key{thmt-listof}{showall}[true]{\showtheorems{\thmt@allenvs}}
 \define@key{thmt-listof}{title}{\def\listtheoremname{#1}}
+\newif\ifthmt@listswap
+\def\thmt@TRUE{true}
+\def\thmt@FALSE{false}
+\define@key{thmt-listof}{swapnumber}[true]{%
+  \def\thmt@tmp{#1}%
+  \ifx\thmt@tmp\thmt@TRUE
+    \thmt@listswaptrue
+  \else\ifx\thmt@tmp\thmt@FALSE
+    \thmt@listswapfalse
+  \else
+    \PackageError{thmtools}{Unknown value `#1' to key swapnumber}{}%
+  \fi\fi
+}
 
 \providecommand\thmt@listnumwidth{2.3em}
 
@@ -103,8 +117,12 @@
     }%
   \else
     \@xa\def\csname ll@\thmt@envname\endcsname{%
-      \protect\numberline{\csname the\thmt@envname\endcsname}%
-      \thmt@thmname
+      \protect\ifthmt@listswap
+        \thmt@thmname~\csname the\thmt@envname\endcsname
+      \protect\else
+        \protect\numberline{\csname the\thmt@envname\endcsname}%
+        \thmt@thmname
+      \protect\fi
       \ifx\@empty\thmt@shortoptarg\else\protect\thmtformatoptarg{\thmt@shortoptarg}\fi
     }%
   \fi

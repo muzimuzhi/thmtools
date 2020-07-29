@@ -22,7 +22,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-kv}[2020/07/26 v70]
+\ProvidesPackage {thm-kv}[2020/07/29 v71]
 
 \let\@xa\expandafter
 \let\@nx\noexpand
@@ -248,7 +248,7 @@
 \newif\ifthmt@isnumbered
 \newif\ifthmt@isunlessunique
 
-\define@key{thmdef}{numbered}[\thmt@YES]{
+\define@key{thmdef}{numbered}[yes]{
   \def\thmt@tmp{#1}%
   \thmt@trytwice{%
     \ifx\thmt@tmp\thmt@YES
@@ -330,7 +330,7 @@
   % xparse will be part of latex2e format from latex2e 2020 Oct.
   \@ifnextchar[%
     {\declaretheorem@i{#1}{#2}}
-    {\declaretheorem@i{#1}{#2}[]}
+    {\declaretheorem@i{#1}{#2}[]}%
 }
 \@onlypreamble\declaretheorem
 
