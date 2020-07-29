@@ -24,3 +24,10 @@
   * unique.dtx:
   adjusted indent
 
+2020-07-29 Yukai Chou
+
+  * thm-list.dtx:
+  provided new option "swapnumber"
+
+  * thm-kv.dtx:
+  fixed wrong default value of option "numbered"
