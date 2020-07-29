@@ -27,7 +27,7 @@
 2020-07-29 Yukai Chou
 
   * thm-list.dtx:
-  provided new option "swapnumber"
+  provided new option "swapnumber", #5
 
   * thm-kv.dtx:
   fixed wrong default value of option "numbered"

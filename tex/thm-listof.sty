@@ -111,7 +111,10 @@
   }%
   \ifthmt@isstarred
     \@xa\def\csname ll@\thmt@envname\endcsname{%
-      \protect\numberline{\protect\let\protect\autodot\protect\@empty}%
+      \protect\ifthmt@listswap
+      \protect\else
+        \protect\numberline{\protect\let\protect\autodot\protect\@empty}%
+      \protect\fi
       \thmt@thmname
       \ifx\@empty\thmt@shortoptarg\else\protect\thmtformatoptarg{\thmt@shortoptarg}\fi
     }%
