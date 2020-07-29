@@ -123,6 +123,19 @@
 % FMi 2019-09-31 allow local title
 \define@key{thmt-listof}{title}{\def\listtheoremname{#1}}
 % -- FMi
+\newif\ifthmt@listswap
+\def\thmt@TRUE{true}
+\def\thmt@FALSE{false}
+\define@key{thmt-listof}{swapnumber}[true]{%
+  \def\thmt@tmp{#1}%
+  \ifx\thmt@tmp\thmt@TRUE
+    \thmt@listswaptrue
+  \else\ifx\thmt@tmp\thmt@FALSE
+    \thmt@listswapfalse
+  \else
+    \PackageError{thmtools}{Unknown value `#1' to key swapnumber}{}%
+  \fi\fi
+}
 
 \providecommand\thmt@listnumwidth{2.3em}
 
@@ -140,8 +153,12 @@
     }%
   \else
     \@xa\def\csname ll@\thmt@envname\endcsname{%
-      \protect\numberline{\csname the\thmt@envname\endcsname}%
-      \thmt@thmname
+      \protect\ifthmt@listswap
+        \thmt@thmname~\csname the\thmt@envname\endcsname
+      \protect\else
+        \protect\numberline{\csname the\thmt@envname\endcsname}%
+        \thmt@thmname
+      \protect\fi
       \ifx\@empty\thmt@shortoptarg\else\protect\thmtformatoptarg{\thmt@shortoptarg}\fi
     }%
   \fi
