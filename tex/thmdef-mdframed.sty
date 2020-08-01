@@ -22,13 +22,12 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thmdef-mdframed}[2020/07/29 v71]
+\ProvidesPackage {thmdef-mdframed}[2020/08/01 v0.72]
 \define@key{thmdef}{mdframed}[{}]{%
   \thmt@trytwice{}{%
     \RequirePackage{mdframed}%
     \RequirePackage{thm-patch}%
-    \addtotheorempreheadhook[\thmt@envname]{%
-      \begin{mdframed}[#1]}%
+    \addtotheorempreheadhook[\thmt@envname]{\begin{mdframed}[#1]}%
     \addtotheorempostfoothook[\thmt@envname]{\end{mdframed}}%
   }%
 }
