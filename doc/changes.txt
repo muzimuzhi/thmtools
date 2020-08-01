@@ -14,7 +14,7 @@
   * general:
   updated license and maintenance status
 
-2020-07-24 Yukai Chou
+2020-07-24 Yukai Chou <muzimuzhi@gmail.com>
   
   * thm-kv.dtx:
   made \declaretheorem[<option list>]{<thmname>} accept a clist in <thmname>, #2
@@ -24,10 +24,15 @@
   * unique.dtx:
   adjusted indent
 
-2020-07-29 Yukai Chou
+2020-07-29 Yukai Chou <muzimuzhi@gmail.com>
 
   * thm-list.dtx:
-  provided new option "swapnumber", #5
+  provided new option "swapnumber" for \listoftheorems, #5
 
   * thm-kv.dtx:
   fixed wrong default value of option "numbered"
+
+2020-08-01 Yukai Chou <muzimuzhi@gmail.com>
+
+  * thm-list.dtx:
+  made \listoftheorems compatible with ams classes, #6

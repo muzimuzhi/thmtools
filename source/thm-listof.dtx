@@ -88,9 +88,7 @@
   }%
   \@for\thmt@envname:=\thmt@allenvs\do{%
     % CHECK: is \cs{l@\thmt@envname} repeatedly defined?
-    \@xa\protected@edef\csname l@\thmt@envname\endcsname{% CHECK: why p@edef?
-      \@nx\@dottedtocline{1}{1.5em}{\@nx\thmt@listnumwidth}%
-    }%
+    \thmtlo@newentry
   }%
   \let\thref@starttoc\@starttoc
   \def\@starttoc##1{\thref@starttoc{loe}}%
@@ -138,14 +136,29 @@
   \fi\fi
 }
 
-\providecommand\thmt@listnumwidth{2.3em}
+\ifdefined\@tocline
+  % for ams classes (amsart.cls, amsproc.cls, amsbook.cls) which 
+  % don't use \@dottedtocline and don't provide \@dotsep
+  \def\thmtlo@newentry{%
+    \@xa\def\csname l@\thmt@envname\endcsname{% CHECK: why p@edef?
+      % similar to \l@figure defined in ams classes
+      \@tocline{0}{3pt plus2pt}{0pt}{\thmt@listnumwidth}{}%
+    }%
+  }
+  \providecommand*\thmt@listnumwidth{1.5pc}
+\else
+  \def\thmtlo@newentry{%
+    \@xa\def\csname l@\thmt@envname\endcsname{% CHECK: why p@edef?
+      \@dottedtocline{1}{1.5em}{\thmt@listnumwidth}%
+    }%
+  }
+  \providecommand*\thmt@listnumwidth{2.3em}
+\fi
 
 \providecommand\thmtformatoptarg[1]{ (#1)}
 
 \newcommand\thmt@mklistcmd{%
-  \@xa\protected@edef\csname l@\thmt@envname\endcsname{% CHECK: why p@edef?
-    \@nx\@dottedtocline{1}{1.5em}{\@nx\thmt@listnumwidth}%
-  }%
+  \thmtlo@newentry
   \ifthmt@isstarred
     \@xa\def\csname ll@\thmt@envname\endcsname{%
       \protect\ifthmt@listswap
