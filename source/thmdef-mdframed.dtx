@@ -24,8 +24,7 @@
   \thmt@trytwice{}{%
     \RequirePackage{mdframed}%
     \RequirePackage{thm-patch}%
-    \addtotheorempreheadhook[\thmt@envname]{%
-      \begin{mdframed}[#1]}%
+    \addtotheorempreheadhook[\thmt@envname]{\begin{mdframed}[#1]}%
     \addtotheorempostfoothook[\thmt@envname]{\end{mdframed}}%
   }%
 }

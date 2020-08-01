@@ -28,17 +28,17 @@
 
 \usepackage{amsmath, amsthm}
 \usepackage{enumitem}
-\setlist[description, 1]{labelindent=2em, leftmargin=2em, rightmargin=2em, labelwidth=!}
+  \setlist[description, 1]{labelindent=2em, leftmargin=2em, rightmargin=2em, labelwidth=!}
 \usepackage{tikz}
-\usetikzlibrary{tikzmark}
+  \usetikzlibrary{tikzmark}
 
 \usepackage{nameref}
 \usepackage{hyperref}
-\hypersetup{
-  colorlinks,
-  linkcolor=RoyalBlue,
-  linktocpage
-}
+  \hypersetup{
+    colorlinks,
+    linkcolor=RoyalBlue,
+    linktoc=all
+  }
 \usepackage{cleveref}[2010/05/01]
 
 \usepackage{thmtools, thm-restate}
@@ -56,6 +56,10 @@
 \newcommand\key[2][\keydefaultcontext]{%
   % todo: create an index from this...
   \paragraph*{\texttt{#2}}
+}
+
+\newcommand\change[2]{%
+  (\textbf{#1: \textsf{#2}})%
 }
 
 \lstloadlanguages{[LaTeX]TeX}
@@ -77,8 +81,10 @@
 }
 \newenvironment{result}{%
   \hfill\minipage[t]{0.37\linewidth}
+  \vspace{1pt}%
 }{%
   \endminipage\strut\par
+  \vspace{3pt}%
 }
 %\MakeShortVerb{\|}
 \lstMakeShortInline{|}
@@ -118,6 +124,36 @@
 
 \declaretheorem[name=Theorem, refname={theorem,theorems},
     Refname={Theorem,Theorems}]{callmeal}
+
+% make the full toc entry clickable while only the page number part is colored
+% based on my own TeX-SX answer https://tex.stackexchange.com/a/555695
+\usepackage{xpatch}
+
+\makeatletter
+
+\xpatchcmd\contentsline
+  {%
+    \csname l@#1\endcsname{%
+      \hyper@linkstart{link}{\Hy@tocdestname}{#2}\hyper@linkend
+    }{%
+      \hyper@linkstart{link}{\Hy@tocdestname}{#3}\hyper@linkend
+    }%
+  }
+  {%
+    \csname l@#1\endcsname{%
+      \begingroup
+        \def\@linkcolor{black}%
+        \hyper@linkstart{link}{\Hy@tocdestname}{#2}\hyper@linkend
+      \endgroup
+    }{%
+      \hyper@linkstart{link}{\Hy@tocdestname}{#3}\hyper@linkend
+    }%
+  }
+  {}{\fail}
+
+% set default input path
+\def\input@path{{../source/}}
+\makeatother
 
 
 \input{VERSION.tex}
@@ -258,7 +294,7 @@
   \end{result}
   
   To save you from having to look up the name of the key every time, you can
-  also use ``title='' and ``heading='' instead of ``name=''; they do exactly
+  also use |title=| and |heading=| instead of |name=|; they do exactly
   the same and hopefully one of these will be easy to remember for you.
 
   Of course, you do not have to follow the abominal practice of numbering
@@ -347,7 +383,20 @@
       Buck \& Britta
     \end{couple}
   \end{result}
-
+  
+  \change{New}{2020/08/01} Actually, the mandatory argument of |\declaretheorem| accepts a list of environment names, so you can define similar theorems at once. Moreover, similar to |\setmainfont| from \pkg{fontspec} package, the key-value interface can be used both before and after the mandatory argument.
+  \begin{source}
+  \begin{preamble}[gobble=4]
+    \declaretheorem[numberwithin=section]
+      {theorem, definition}
+    \declaretheorem{lemma, proposition, corollary}[
+      style=plain, 
+      numberwithin=theorem
+    ]
+  \end{preamble}
+  \end{source}
+  
+  \clearpage
   \section{Frilly references}
 
   In case you didn't know, you should: \pkg{hyperref}, \pkg{nameref} and
@@ -366,8 +415,6 @@
     \begin{preamble}[gobble=6]
       \usepackage{amsthm, thmtools}
       \usepackage{
-        % nameref,%\nameref
-        % n.b. usually nameref is autoloaded by hyperref
         hyperref,%\autoref
         % n.b. \Autoref is defined by thmtools
         cleveref,% \cref
@@ -426,13 +473,15 @@
   \end{source}
   \begin{result}
     \begin{Theorem}
-      This is a theorem.
+      Note how it still retains the default style, 
+      `plain'.
     \end{Theorem}
     \begin{remark}
-      Note how it still retains the default style, `plain'.
+      This is a remark.
     \end{remark}
   \end{result}
   
+  \newpage
   Thmtools also supports the \pkg{shadethm} and \pkg{thmbox} packages:
   \begin{source}
   \begin{preamble}[gobble=4]
@@ -470,8 +519,8 @@
   name of a color that is already defined, without curly braces, or it can
   start with a curly brace, in which case it is assumed that
   |\definecolor{colorname}|$\langle$\textsl{what you said}$\rangle$ will be
-  valid \LaTeX\ code. In our case, we use the rbg model to manually specify
-  white. (|shadethm|'s default value is {\fboxsep=0pt \fcolorbox{black}[gray]{0.92}{\phantom{XX}}} |[gray]{0.92}|)
+  valid \LaTeX\ code. In our case, we use the |rgb| model to manually specify
+  white. (|shadethm|'s default background color is {\fboxsep=0pt \fcolorbox{black}[gray]{0.92}{\phantom{XX}}} |[gray]{0.92}|)
   
   For the \pkg{thmbox} package, use the |thmbox| key:
   \begin{source}
@@ -717,6 +766,7 @@
   \end{result}
 
   As might be expected, the heading given is defined in |\listtheoremname|.
+  %And finally, you can configure |\listoftheorems| in advance by |\setlisttheoremstyle{keys}|.
 
   \section{Extended arguments to theorem environments}
   
@@ -837,11 +887,11 @@
   
   \DocInput{thmdef-shaded.dtx}
 
-  \section{Case in point: the thmbox key}
+  \section{Case in point: the \texttt{thmbox} key}
 
   \DocInput{thmdef-thmbox.dtx}
 
-  \section{Case in point: the mdframed key}
+  \section{Case in point: the \texttt{mdframed} key}
   \DocInput{thmdef-mdframed.dtx}
   
   \section{How \thmtools\ finds your extensions}
@@ -983,16 +1033,15 @@
     this if your title starts with an accented character, for example.
 
   \key{name}
-    (Same as title.)
+    (Same as |title|.)
 
   \key{heading}
-    (Same as title.)
+    (Same as |title|.)
   
   \key{numbered}
     Value: one of the keywords |yes|, |no| or |unless unique|. The theorem
     will be numbered, not numbered, or only numbered if it occurs more than
-    once in the document. (The latter requires another \LaTeX\ run and will
-    not work well combined with |sibling|.)
+    once in the document. (The latter requires another \LaTeX\ run and works well combined with |sibling|.)
   
   \key{style}
     Value: the name of a style defined with |\declaretheoremstyle| or
@@ -1076,6 +1125,40 @@
   |\leavevmode| manually there.)
   An all-around |listhack| that handles both situations might come in a
   cleaner rewrite of the style system.
+
+  \section{Known keys to \texttt{\textbackslash listoftheorems}}
+  \def\keydefaultcontext{listof}
+  
+  \key{title} Value: title of |\listoftheorems|. Initially |List of Theorems|.
+  
+  \key{ignore} Value: list of theorem environment names. Filter out things by environment names. Default value is list of all defined theorem environments.
+  
+  \key{ignoreall} Ignore every theorem environment. This key is usually followed by keys |show| and |onlynamed|.
+  
+  \key{show} Value: list of theorem environments. Leave theorems that belong to specified list and filter out others. Default value is list of all defined theorem environments.
+  
+  \key{showall} The opposite effect of |ignoreall|.
+  
+  \key{onlynamed} Value: list of theorem environments. Leave things that are given an optional argument and belong to specified list, and filter out others. Default value is list of all defined theorem environments.
+  
+  \key{swapnumber} Value: |true| or |false|. Initially |false| and default value is |true|. No default.
+  \begin{source}
+    \begin{body}[gobble=6]
+      \listoftheorems[ignoreall, onlynamed={lemma}]
+      \listoftheorems[ignoreall, onlynamed={lemma},
+        swapnumber
+      ]
+    \end{body}
+  \end{source}
+  \begin{result}
+    \let\chapter\section
+    \let\clearpage\relax
+    \listoftheorems[ignoreall, onlynamed={lemma}]
+    \vspace{-1ex}
+    \listoftheorems[ignoreall, onlynamed={lemma}, swapnumber]
+  \end{result}
+  
+  \key{numwidth} Value: a length. If |swapnumber=false|, the theorem number is typeset in a box of of width |numwidth|. Initially |1.5pc| for AMS classes and |2.3em| for others.
 
   \section{Restatable -- hints and caveats}
 
