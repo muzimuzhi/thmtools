@@ -97,6 +97,15 @@
 %    let's just unconditionally create  |\theHctr|-macros for hyperref.
 %    \begin{macrocode}
         \@@gletover{theH#1}{theH#2}%
+%    \end{macrocode}
+%    Compatibility with \pkg{cleveref}
+%    \begin{macrocode}
+        \@ifpackageloaded{cleveref}{%
+          \cref@resetby{#2}{\cref@result}%
+          \ifx\cref@result\relax\else%
+            \cref@addtoreset{#1}{\cref@result}%
+          \fi
+        }{}%
         \@@gletover{p@#1}{p@#2}%
         \expandafter\global
         \expandafter\def\csname cl@#1\expandafter\endcsname
