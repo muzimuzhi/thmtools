@@ -93,15 +93,20 @@
         \@@gletover{c@#1}{c@#2}%
         \@@gletover{the#1}{the#2}%
 %    \end{macrocode}
-%    I don't see \@counteralias being called hundreds of times,
-%    let's just unconditionally create  |\theHctr|-macros for hyperref.
+%    I don't see |\@counteralias| being called hundreds of times,
+%    let's just unconditionally create  |\theHctr|-macros for \pkg{hyperref}.
 %    \begin{macrocode}
         \@@gletover{theH#1}{theH#2}%
 %    \end{macrocode}
-%    Compatibility with \pkg{cleveref}
+%    YkC: Compatibility with \pkg{cleveref}, copied from \pkg{cleveref}'s 
+%    support for \pkg{aliascnt}. 
+%    Here |\cref@resetby| requires its first argument to be the actual counter
+%    name, not a macro storing the name. Thanks to Willie Wong.
 %    \begin{macrocode}
         \@ifpackageloaded{cleveref}{%
-          \cref@resetby{#2}{\cref@result}%
+          \edef\aliasctr@temp{%
+            \noexpand\cref@resetby{#2}{\noexpand\cref@result}}%
+          \aliasctr@temp
           \ifx\cref@result\relax\else%
             \cref@addtoreset{#1}{\cref@result}%
           \fi
