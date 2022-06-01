@@ -22,7 +22,7 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {aliasctr}[2020/08/01 v0.72]
+\ProvidesPackage {aliasctr}[2022/06/01 v0.73]
 \def\aliasctr@f@llow#1#2\@nil#3{%
   \ifx#1\@elt
   \noexpand #3%
@@ -58,10 +58,18 @@
       \csname ##2\endcsname
     }%
     \@ifundefined{c@#2}{\@nocounterr{#2}}{%
-      \@ifdefinable{c@#1}{%
+      \expandafter\@ifdefinable\csname c@#1\endcsname{%
         \@@gletover{c@#1}{c@#2}%
         \@@gletover{the#1}{the#2}%
         \@@gletover{theH#1}{theH#2}%
+        \@ifpackageloaded{cleveref}{%
+          \edef\aliasctr@temp{%
+            \noexpand\cref@resetby{#2}{\noexpand\cref@result}}%
+          \aliasctr@temp
+          \ifx\cref@result\relax\else%
+            \cref@addtoreset{#1}{\cref@result}%
+          \fi
+        }{}%
         \@@gletover{p@#1}{p@#2}%
         \expandafter\global
         \expandafter\def\csname cl@#1\expandafter\endcsname
