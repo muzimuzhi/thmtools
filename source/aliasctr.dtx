@@ -79,7 +79,7 @@
       \csname ##2\endcsname
     }%
     \@ifundefined{c@#2}{\@nocounterr{#2}}{%
-      \@ifdefinable{c@#1}{%
+      \expandafter\@ifdefinable\csname c@#1\endcsname{%
 %    \end{macrocode}
 %    Four values make a counter foo:
 %    \begin{itemize}

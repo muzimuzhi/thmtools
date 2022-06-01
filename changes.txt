@@ -36,6 +36,16 @@
 
   * thm-list.dtx:
   made \listoftheorems compatible with ams classes, #6
-  
+
   * thmtools-manual.tex:
   documented new changes and keys of \listoftheorems
+
+2021-05-27 Yukai Chou <muzimuzhi@gmail.com>
+
+  * aliasctr.dtx:
+  made \@aliasctr compatible with cleveref, #22
+
+2022-06-01 Yukai Chou <muzimuzhi@gmail.com>
+
+  * aliasctr.dtx:
+  fixed wrong use of \@ifdefinable, #28
