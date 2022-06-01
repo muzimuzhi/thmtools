@@ -49,3 +49,8 @@
 
   * aliasctr.dtx:
   fixed wrong use of \@ifdefinable, #28
+
+2022-06-01 Yukai Chou <muzimuzhi@gmail.com>
+
+  * thm-autoref.dtx:
+  fixed non-global restoration for \cs{the\thmt@envname}, #27

@@ -33,7 +33,7 @@
   \ifthmt@hassibling
     \@counteralias{\thmt@envname}{\thmt@sibling}%
     \@xa\def\@xa\thmt@autoreffix\@xa{%
-      \@xa\let\csname the\thmt@envname\@xa\endcsname
+      \@xa\global\@xa\let\csname the\thmt@envname\@xa\endcsname
         \csname the\thmt@sibling\endcsname
       \def\thmt@autoreffix{}%
     }%
