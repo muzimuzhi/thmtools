@@ -26,11 +26,17 @@
 \define@key{thmdef}{thmbox}[L]{%
   \thmt@trytwice{%
     \let\oldproof=\proof
+    % backup \\proof, gh32
+    \expandafter\let\csname old\@backslashchar proof\expandafter\endcsname
+                    \csname    \@backslashchar proof\endcsname
     \let\oldendproof=\endproof
     \let\oldexample=\example
     \let\oldendexample=\endexample
     \RequirePackage[nothm]{thmbox}
     \let\proof=\oldproof
+    % restore thmbox's change to \\proof, gh32
+    \expandafter\let\csname    \@backslashchar proof\expandafter\endcsname
+                    \csname old\@backslashchar proof\endcsname
     \let\endproof=\oldendproof
     \let\example=\oldexample
     \let\endexample=\oldendexample

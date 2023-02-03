@@ -54,3 +54,8 @@
 
   * thm-autoref.dtx:
   fixed non-global restoration for \cs{the\thmt@envname}, #27
+
+2023-02-04 Yukai Chou <muzimuzhi@gmail.com>
+
+  * thmdef-thmbox.dtx:
+  canceled thmbox's modification to \\proof, #32
