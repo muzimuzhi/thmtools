@@ -59,3 +59,9 @@
 
   * thmdef-thmbox.dtx:
   canceled thmbox's modification to \\proof, #32
+
+2023-02-18 Yukai Chou <muzimuzhi@gmail.com>
+
+  * thmtools-manual.tex:
+  fell back to `doc` v2 to not overwrite redefinition of `\DescribeMacro`,
+  hence not typeset in marginal notes #33

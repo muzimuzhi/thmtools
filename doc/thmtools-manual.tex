@@ -14,13 +14,16 @@
 
 \usepackage[dvipsnames]{xcolor}
 
-\usepackage{doc,shortvrb,xspace}
+\usepackage{doc}[=v2] % to achieve max backward compatibility
+\usepackage{shortvrb,xspace}
 \makeatletter
 % to be fixed at some point...
-\let\PrintDescribeMacro\@gobble
-\let  \PrintDescribeEnv\@gobble
-\let    \PrintMacroName\@gobble
-\let      \PrintEnvName\@gobble
+\AtBeginDocument{% prepare for doc v3
+  \let\PrintDescribeMacro\@gobble
+  \let  \PrintDescribeEnv\@gobble
+  \let    \PrintMacroName\@gobble
+  \let      \PrintEnvName\@gobble
+}
 \makeatother
 \CodelineNumbered
 
