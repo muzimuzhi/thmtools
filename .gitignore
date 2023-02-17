@@ -1,8 +1,5 @@
-**/*.*
-
-!.gitignore
-
-!*.tex
-!*.sty
-!*.dtx
-!**/TODO
+doc/**
+!doc/*.tex
+# to have a reminder that doc dir may need a clean
+!doc/*.pdf
+!doc/*.log
