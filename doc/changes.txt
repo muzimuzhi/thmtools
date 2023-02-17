@@ -65,3 +65,4 @@
   * thmtools-manual.tex:
   fell back to `doc` v2 to not overwrite redefinition of `\DescribeMacro`,
   hence not typeset in marginal notes #33
+  adjusted pagination
