@@ -66,3 +66,6 @@
   fell back to `doc` v2 to not overwrite redefinition of `\DescribeMacro`,
   hence not typeset in marginal notes #33
   adjusted pagination
+
+  * thm-kv.dtx:
+  wrapped long code lines to avoid exceeding the page margin

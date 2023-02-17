@@ -270,14 +270,19 @@
       \else
         \protected@edef\thmt@tmp{%
           % expand \thmt@envname and \thmt@parent
-          \@nx\addtotheorempreheadhook[\thmt@envname @unique]{\@nx\setuniqmark{\thmt@envname.\@nx\@nameuse{the\thmt@parent}}}%
-          \@nx\addtotheorempreheadhook[\thmt@envname @numbered]{\@nx\setuniqmark{\thmt@envname.\@nx\@nameuse{the\thmt@parent}}}%
-          \@nx\addtotheorempreheadhook[\thmt@envname @unique]{\def\@nx\thmt@dummyctrautorefname{\thmt@thmname\@nx\@gobble}}%
-          \@nx\addtotheorempreheadhook[\thmt@envname @numbered]{\def\@nx\thmt@dummyctrautorefname{\thmt@thmname\@nx\@gobble}}%
+          \@nx\addtotheorempreheadhook[\thmt@envname @unique]{%
+            \@nx\setuniqmark{\thmt@envname.\@nx\@nameuse{the\thmt@parent}}}%
+          \@nx\addtotheorempreheadhook[\thmt@envname @numbered]{%
+            \@nx\setuniqmark{\thmt@envname.\@nx\@nameuse{the\thmt@parent}}}%
+          \@nx\addtotheorempreheadhook[\thmt@envname @unique]{%
+            \def\@nx\thmt@dummyctrautorefname{\thmt@thmname\@nx\@gobble}}%
+          \@nx\addtotheorempreheadhook[\thmt@envname @numbered]{%
+            \def\@nx\thmt@dummyctrautorefname{\thmt@thmname\@nx\@gobble}}%
         }%
         \thmt@tmp
       \fi
-      % \addtotheorempreheadhook[\thmt@envname]{\def\thmt@dummyctrautorefname{\thmt@thmname\@gobble}}%
+      % \addtotheorempreheadhook[\thmt@envname]{%
+      %   \def\thmt@dummyctrautorefname{\thmt@thmname\@gobble}}%
     \fi
   }%
 }
