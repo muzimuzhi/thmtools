@@ -22,22 +22,22 @@
 %% 
 %% 
 \NeedsTeXFormat {LaTeX2e}
-\ProvidesPackage {thm-kv}[2023/02/17 v0.75]
+\ProvidesPackage {thm-kv}[2023/05/03 v0.76]
 
 \let\@xa\expandafter
 \let\@nx\noexpand
 
 \DeclareOption{lowercase}{%
   \PackageInfo{thm-kv}{Theorem names will be lowercased}%
-  \global\let\thmt@modifycase\MakeLowercase}
+  \global\protected\def\thmt@modifycase{\MakeLowercase}}
 
 \DeclareOption{uppercase}{%
   \PackageInfo{thm-kv}{Theorem names will be uppercased}%
-  \global\let\thmt@modifycase\MakeUppercase}
+  \global\protected\def\thmt@modifycase{\MakeUppercase}}
 
 \DeclareOption{anycase}{%
   \PackageInfo{thm-kv}{Theorem names will be unchanged}%
-  \global\let\thmt@modifycase\@empty}
+  \global\protected\def\thmt@modifycase{}}
 
 \ExecuteOptions{uppercase}
 \ProcessOptions\relax
