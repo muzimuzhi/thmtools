@@ -69,3 +69,9 @@
 
   * thm-kv.dtx:
   wrapped long code lines to avoid exceeding the page margin
+
+2023-05-03 Yukai Chou <muzimuzhi@gmail.com>
+
+  * thm-kv.dtx:
+  worked around an `ntheorem` issue that the theorem title cannot contain direct
+  brackets #36
