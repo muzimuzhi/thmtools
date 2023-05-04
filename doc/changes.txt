@@ -70,8 +70,9 @@
   * thm-kv.dtx:
   wrapped long code lines to avoid exceeding the page margin
 
-2023-05-03 Yukai Chou <muzimuzhi@gmail.com>
+2023-05-04 Yukai Chou <muzimuzhi@gmail.com>
 
   * thm-kv.dtx:
   worked around an `ntheorem` issue that the theorem title cannot contain direct
-  brackets #36
+  brackets, which may come from the expansion of new `\MakeUppercase` or
+  `\MakeLowercase`, starting from LaTeX2e 2022-11-01.  #36
