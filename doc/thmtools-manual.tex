@@ -969,7 +969,7 @@
 
   \key{bodyfont} 
     Value: \TeX\ code. Executed before the begin part of the theorem ends,
-    but before all afterheadhooks. Intended use it to put font switches here.
+    but before all afterheadhooks. Intended use is to put font switches here.
   
   \key{headpunct}
     Value: \TeX\ code, usually a single character. Put at the end of the
@@ -982,9 +982,12 @@
 
   \key{postheadspace}
     Value: a length. Horizontal space inserted after the entire head of the
-    theorem, before the body. Does probably not apply (or make sense) for
+    theorem, before the body. Probably does not apply (or make sense) for
     styles that have a linebreak after the head.
-
+    
+  \key{break}
+    No value. Adds a linebreak after the head. Do not use with \texttt{postheadspace}.
+    
   \key{headformat}
     Value: \LaTeX\ code using the special placeholders |\NUMBER|, |\NAME|
     and |\NOTE|, which correspond to the (formatted, including the braces
