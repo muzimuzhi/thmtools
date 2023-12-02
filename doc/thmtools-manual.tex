@@ -965,7 +965,7 @@
     Value: \TeX\ code. Executed just before the note in the head is typeset, inside a group. 
     Intended use it to put font switches here. Formatting also applies to
     the braces around the note.
-    Not supported by \pkg{ntheorem}.
+    (Not supported by \pkg{ntheorem}.)
 
   \key{bodyfont} 
     Value: \TeX\ code. Executed before the begin part of the theorem ends,
@@ -982,9 +982,12 @@
 
   \key{postheadspace}
     Value: a length. Horizontal space inserted after the entire head of the
-    theorem, before the body. Does probably not apply (or make sense) for
+    theorem, before the body. Probably does not apply (or make sense) for
     styles that have a linebreak after the head.
-
+    
+  \key{break}
+    No value. Adds a linebreak after the head. Do not use with \texttt{postheadspace}.
+    
   \key{headformat}
     Value: \LaTeX\ code using the special placeholders |\NUMBER|, |\NAME|
     and |\NOTE|, which correspond to the (formatted, including the braces
@@ -1005,7 +1008,11 @@
   \key{headindent}
     Value: a length. Horizontal space inserted before the head. Some
     publishers like |\parindent| here for remarks, for example.
+    (Not supported by \pkg{ntheorem}.)
 
+  \key{qed}
+    Value: \TeX\ code. The symbol inserted at the end of the theorem.
+    (Supported by \pkg{ntheorem} with option \texttt{thmmarks} loaded.)
 
   \section{Known keys to \texttt{\textbackslash declaretheorem}}
   \def\keydefaultcontext{declaretheorem}
