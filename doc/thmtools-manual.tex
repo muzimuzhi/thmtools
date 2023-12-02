@@ -45,7 +45,7 @@
   }
 \usepackage{cleveref}[2010/05/01]
 
-\usepackage{thmtools, thm-restate}
+\usepackage{thmtools}
 \usepackage[unq]{unique}
 
 \providecommand\pkg[1]{\textsf{#1}}
@@ -301,7 +301,7 @@
   also use |title=| and |heading=| instead of |name=|; they do exactly
   the same and hopefully one of these will be easy to remember for you.
 
-  Of course, you do not have to follow the abominal practice of numbering
+  Of course, you do not have to follow the abominable practice of numbering
   theorems, lemmas, etc., separately:  
   \begin{source}
   \begin{preamble}[gobble=4]
@@ -677,7 +677,7 @@
   \autoref{thm:euclid} on p.\,\pageref{thm:euclid}: the true code used was
   \begin{source}
     \begin{preamble}[gobble=6]
-      \usepackage{thmtools, thm-restate}
+      \usepackage{thmtools}
       \declaretheorem{theorem}
     \end{preamble}
     \begin{body}[gobble=6]
@@ -711,7 +711,7 @@
   p.\,\pageref{thm:euclid}, where the unstarred environment is used. (You can
   also use a starred environment and an unstarred command, in which case the
   behaviour is reversed.) Also, if you use \pkg{hyperref} (like you see in this manual), the links will lead you
-  to the unstarred occurence.
+  to the unstarred occurrence.
   
   Just to demonstrate that we also handle more involved cases, I repeat
   another theorem here, but this one was numbered within its section: note
@@ -969,7 +969,7 @@
 
   \key{bodyfont} 
     Value: \TeX\ code. Executed before the begin part of the theorem ends,
-    but before all afterheadhooks. Intended use is to put font switches here.
+    but before all postheadhooks. Intended use it to put font switches here.
   
   \key{headpunct}
     Value: \TeX\ code, usually a single character. Put at the end of the
@@ -993,7 +993,7 @@
     and |\NOTE|, which correspond to the (formatted, including the braces
     for |\NOTE| etc.) three parts of a theorem's head. This can be used to
     override the usual style ``1.1 Theorem (Foo)'', for example to let the
-    numbers protude in the margin or put them after the name.
+    numbers protrude in the margin or put them after the name.
     
     Additionally, a number of keywords are allowed here instead of \LaTeX\
     code:

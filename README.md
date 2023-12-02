@@ -1,7 +1,7 @@
 The `thmtools` bundle provides several packages for commonly-needed 
 features for theorems. As designed, the bundle should work with kernel
 theorems (theorems ‘out of the box’ with LaTeX), 
-the [`amsthm`](https://ctan.org/pkg/amsmath) package and 
+the [`amsthm`](https://ctan.org/pkg/amsthm) package and 
 the [`ntheorem`](https://ctan.org/pkg/ntheorem) package.
     
 Provided features:
