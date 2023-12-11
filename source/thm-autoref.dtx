@@ -60,7 +60,7 @@
 \ifcsname Autoref\endcsname\else
 \let\thmt@HyRef@testreftype\HyRef@testreftype
 \def\HyRef@Testreftype#1.#2\\{%
-  \ltx@IfUndefined{#1Autorefname}{%
+  \@ifundefined{#1Autorefname}{%
     \thmt@HyRef@testreftype#1.#2\\%
   }{%
     \edef\HyRef@currentHtag{%
@@ -74,7 +74,7 @@
 \let\thmt@HyPsd@@autorefname\HyPsd@@autorefname
 \def\HyPsd@@Autorefname#1.#2\@nil{%
   \tracingall
-  \ltx@IfUndefined{#1Autorefname}{%
+  \@ifundefined{#1Autorefname}{%
     \thmt@HyPsd@@autorefname#1.#2\@nil
   }{%
     \csname#1Autorefname\endcsname\space
