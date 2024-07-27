@@ -83,6 +83,7 @@
   \begingroup
   \setlisttheoremstyle{#1}%
   \let\listfigurename\listtheoremname
+  \let\thmt@contentsline\contentsline
   \def\contentsline##1{%
     \csname thmt@contentsline@##1\endcsname{##1}%
   }%
@@ -226,7 +227,6 @@
 }{%
   \let\thmt@hygobble\@empty
 }
-\let\thmt@contentsline\contentsline
 }
 
 \def\thmt@contentslineIgnore#1#2#3{%
