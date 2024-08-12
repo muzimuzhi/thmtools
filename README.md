@@ -6,7 +6,7 @@ the [`ntheorem`](https://ctan.org/pkg/ntheorem) package.
     
 Provided features:
  - a keyval interface to `\newtheorem` and `\newtheoremstyle`
- - a `\listoftheorem` command with filtering ability
+ - a `\listoftheorems` command with filtering ability
  - [`hyperref`](https://ctan.org/pkg/hyperref) and [`cleveref`](https://ctan.org/pkg/cleveref) compatibility
  - a way of restating entire theorems with a single macro call
 
