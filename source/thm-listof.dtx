@@ -145,6 +145,10 @@
       % similar to \l@figure defined in ams classes
       \@tocline{0}{3pt plus2pt}{0pt}{\thmt@listnumwidth}{}%
     }%
+    % for hyperref and the tagging project, see #70
+    % It's needed/checked when writing toc-like entries to .aux, even
+    % if the theorem list is not actually typeset.
+    \@namedef{toclevel@\thmt@envname}{1}%
   }
   \providecommand*\thmt@listnumwidth{1.5pc}
 \else
@@ -152,6 +156,7 @@
     \@xa\def\csname l@\thmt@envname\endcsname{% CHECK: why p@edef?
       \@dottedtocline{1}{1.5em}{\thmt@listnumwidth}%
     }%
+    \@namedef{toclevel@\thmt@envname}{1}%
   }
   \providecommand*\thmt@listnumwidth{2.3em}
 \fi
